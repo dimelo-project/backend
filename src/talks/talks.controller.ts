@@ -14,6 +14,9 @@ export class TalksController {
   @Get()
   getAllTalks(@Query('category') category: string) {}
 
+  @Get('/:id')
+  getTalk(@Param('id', ParseIntPipe) id: number) {}
+
   @Post()
   createTalk() {}
 
