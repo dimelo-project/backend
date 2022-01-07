@@ -34,7 +34,7 @@ export class CoursesController {
   @Delete('/likes/:id')
   dislikeCourse(@Param('id', ParseIntPipe) id: number) {}
 
-  @Get('/instructor/:instructor_id')
+  @Get('/instructors/:instructor_id')
   getCoursesByInstructor(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
   ) {}

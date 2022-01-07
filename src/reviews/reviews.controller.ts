@@ -28,7 +28,7 @@ export class ReviewsController {
     @Param('id', ParseIntPipe) id: number,
   ) {}
 
-  @Get('/instructor/:instructor_id')
+  @Get('/instructors/:instructor_id')
   getAllReviewsOfInstructur(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
   ) {}
@@ -36,7 +36,7 @@ export class ReviewsController {
   @Get('/me')
   getMyAllReviews() {}
 
-  @Get('/user/:user_id')
+  @Get('/users/:user_id')
   getAllReviewsByUser(@Param('user_id', ParseIntPipe) user_id: number) {}
 
   @Post('/helped/:id')
