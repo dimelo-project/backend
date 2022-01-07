@@ -8,7 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 
-@Controller('courses')
+@Controller('api/courses')
 export class CoursesController {
   @Get()
   getCourses(
