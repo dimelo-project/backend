@@ -1,4 +1,7 @@
+import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -12,9 +15,17 @@ import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 @ApiTags('USER')
 @Controller('api/users')
 export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
   @ApiOperation({ summary: '회원 가입' })
   @Post('/signup')
-  signup() {}
+  async signup(@Body() data: CreateUserDto) {
+    await this.usersService.createUser(
+      data.email,
+      data.nickname,
+      data.password,
+    );
+  }
 
   @ApiOperation({ summary: '로그인' })
   @Post('/login')
