@@ -15,7 +15,7 @@ import { Users } from './Users';
 @Index('FK_study_comment_user_idx', ['userId'], {})
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('sutdies_comments', { schema: 'dimelo' })
-export class SutdiesComments {
+export class StudiesComments {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
@@ -34,14 +34,14 @@ export class SutdiesComments {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Studies, (studies) => studies.SutdiesComments, {
+  @ManyToOne(() => Studies, (studies) => studies.StudiesComments, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'study_id', referencedColumnName: 'id' }])
   Study: Studies;
 
-  @ManyToOne(() => Users, (users) => users.SutdiesComments, {
+  @ManyToOne(() => Users, (users) => users.StudiesComments, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })

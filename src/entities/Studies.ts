@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { Users } from './Users';
 import { StudiesSkills } from './StudiesSkills';
-import { SutdiesComments } from './SutdiesComments';
+import { StudiesComments } from './StudiesComments';
 
 @Index('FK_study_user_idx', ['userId'], {})
 @Index('id_UNIQUE', ['id'], { unique: true })
@@ -55,6 +55,6 @@ export class Studies {
   @ManyToMany(() => StudiesSkills, (studiesSkills) => studiesSkills.Studies)
   StudiesSkills: StudiesSkills[];
 
-  @OneToMany(() => SutdiesComments, (sutdiesComments) => sutdiesComments.Study)
-  SutdiesComments: SutdiesComments[];
+  @OneToMany(() => StudiesComments, (studiesComments) => studiesComments.Study)
+  StudiesComments: StudiesComments[];
 }

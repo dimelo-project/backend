@@ -14,7 +14,7 @@ import { Projects } from './Projects';
 import { ProjectsComments } from './ProjectsComments';
 import { Reviews } from './Reviews';
 import { Studies } from './Studies';
-import { SutdiesComments } from './SutdiesComments';
+import { StudiesComments } from './StudiesComments';
 import { Talks } from './Talks';
 import { TalksComments } from './TalksComments';
 
@@ -77,8 +77,8 @@ export class Users {
   @OneToMany(() => Studies, (studies) => studies.User)
   Studies: Studies[];
 
-  @OneToMany(() => SutdiesComments, (sutdiesComments) => sutdiesComments.User)
-  SutdiesComments: SutdiesComments[];
+  @OneToMany(() => StudiesComments, (studiesComments) => studiesComments.User)
+  StudiesComments: StudiesComments[];
 
   @OneToMany(() => Talks, (talks) => talks.User)
   Talks: Talks[];
