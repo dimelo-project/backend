@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   Entity,
@@ -12,9 +13,17 @@ import { Studies } from './Studies';
 @Index('skill_UNIQUE', ['skill'], { unique: true })
 @Entity('studies_skills', { schema: 'dimelo' })
 export class StudiesSkills {
+  @ApiProperty({
+    example: 1,
+    description: 'study의 skill id',
+  })
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
+  @ApiProperty({
+    example: '자바스크립트',
+    description: '스터디 스킬'
+  })
   @Column('varchar', { name: 'skill', unique: true, length: 45 })
   skill: string;
 
