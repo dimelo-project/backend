@@ -1,4 +1,5 @@
-import { UserDto } from './../common/dto/user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { ReturnUserDto } from './dto/return-user.dto';
 import { NotLoggedInGuard } from './../auth/not-logged-in.guard';
 import { LoggedInGuard } from './../auth/logged-in.guard';
 import { LocalAuthGuard } from './../auth/local.auth.guard';
@@ -18,19 +19,17 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiOkResponse,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('USER')
 @Controller('api/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ApiResponse({
+    status: 201,
+    description: '회원가입 성공',
+  })
   @ApiOperation({ summary: '회원 가입' })
   @UseGuards(new NotLoggedInGuard())
   @Post('/signup')
@@ -42,9 +41,10 @@ export class UsersController {
     );
   }
 
-  @ApiOkResponse({
+  @ApiResponse({
+    status: 201,
     description: '로그인 성공',
-    type: UserDto,
+    type: ReturnUserDto,
   })
   @ApiResponse({
     status: 401,
@@ -53,7 +53,7 @@ export class UsersController {
   @ApiOperation({ summary: '로그인' })
   @UseGuards(LocalAuthGuard)
   @Post('/login')
-  login(@User() user) {
+  login(@User() user, @Body() data: LoginUserDto) {
     return user;
   }
 

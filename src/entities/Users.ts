@@ -18,6 +18,7 @@ import { Studies } from './Studies';
 import { StudiesComments } from './StudiesComments';
 import { Talks } from './Talks';
 import { TalksComments } from './TalksComments';
+import { IsEmail, IsString } from 'class-validator';
 
 @Index('email_UNIQUE', ['email'], { unique: true })
 @Index('id_UNIQUE', ['id'], { unique: true })
@@ -31,6 +32,7 @@ export class Users {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
+  @IsEmail()
   @ApiProperty({
     example: 'vltndus95@gmail.com',
     description: '사용자 이메일',
@@ -38,6 +40,7 @@ export class Users {
   @Column('varchar', { name: 'email', unique: true, length: 30 })
   email: string;
 
+  @IsString()
   @ApiProperty({
     example: 'Avery',
     description: '사용자 닉네임',
@@ -45,6 +48,7 @@ export class Users {
   @Column('varchar', { name: 'nickname', unique: true, length: 30 })
   nickname: string;
 
+  @IsString()
   @ApiProperty({
     example: '123123',
     description: '사용자 비밀번호',
