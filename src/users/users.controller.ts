@@ -1,3 +1,4 @@
+import { UserDto } from './../common/dto/user.dto';
 import { NotLoggedInGuard } from './../auth/not-logged-in.guard';
 import { LoggedInGuard } from './../auth/logged-in.guard';
 import { LocalAuthGuard } from './../auth/local.auth.guard';
@@ -17,7 +18,13 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @ApiTags('USER')
 @Controller('api/users')
@@ -35,6 +42,14 @@ export class UsersController {
     );
   }
 
+  @ApiOkResponse({
+    description: '로그인 성공',
+    type: UserDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
   @ApiOperation({ summary: '로그인' })
   @UseGuards(LocalAuthGuard)
   @Post('/login')
