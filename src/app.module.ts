@@ -3,6 +3,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { CoursesModule } from './courses/courses.module';
 import { ReviewsModule } from './reviews/reviews.module';
@@ -14,6 +15,7 @@ import ormconfig from '../ormconfig';
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    AuthModule,
     UsersModule,
     CoursesModule,
     ReviewsModule,

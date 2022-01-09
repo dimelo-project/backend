@@ -1,3 +1,8 @@
+import { UserDto } from './../common/dto/user.dto';
+import { NotLoggedInGuard } from './../auth/not-logged-in.guard';
+import { LoggedInGuard } from './../auth/logged-in.guard';
+import { LocalAuthGuard } from './../auth/local.auth.guard';
+import { User } from './../common/decorators/user.decorator';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import {
@@ -9,8 +14,17 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
+  Res,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @ApiTags('USER')
 @Controller('api/users')
@@ -18,6 +32,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({ summary: '회원 가입' })
+  @UseGuards(new NotLoggedInGuard())
   @Post('/signup')
   async signup(@Body() data: CreateUserDto) {
     await this.usersService.createUser(
@@ -27,13 +42,29 @@ export class UsersController {
     );
   }
 
+  @ApiOkResponse({
+    description: '로그인 성공',
+    type: UserDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
   @ApiOperation({ summary: '로그인' })
+  @UseGuards(LocalAuthGuard)
   @Post('/login')
-  login() {}
+  login(@User() user) {
+    return user;
+  }
 
+  @UseGuards(new LoggedInGuard())
   @ApiOperation({ summary: '로그아웃' })
   @Post('/logout')
-  logout() {}
+  logout(@Req() req, @Res() res) {
+    req.logOut();
+    res.clearCookie('connect.sid', { httpOnly: true });
+    res.send('로그아웃 되었습니다');
+  }
 
   @ApiOperation({ summary: '이메일 중복 확인' })
   @Post('/check/email')
