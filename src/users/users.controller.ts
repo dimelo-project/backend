@@ -1,3 +1,5 @@
+import { NotLoggedInGuard } from './../auth/not-logged-in.guard';
+import { LoggedInGuard } from './../auth/logged-in.guard';
 import { LocalAuthGuard } from './../auth/local.auth.guard';
 import { User } from './../common/decorators/user.decorator';
 import { UsersService } from './users.service';
@@ -23,6 +25,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({ summary: '회원 가입' })
+  @UseGuards(new NotLoggedInGuard())
   @Post('/signup')
   async signup(@Body() data: CreateUserDto) {
     await this.usersService.createUser(
@@ -39,9 +42,14 @@ export class UsersController {
     return user;
   }
 
+  @UseGuards(new LoggedInGuard())
   @ApiOperation({ summary: '로그아웃' })
   @Post('/logout')
-  logout() {}
+  logout(@Req() req, @Res() res) {
+    req.logOut();
+    res.clearCookie('connect.sid', { httpOnly: true });
+    res.send('로그아웃 되었습니다');
+  }
 
   @ApiOperation({ summary: '이메일 중복 확인' })
   @Post('/check/email')
