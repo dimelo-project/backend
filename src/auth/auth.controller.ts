@@ -1,3 +1,4 @@
+import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from './../users/dto/create-user.dto';
 import { NotLoggedInGuard } from './not-logged-in.guard';
 import { LoggedInGuard } from './logged-in.guard';
@@ -6,7 +7,15 @@ import { User } from './../common/decorators/user.decorator';
 import { LocalAuthGuard } from './local.auth.guard';
 import { ReturnUserDto } from './../users/dto/return-user.dto';
 import { AuthService } from './auth.service';
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiResponse, ApiOperation } from '@nestjs/swagger';
 
 @Controller('api/auth')
@@ -47,5 +56,15 @@ export class AuthController {
     req.logOut();
     res.clearCookie('connect.sid', { httpOnly: true });
     res.send('로그아웃 되었습니다');
+  }
+
+  @Get('/google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {}
+
+  @Get('/google/redirect')
+  @UseGuards(AuthGuard('google'))
+  googleAuthRedirect(@Req() req) {
+    return this.authSerivce.googleLogin(req);
   }
 }
