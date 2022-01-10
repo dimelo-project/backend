@@ -1,3 +1,4 @@
+import { GithubStrategy } from './github.strategy';
 import { GoogleStrategy } from './google.strategy';
 import { AuthController } from './auth.controller';
 import { LocalSerializer } from './local.serializer';
@@ -14,6 +15,12 @@ import { Users } from '../entities/Users';
     TypeOrmModule.forFeature([Users]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, LocalStrategy, LocalSerializer],
+  providers: [
+    AuthService,
+    GoogleStrategy,
+    GithubStrategy,
+    LocalStrategy,
+    LocalSerializer,
+  ],
 })
 export class AuthModule {}

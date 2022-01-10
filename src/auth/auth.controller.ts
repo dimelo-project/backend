@@ -58,13 +58,23 @@ export class AuthController {
     res.send('로그아웃 되었습니다');
   }
 
-  @Get('/google')
   @UseGuards(AuthGuard('google'))
+  @Get('/google')
   async googleAuth(@Req() req) {}
 
-  @Get('/google/redirect')
   @UseGuards(AuthGuard('google'))
+  @Get('/google/redirect')
   googleAuthRedirect(@Req() req) {
-    return this.authSerivce.googleLogin(req);
+    return req.user;
+  }
+
+  @UseGuards(AuthGuard('github'))
+  @Get('/github')
+  async githubAuth(@Req() req) {}
+
+  @UseGuards(AuthGuard('github'))
+  @Get('/github/callback')
+  githubAuthCallback(@Req() req) {
+    return req.user;
   }
 }

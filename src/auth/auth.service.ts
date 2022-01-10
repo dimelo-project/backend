@@ -1,9 +1,10 @@
+import { GithubLoginUserDto } from './dto/github-login-user.dto';
 import bcrypt from 'bcrypt';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from '../entities/Users';
-import { GoogleCreateUserDto } from './dto/google-create-user.dto';
+import { GoogleLoginUserDto } from './dto/google-login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -50,7 +51,13 @@ export class AuthService {
     return null;
   }
 
-  async googleSignUp(user: GoogleCreateUserDto) {
+  async googleSignUp(user: GoogleLoginUserDto) {
+    const foundGoogle = await this.usersRepository.findOne({
+      where: { email: user.email, googleId: user.googleId },
+    });
+    if (foundGoogle) {
+      return foundGoogle;
+    }
     const found = await this.usersRepository.findOne({
       where: { email: user.email },
     });
@@ -64,13 +71,23 @@ export class AuthService {
     return this.usersRepository.save(user);
   }
 
-  googleLogin(req) {
-    if (!req.user) {
-      return 'No user from google';
+  async githubSignUp(user: GithubLoginUserDto) {
+    const foundGithub = await this.usersRepository.findOne({
+      where: { email: user.email, githubId: user.githubId },
+    });
+    if (foundGithub) {
+      foundGithub;
     }
-    return {
-      message: 'User information from google',
-      user: req.user,
-    };
+    const found = await this.usersRepository.findOne({
+      where: { email: user.email },
+    });
+    if (found) {
+      const githubConnected = {
+        ...found,
+        githubId: user.githubId,
+      };
+      return this.usersRepository.save(githubConnected);
+    }
+    return this.usersRepository.save(user);
   }
 }
