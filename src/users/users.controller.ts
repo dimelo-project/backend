@@ -26,46 +26,6 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @ApiResponse({
-    status: 201,
-    description: '회원가입 성공',
-  })
-  @ApiOperation({ summary: '회원 가입' })
-  @UseGuards(new NotLoggedInGuard())
-  @Post('/signup')
-  async signup(@Body() data: CreateUserDto) {
-    await this.usersService.createUser(
-      data.email,
-      data.nickname,
-      data.password,
-    );
-  }
-
-  @ApiResponse({
-    status: 201,
-    description: '로그인 성공',
-    type: ReturnUserDto,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized',
-  })
-  @ApiOperation({ summary: '로그인' })
-  @UseGuards(LocalAuthGuard)
-  @Post('/login')
-  login(@User() user, @Body() data: LoginUserDto) {
-    return user;
-  }
-
-  @UseGuards(new LoggedInGuard())
-  @ApiOperation({ summary: '로그아웃' })
-  @Post('/logout')
-  logout(@Req() req, @Res() res) {
-    req.logOut();
-    res.clearCookie('connect.sid', { httpOnly: true });
-    res.send('로그아웃 되었습니다');
-  }
-
   @ApiOperation({ summary: '이메일 중복 확인' })
   @Post('/check/email')
   checkEmail() {}

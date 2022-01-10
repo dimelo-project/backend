@@ -1,3 +1,5 @@
+import { GoogleStrategy } from './google.strategy';
+import { AuthController } from './auth.controller';
 import { LocalSerializer } from './local.serializer';
 import { LocalStrategy } from './local.strategy';
 import { AuthService } from './auth.service';
@@ -11,6 +13,7 @@ import { Users } from '../entities/Users';
     PassportModule.register({ session: true }),
     TypeOrmModule.forFeature([Users]),
   ],
-  providers: [AuthService, LocalStrategy, LocalSerializer],
+  controllers: [AuthController],
+  providers: [AuthService, GoogleStrategy, LocalStrategy, LocalSerializer],
 })
 export class AuthModule {}
