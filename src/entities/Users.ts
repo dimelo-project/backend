@@ -85,8 +85,11 @@ export class Users {
   @Column('text', { name: 'introduction', nullable: true })
   introduction: string | null;
 
-  @Column('varchar', { name: 'google_id', nullable: true })
-  googleId: string | null;
+  @Column('int', { name: 'google_id', nullable: true })
+  googleId: number | null;
+
+  @Column('int', { name: 'github_id', nullable: true })
+  githubId: number | null;
 
   @CreateDateColumn()
   createdAt: Date;
