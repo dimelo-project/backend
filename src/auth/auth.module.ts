@@ -1,3 +1,4 @@
+import { AuthController } from './auth.controller';
 import { LocalSerializer } from './local.serializer';
 import { LocalStrategy } from './local.strategy';
 import { AuthService } from './auth.service';
@@ -11,6 +12,7 @@ import { Users } from '../entities/Users';
     PassportModule.register({ session: true }),
     TypeOrmModule.forFeature([Users]),
   ],
+  controllers: [AuthController],
   providers: [AuthService, LocalStrategy, LocalSerializer],
 })
 export class AuthModule {}
