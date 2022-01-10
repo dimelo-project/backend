@@ -3,6 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from '../entities/Users';
+import { GoogleCreateUserDto } from './dto/google-create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -47,6 +48,20 @@ export class AuthService {
       return userWithoutPassword;
     }
     return null;
+  }
+
+  async googleSignUp(user: GoogleCreateUserDto) {
+    const found = await this.usersRepository.findOne({
+      where: { email: user.email },
+    });
+    if (found) {
+      const googleConnected = {
+        ...found,
+        googleId: user.googleId,
+      };
+      return this.usersRepository.save(googleConnected);
+    }
+    return this.usersRepository.save(user);
   }
 
   googleLogin(req) {
