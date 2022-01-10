@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class GoogleCreateUserDto {
+export class GoogleLoginUserDto {
   @IsNotEmpty()
   email: string;
 
@@ -8,5 +8,5 @@ export class GoogleCreateUserDto {
   imageUrl: string;
 
   @IsNotEmpty()
-  googleId: string;
+  googleId: number;
 }
