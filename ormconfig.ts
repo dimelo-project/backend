@@ -16,7 +16,10 @@ import { CoursesSkills } from './src/entities/CoursesSkills';
 import { Courses } from './src/entities/Courses';
 import { Users } from './src/entities/Users';
 
+const SnakeNamingStrategy =
+  require('typeorm-naming-strategies').SnakeNamingStrategy;
 dotenv.config();
+
 const config: TypeOrmModuleOptions = {
   type: 'mysql',
   host: process.env.DB_HOST,
@@ -48,6 +51,7 @@ const config: TypeOrmModuleOptions = {
   synchronize: false,
   logging: true,
   keepConnectionAlive: true,
+  namingStrategy: new SnakeNamingStrategy(),
 };
 
 export = config;
