@@ -1,9 +1,9 @@
+import { ChangePassword } from './dto/change-password.dto';
 import { UndefinedToNullInterceptor } from './../common/interceptors/undefinedToNull.interceptor';
 import { UserDto } from './dto/user.dto';
 import { ReturnUserDto } from './dto/return-user.dto';
 import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import { UsersService } from './users.service';
-
 import {
   Body,
   Controller,
@@ -45,16 +45,25 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '회원 탈퇴' })
-  @Delete('/me')
-  deleteMyAccount() {}
+  @Post('/delete/me')
+  deleteMyAccount(@User() user: UserDto, @Body('password') password: string) {
+    return this.usersService.delete(user.id, password);
+  }
 
   @ApiOperation({ summary: '비밀번호 찾기' })
   @Post('/password')
   findMyPassword() {}
 
   @ApiOperation({ summary: '비밀번호 변경하기' })
+  @Serialize(ReturnUserDto)
   @Patch('/password')
-  updateMyPassword() {}
+  updateMyPassword(@User() user: UserDto, @Body() data: ChangePassword) {
+    return this.usersService.changePassword(
+      user.id,
+      data.newPassword,
+      data.checkPassword,
+    );
+  }
 
   @ApiOperation({ summary: '특정 회원 정보 받아오기' })
   @ApiParam({
