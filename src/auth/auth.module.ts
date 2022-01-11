@@ -1,8 +1,8 @@
-import { GithubStrategy } from './github.strategy';
-import { GoogleStrategy } from './google.strategy';
+import { GithubStrategy } from './passport/github.strategy';
+import { GoogleStrategy } from './passport/google.strategy';
 import { AuthController } from './auth.controller';
-import { LocalSerializer } from './local.serializer';
-import { LocalStrategy } from './local.strategy';
+import { LocalSerializer } from './passport/local.serializer';
+import { LocalStrategy } from './passport/local.strategy';
 import { AuthService } from './auth.service';
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';

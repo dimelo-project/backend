@@ -1,8 +1,8 @@
 import { LoginUserDto } from './dto/login-user.dto';
 import { ReturnUserDto } from './dto/return-user.dto';
-import { NotLoggedInGuard } from './../auth/not-logged-in.guard';
-import { LoggedInGuard } from './../auth/logged-in.guard';
-import { LocalAuthGuard } from './../auth/local.auth.guard';
+import { NotLoggedInGuard } from '../common/guards/not-logged-in.guard';
+import { LoggedInGuard } from '../common/guards/logged-in.guard';
+import { LocalAuthGuard } from '../auth/guard/local.auth.guard';
 import { User } from './../common/decorators/user.decorator';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -25,14 +25,6 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 @Controller('api/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @ApiOperation({ summary: '이메일 중복 확인' })
-  @Post('/check/email')
-  checkEmail() {}
-
-  @ApiOperation({ summary: '닉네임 중복 확인' })
-  @Post('/check/nickname')
-  checkNickname() {}
 
   @ApiOperation({ summary: '특정 회원 정보 받아오기' })
   @ApiParam({
