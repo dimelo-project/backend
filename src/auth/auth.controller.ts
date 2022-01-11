@@ -1,3 +1,4 @@
+import { UserDto } from './../users/dto/user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from './dto/create-user.dto';
 import { NotLoggedInGuard } from '../common/guards/not-logged-in.guard';
@@ -11,6 +12,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Req,
   Res,
@@ -18,6 +20,7 @@ import {
 } from '@nestjs/common';
 import { ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { Serialize } from '../common/interceptors/serialize.interceptor';
+import { CreateUserProfile } from './dto/create-user-profile.dto';
 
 @Controller('api/auth')
 export class AuthController {
@@ -32,11 +35,7 @@ export class AuthController {
   @Serialize(ReturnUserDto)
   @Post('/signup')
   async signup(@Body() data: CreateUserDto) {
-    const user = await this.authSerivce.createUser(
-      data.email,
-      data.nickname,
-      data.password,
-    );
+    const user = await this.authSerivce.createUser(data.email, data.password);
     return user;
   }
 
@@ -95,5 +94,15 @@ export class AuthController {
   @Post('/check/nickname')
   async checkNickname(@Body('nickname') nickname: string) {
     return await this.authSerivce.checkNickname(nickname);
+  }
+
+  @ApiOperation({ summary: '회원가입 후 사용자 프로필 만들기' })
+  @UseGuards(new LoggedInGuard())
+  @Patch('/profile')
+  async createUserProfile(
+    @User() user: UserDto,
+    @Body() data: CreateUserProfile,
+  ) {
+    return await this.authSerivce.createUserProfile(user.id, data);
   }
 }
