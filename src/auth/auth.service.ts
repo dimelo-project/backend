@@ -76,7 +76,7 @@ export class AuthService {
       where: { email: user.email, githubId: user.githubId },
     });
     if (foundGithub) {
-      foundGithub;
+      return foundGithub;
     }
     const found = await this.usersRepository.findOne({
       where: { email: user.email },

@@ -64,8 +64,8 @@ export class AuthController {
 
   @UseGuards(AuthGuard('google'))
   @Get('/google/redirect')
-  googleAuthRedirect(@Req() req) {
-    return req.user;
+  googleAuthRedirect(@User() user) {
+    return user;
   }
 
   @UseGuards(AuthGuard('github'))
@@ -74,7 +74,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard('github'))
   @Get('/github/callback')
-  githubAuthCallback(@Req() req) {
-    return req.user;
+  githubAuthCallback(@User() user) {
+    return user;
   }
 }
