@@ -18,7 +18,13 @@ import { Studies } from './Studies';
 import { StudiesComments } from './StudiesComments';
 import { Talks } from './Talks';
 import { TalksComments } from './TalksComments';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 @Index('email_UNIQUE', ['email'], { unique: true })
 @Index('id_UNIQUE', ['id'], { unique: true })
@@ -42,6 +48,7 @@ export class Users {
   email: string;
 
   @IsString()
+  @MaxLength(10)
   @ApiProperty({
     example: 'Avery',
     description: '사용자 닉네임',
@@ -57,6 +64,8 @@ export class Users {
   @Column('varchar', { name: 'password', length: 100, select: false })
   password: string;
 
+  @IsString()
+  @IsOptional()
   @ApiProperty({
     example: 'https://avatars.githubusercontent.com/u/77389332?v=4',
     description: '사용자 프로필 사진',
@@ -64,6 +73,8 @@ export class Users {
   @Column('varchar', { name: 'image_url', nullable: true, length: 255 })
   imageUrl: string | null;
 
+  @IsString()
+  @IsOptional()
   @ApiProperty({
     example: '백엔드 개발자',
     description: '사용자 직무',
@@ -71,6 +82,8 @@ export class Users {
   @Column('varchar', { name: 'job', nullable: true, length: 45 })
   job: string | null;
 
+  @IsString()
+  @IsOptional()
   @ApiProperty({
     example: '1년차 이하',
     description: '사용자 경력',
@@ -78,6 +91,8 @@ export class Users {
   @Column('varchar', { name: 'career', nullable: true, length: 45 })
   career: string | null;
 
+  @IsString()
+  @IsOptional()
   @ApiProperty({
     example: '안녕하세요!',
     description: '자기소개',

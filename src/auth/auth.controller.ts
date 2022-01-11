@@ -97,6 +97,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: '회원가입 후 사용자 프로필 만들기' })
+  @Serialize(ReturnUserDto)
   @UseGuards(new LoggedInGuard())
   @Patch('/profile')
   async createUserProfile(
