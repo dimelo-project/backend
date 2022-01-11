@@ -7,7 +7,6 @@ import { UsersService } from './users.service';
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -49,10 +48,6 @@ export class UsersController {
   deleteMyAccount(@User() user: UserDto, @Body('password') password: string) {
     return this.usersService.delete(user.id, password);
   }
-
-  @ApiOperation({ summary: '비밀번호 찾기' })
-  @Post('/password')
-  findMyPassword() {}
 
   @ApiOperation({ summary: '비밀번호 변경하기' })
   @Serialize(ReturnUserDto)

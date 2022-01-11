@@ -13,7 +13,7 @@ import bcrypt from 'bcrypt';
 export class UsersService {
   constructor(
     @InjectRepository(Users)
-    private usersRepository: Repository<Users>,
+    private readonly usersRepository: Repository<Users>,
   ) {}
 
   async findById(id: number) {
@@ -60,7 +60,6 @@ export class UsersService {
   async changePassword(id: number, newPassword: string, checkPassword: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
-      select: ['id', 'email', 'password', 'nickname'],
     });
     if (!user) {
       throw new NotFoundException('해당 유저를 찾을 수 없습니다');

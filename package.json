@@ -22,6 +22,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^1.6.1",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.1.6",
     "@nestjs/core": "^8.0.0",
@@ -36,7 +37,10 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^10.0.0",
     "express-session": "^1.17.2",
+    "generate-password": "^1.7.0",
+    "handlebars": "^4.7.7",
     "mysql2": "^2.3.3",
+    "nodemailer": "^6.7.2",
     "passport": "^0.5.2",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",

@@ -61,7 +61,7 @@ export class Users {
     example: '123123',
     description: '사용자 비밀번호',
   })
-  @Column('varchar', { name: 'password', length: 100, select: false })
+  @Column('varchar', { name: 'password', length: 100 })
   password: string;
 
   @IsString()

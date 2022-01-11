@@ -106,4 +106,11 @@ export class AuthController {
   ) {
     return await this.authSerivce.createUserProfile(user.id, data);
   }
+
+  @ApiOperation({ summary: '비밀번호 찾기' })
+  @Serialize(ReturnUserDto)
+  @Post('/password')
+  findMyPassword(@Body('email') email: string) {
+    return this.authSerivce.sendMail(email);
+  }
 }
