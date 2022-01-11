@@ -27,7 +27,7 @@ export class AuthService {
       parseInt(process.env.BCRYPT_SALT_ROUNDS),
     );
 
-    await this.usersRepository.save({
+    return this.usersRepository.save({
       email,
       nickname,
       password: hashedPassword,
@@ -89,5 +89,25 @@ export class AuthService {
       return this.usersRepository.save(githubConnected);
     }
     return this.usersRepository.save(user);
+  }
+
+  async checkEmail(email: string) {
+    const foundEmail = await this.usersRepository.findOne({
+      where: { email },
+    });
+    if (foundEmail) {
+      throw new UnauthorizedException('이미 해당하는 아이디가 존재합니다');
+    }
+    return true;
+  }
+
+  async checkNickname(nickname: string) {
+    const foundNick = await this.usersRepository.findOne({
+      where: { nickname },
+    });
+    if (foundNick) {
+      throw new UnauthorizedException('이미 해당하는 닉네임이 존재합니다');
+    }
+    return true;
   }
 }

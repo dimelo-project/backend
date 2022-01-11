@@ -1,9 +1,8 @@
-import { CheckEmailDto } from './dto/check-email.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateUserDto } from './../users/dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { NotLoggedInGuard } from '../common/guards/not-logged-in.guard';
 import { LoggedInGuard } from '../common/guards/logged-in.guard';
-import { LoginUserDto } from './../users/dto/login-user.dto';
+import { LocalLoginUserDto } from './dto/local-login-user.dto';
 import { User } from './../common/decorators/user.decorator';
 import { LocalAuthGuard } from './guard/local.auth.guard';
 import { ReturnUserDto } from './../users/dto/return-user.dto';
@@ -31,7 +30,12 @@ export class AuthController {
   @UseGuards(new NotLoggedInGuard())
   @Post('/signup')
   async signup(@Body() data: CreateUserDto) {
-    await this.authSerivce.createUser(data.email, data.nickname, data.password);
+    const user = await this.authSerivce.createUser(
+      data.email,
+      data.nickname,
+      data.password,
+    );
+    return user;
   }
 
   @ApiResponse({
@@ -46,7 +50,7 @@ export class AuthController {
   @ApiOperation({ summary: '로그인' })
   @UseGuards(LocalAuthGuard)
   @Post('/login')
-  login(@User() user, @Body() data: LoginUserDto) {
+  login(@User() user, @Body() data: LocalLoginUserDto) {
     return user;
   }
 
@@ -81,11 +85,13 @@ export class AuthController {
 
   @ApiOperation({ summary: '이메일 중복 확인' })
   @Post('/check/email')
-  async checkEmail(@Body('email') email: CheckEmailDto) {
-    await this.authSerivce.checkEmail(email);
+  async checkEmail(@Body('email') email: string) {
+    return await this.authSerivce.checkEmail(email);
   }
 
   @ApiOperation({ summary: '닉네임 중복 확인' })
   @Post('/check/nickname')
-  checkNickname() {}
+  async checkNickname(@Body('nickname') nickname: string) {
+    return await this.authSerivce.checkNickname(nickname);
+  }
 }
