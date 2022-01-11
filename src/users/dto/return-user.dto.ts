@@ -1,8 +1,24 @@
-import { Users } from '../../entities/Users';
-import { PickType } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 
-export class ReturnUserDto extends PickType(Users, [
-  'id',
-  'email',
-  'nickname',
-] as const) {}
+export class ReturnUserDto {
+  @Expose()
+  id: number;
+
+  @Expose()
+  email: string;
+
+  @Expose()
+  nickname: string;
+
+  @Expose()
+  imageUrl: string;
+
+  @Expose()
+  job: string;
+
+  @Expose()
+  career: string;
+
+  @Expose()
+  introduction: string;
+}

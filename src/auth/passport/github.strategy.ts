@@ -1,6 +1,6 @@
-import { GithubLoginUserDto } from './dto/github-login-user.dto';
+import { GithubLoginUserDto } from '../dto/github-login-user.dto';
 import { PassportStrategy } from '@nestjs/passport';
-import { AuthService } from './auth.service';
+import { AuthService } from '../auth.service';
 import { Strategy, VerifyCallback } from 'passport-github2';
 import { config } from 'dotenv';
 import { Injectable } from '@nestjs/common';

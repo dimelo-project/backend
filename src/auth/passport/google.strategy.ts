@@ -1,5 +1,5 @@
-import { GoogleLoginUserDto } from './dto/google-login-user.dto';
-import { AuthService } from './auth.service';
+import { GoogleLoginUserDto } from '../dto/google-login-user.dto';
+import { AuthService } from '../auth.service';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { config } from 'dotenv';
@@ -19,8 +19,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   }
 
   async validate(
-    accessToken: string,
-    refreshToken: string,
+    _accessToken: string,
+    _refreshToken: string,
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
