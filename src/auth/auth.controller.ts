@@ -17,6 +17,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiResponse, ApiOperation } from '@nestjs/swagger';
+import { Serialize } from '../common/interceptors/serialize.interceptor';
 
 @Controller('api/auth')
 export class AuthController {
@@ -28,6 +29,7 @@ export class AuthController {
   })
   @ApiOperation({ summary: '회원 가입' })
   @UseGuards(new NotLoggedInGuard())
+  @Serialize(ReturnUserDto)
   @Post('/signup')
   async signup(@Body() data: CreateUserDto) {
     const user = await this.authSerivce.createUser(
