@@ -12,8 +12,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Req,
-  Res,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -21,6 +20,18 @@ import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { User } from '../common/decorators/user.decorator';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import multerS3 from 'multer-s3';
+import AWS from 'aws-sdk';
+import { config } from 'dotenv';
+config();
+
+const s3 = new AWS.S3();
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_BUCKET_REGION,
+});
 
 @ApiTags('USER')
 @UseInterceptors(UndefinedToNullInterceptor)
@@ -38,9 +49,27 @@ export class UsersController {
 
   @ApiOperation({ summary: '내 정보 수정하기' })
   @Serialize(ReturnUserDto)
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: multerS3({
+        s3: s3,
+        bucket: process.env.AWS_BUCKET_NAME,
+        acl: 'public-read',
+        key: function (request, file, cb) {
+          cb(null, `${Date.now().toString()}-${file.originalname}`);
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
   @Patch('/me')
-  updateMyInfo(@User() user: UserDto, @Body() data: Partial<UpdateUserDto>) {
-    return this.usersService.update(user.id, data);
+  updateMyInfo(
+    @User() user: UserDto,
+    @Body() data: Partial<UpdateUserDto>,
+    @UploadedFile() file?: Express.MulterS3.File,
+  ) {
+    console.log(file);
+    return this.usersService.update(user.id, data, file);
   }
 
   @ApiOperation({ summary: '회원 탈퇴' })

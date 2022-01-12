@@ -24,7 +24,11 @@ export class UsersService {
     return user;
   }
 
-  async update(id: number, data: Partial<UpdateUserDto>) {
+  async update(
+    id: number,
+    data: Partial<UpdateUserDto>,
+    file?: Express.MulterS3.File,
+  ) {
     const user = await this.usersRepository.findOne(id);
     if (!user) {
       throw new NotFoundException('해당 유저를 찾을 수 없습니다');
@@ -35,6 +39,9 @@ export class UsersService {
       });
       if (foundNick)
         throw new UnauthorizedException('해당 닉네임이 이미 존재 합니다');
+    }
+    if (file) {
+      data.imageUrl = file.location;
     }
     const updatedUser = {
       ...user,
