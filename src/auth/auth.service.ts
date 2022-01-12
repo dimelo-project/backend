@@ -1,4 +1,4 @@
-import { CreateUserProfile } from './dto/create-user-profile.dto';
+import { CreateUserProfile } from '../users/dto/create-user-profile.dto';
 import { GithubLoginUserDto } from './dto/github-login-user.dto';
 import bcrypt from 'bcrypt';
 import {
@@ -33,24 +33,6 @@ export class AuthService {
       email,
       password: hashedPassword,
     });
-  }
-
-  async createUserProfile(id: number, data: CreateUserProfile) {
-    const user = await this.usersRepository.findOne(id);
-    if (!user) {
-      throw new NotFoundException('해당 하는 유저가 없습니다');
-    }
-    const foundNick = await this.usersRepository.findOne({
-      where: { nickname: data.nickname },
-    });
-    if (foundNick) {
-      throw new UnauthorizedException('해당 하는 닉네임이 이미 존재합니다');
-    }
-    const updatedUser = {
-      ...user,
-      ...data,
-    };
-    return this.usersRepository.save(updatedUser);
   }
 
   async validateUser(email: string, password: string) {
