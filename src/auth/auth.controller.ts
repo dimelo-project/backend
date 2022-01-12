@@ -20,7 +20,7 @@ import {
 } from '@nestjs/common';
 import { ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { Serialize } from '../common/interceptors/serialize.interceptor';
-import { CreateUserProfile } from './dto/create-user-profile.dto';
+import { CreateUserProfile } from '../users/dto/create-user-profile.dto';
 
 @Controller('api/auth')
 export class AuthController {
