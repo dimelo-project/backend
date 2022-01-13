@@ -1,18 +1,18 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
+import { Users } from 'src/entities/Users';
 
-export class CreateUserProfileDto {
-  @IsNotEmpty()
-  @IsString()
-  @MaxLength(10, {
-    message: '닉네임은 10자 이하로 설정해주세요',
+export class CreateUserProfileDto extends PickType(Users, [
+  'nickname',
+  'job',
+  'career',
+]) {
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    required: false,
+    description: '프로필 사진을 올릴 때 file로 들어가는 key',
   })
-  nickname: string;
-
-  @IsString()
-  @IsNotEmpty()
-  job: string;
-
-  @IsNotEmpty()
-  @IsString()
-  career: string;
+  @IsOptional()
+  image: any;
 }

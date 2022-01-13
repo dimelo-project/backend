@@ -49,7 +49,9 @@ export class Users {
 
   @IsString()
   @IsNotEmpty()
-  @MaxLength(10)
+  @MaxLength(10, {
+    message: '닉네임은 10자 이하로 설정해주세요',
+  })
   @ApiProperty({
     example: 'Avery',
     description: '사용자 닉네임',
@@ -59,22 +61,17 @@ export class Users {
 
   @IsString()
   @ApiProperty({
-    example: '123123',
+    example: 'Dimelo12345',
     description: '사용자 비밀번호',
   })
   @Column('varchar', { name: 'password', length: 100 })
   password: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
-    example: 'https://avatars.githubusercontent.com/u/77389332?v=4',
-    description: '사용자 프로필 사진',
-  })
   @Column('varchar', { name: 'image_url', nullable: true, length: 255 })
   imageUrl: string | null;
 
   @IsString()
+  @IsNotEmpty()
   @ApiProperty({
     example: '백엔드 개발자',
     description: '사용자 직무',
@@ -83,6 +80,7 @@ export class Users {
   job: string | null;
 
   @IsString()
+  @IsNotEmpty()
   @ApiProperty({
     example: '1년차 이하',
     description: '사용자 경력',
@@ -95,6 +93,7 @@ export class Users {
   @ApiProperty({
     example: '안녕하세요!',
     description: '자기소개',
+    required: false,
   })
   @Column('text', { name: 'introduction', nullable: true })
   introduction: string | null;

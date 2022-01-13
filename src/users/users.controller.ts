@@ -1,10 +1,11 @@
+import { ReturnUserDto } from './../common/dto/return-user.dto';
+import { FileUploadDto } from './dto/file-upload.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { CurrentUser } from './../common/decorators/current-user.decorator';
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { UndefinedToNullInterceptor } from './../common/interceptors/undefinedToNull.interceptor';
-import { ReturnUserDto } from '../common/dto/return-user.dto';
 import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import { UsersService } from './users.service';
 import {
@@ -19,7 +20,15 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
 import { UpdateUserDto } from './dto/update-user-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -42,6 +51,14 @@ AWS.config.update({
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ApiOkResponse({
+    description: '내 프로필 받아오기 성공',
+    type: ReturnUserDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: '로그인을 하지 않은 경우',
+  })
   @ApiOperation({ summary: '내 정보 받아오기' })
   @Serialize(ReturnUserDto)
   @Get('/me')
@@ -49,6 +66,20 @@ export class UsersController {
     return this.usersService.findById(user.id);
   }
 
+  @ApiOkResponse({
+    description: '프로필 생성 성공',
+    type: ReturnUserDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'nickname, job, career 값을 제대로 보내지 않은 경우, 닉네임이 10자 이상인 경우',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '이미 해당하는 닉네임이 있을 경우',
+  })
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '회원가입 후 사용자 프로필 만들기' })
   @Serialize(ReturnUserDto)
   @UseInterceptors(
@@ -73,6 +104,20 @@ export class UsersController {
     return this.usersService.createProfile(user.id, body, file);
   }
 
+  @ApiOkResponse({
+    description: '프로필 수정 성공',
+    type: ReturnUserDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'nickname, job, career, imageUrl 값을 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '이미 해당하는 닉네임이 있을 경우',
+  })
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '내 정보 수정하기' })
   @Serialize(ReturnUserDto)
   @UseInterceptors(
@@ -91,13 +136,24 @@ export class UsersController {
   @Patch('/me')
   async updateMyInfo(
     @CurrentUser() user: CurrentUserDto,
-    @Body() body: Partial<UpdateUserDto>,
+    @Body() body: UpdateUserDto,
     @UploadedFile() file?: Express.MulterS3.File,
   ) {
     console.log(file);
     return this.usersService.updateProfile(user.id, body, file);
   }
 
+  @ApiOkResponse({
+    description: '회원가입 탈퇴 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '비밀번호 형식을 지키지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '비밀번호를 틀려 탈퇴 권한이 없을 경우',
+  })
   @ApiOperation({ summary: '회원 탈퇴' })
   @Post('/delete/me')
   async deleteMyAccount(
@@ -107,7 +163,15 @@ export class UsersController {
     return this.usersService.delete(user.id, password);
   }
 
-  @ApiOperation({ summary: '비밀번호 설정하기' })
+  @ApiOkResponse({
+    description: '비밀번호 설정 성공',
+    type: ReturnUserDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: '비밀번호 형식을 지키지 않은 경우',
+  })
+  @ApiOperation({ summary: '구글, 깃허브 회원 비밀번호 설정하기' })
   @Serialize(ReturnUserDto)
   @Patch('/set/password')
   async setNewPassword(
@@ -121,6 +185,18 @@ export class UsersController {
     );
   }
 
+  @ApiOkResponse({
+    description: '비밀번호 변경 성공',
+    type: ReturnUserDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: '비밀번호 형식을 지키지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '비밀번호를 틀려 탈퇴 권한이 없을 경우',
+  })
   @ApiOperation({ summary: '비밀번호 변경하기' })
   @Serialize(ReturnUserDto)
   @Patch('/change/password')
@@ -136,6 +212,14 @@ export class UsersController {
     );
   }
 
+  @ApiOkResponse({
+    description: '회원 프로필 받아오기 성공',
+    type: ReturnUserDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 유저를 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '특정 회원 정보 받아오기' })
   @ApiParam({
     name: 'id',

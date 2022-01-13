@@ -1,5 +1,6 @@
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -53,7 +54,7 @@ export class UsersService {
 
   async updateProfile(
     id: number,
-    data: Partial<UpdateUserDto>,
+    data: UpdateUserDto,
     file?: Express.MulterS3.File,
   ) {
     const user = await this.usersRepository.findOne(id);
@@ -70,7 +71,7 @@ export class UsersService {
       }
     }
     if (file) {
-      user.imageUrl = file.location;
+      data.imageUrl = file.location;
     }
     const updatedUser = {
       ...user,
@@ -103,7 +104,7 @@ export class UsersService {
       throw new UnauthorizedException('비밀번호를 변경하기를 해주세요');
     }
     if (newPassword !== checkPassword) {
-      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
+      throw new BadRequestException('비밀번호가 일치하지 않습니다');
     }
 
     const hashedPassword = await bcrypt.hash(
