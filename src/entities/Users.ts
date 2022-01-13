@@ -48,6 +48,7 @@ export class Users {
   email: string;
 
   @IsString()
+  @IsNotEmpty()
   @MaxLength(10)
   @ApiProperty({
     example: 'Avery',

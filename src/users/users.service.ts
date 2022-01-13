@@ -82,7 +82,6 @@ export class UsersService {
   async delete(id: number, password: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
-      select: ['id', 'email', 'password', 'nickname'],
     });
     if (!user) {
       throw new NotFoundException('해당 유저를 찾을 수 없습니다');
