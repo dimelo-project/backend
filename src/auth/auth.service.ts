@@ -1,4 +1,3 @@
-import { CreateUserProfile } from '../users/dto/create-user-profile.dto';
 import { GithubLoginUserDto } from './dto/github-login-user.dto';
 import bcrypt from 'bcrypt';
 import {

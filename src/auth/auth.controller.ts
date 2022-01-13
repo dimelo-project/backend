@@ -1,12 +1,12 @@
-import { UserDto } from './../users/dto/user.dto';
+import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from './dto/create-user.dto';
 import { NotLoggedInGuard } from '../common/guards/not-logged-in.guard';
 import { LoggedInGuard } from '../common/guards/logged-in.guard';
 import { LocalLoginUserDto } from './dto/local-login-user.dto';
-import { User } from './../common/decorators/user.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { LocalAuthGuard } from './guard/local.auth.guard';
-import { ReturnUserDto } from './../users/dto/return-user.dto';
+import { ReturnUserDto } from '../common/dto/return-user.dto';
 import { AuthService } from './auth.service';
 import {
   Body,
@@ -20,7 +20,6 @@ import {
 } from '@nestjs/common';
 import { ApiResponse, ApiOperation } from '@nestjs/swagger';
 import { Serialize } from '../common/interceptors/serialize.interceptor';
-import { CreateUserProfile } from '../users/dto/create-user-profile.dto';
 
 @Controller('api/auth')
 export class AuthController {
@@ -35,8 +34,7 @@ export class AuthController {
   @Serialize(ReturnUserDto)
   @Post('/signup')
   async signup(@Body() data: CreateUserDto) {
-    const user = await this.authSerivce.createUser(data.email, data.password);
-    return user;
+    return this.authSerivce.createUser(data.email, data.password);
   }
 
   @ApiResponse({
@@ -51,7 +49,7 @@ export class AuthController {
   @ApiOperation({ summary: '로그인' })
   @UseGuards(LocalAuthGuard)
   @Post('/login')
-  login(@User() user, @Body() data: LocalLoginUserDto) {
+  login(@CurrentUser() user: CurrentUserDto, @Body() data: LocalLoginUserDto) {
     return user;
   }
 
@@ -70,7 +68,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard('google'))
   @Get('/google/redirect')
-  googleAuthRedirect(@User() user) {
+  googleAuthRedirect(@CurrentUser() user: CurrentUserDto) {
     return user;
   }
 
@@ -80,7 +78,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard('github'))
   @Get('/github/callback')
-  githubAuthCallback(@User() user) {
+  githubAuthCallback(@CurrentUser() user: CurrentUserDto) {
     return user;
   }
 
@@ -93,23 +91,12 @@ export class AuthController {
   @ApiOperation({ summary: '닉네임 중복 확인' })
   @Post('/check/nickname')
   async checkNickname(@Body('nickname') nickname: string) {
-    return await this.authSerivce.checkNickname(nickname);
-  }
-
-  @ApiOperation({ summary: '회원가입 후 사용자 프로필 만들기' })
-  @Serialize(ReturnUserDto)
-  @UseGuards(new LoggedInGuard())
-  @Patch('/profile')
-  async createUserProfile(
-    @User() user: UserDto,
-    @Body() data: CreateUserProfile,
-  ) {
-    return await this.authSerivce.createUserProfile(user.id, data);
+    return this.authSerivce.checkNickname(nickname);
   }
 
   @ApiOperation({ summary: '비밀번호 찾기' })
   @Serialize(ReturnUserDto)
-  @Post('/password')
+  @Post('/find/password')
   findMyPassword(@Body('email') email: string) {
     return this.authSerivce.sendMail(email);
   }
