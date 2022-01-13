@@ -1,14 +1,12 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
-export class CreateUserProfile {
+export class CreateUserProfileDto {
   @IsNotEmpty()
   @IsString()
-  @MaxLength(10)
+  @MaxLength(10, {
+    message: '닉네임은 10자 이하로 설정해주세요',
+  })
   nickname: string;
-
-  @IsOptional()
-  @IsString()
-  imageUrl?: string;
 
   @IsString()
   @IsNotEmpty()

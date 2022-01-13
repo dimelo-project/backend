@@ -8,17 +8,17 @@ export class ReturnUserDto {
   email: string;
 
   @Expose()
-  nickname: string;
+  nickname: string | null;
 
   @Expose()
-  imageUrl: string;
+  imageUrl: string | null;
 
   @Expose()
-  job: string;
+  job: string | null;
 
   @Expose()
-  career: string;
+  career: string | null;
 
   @Expose()
-  introduction: string;
+  introduction: string | null;
 }

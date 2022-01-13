@@ -53,8 +53,8 @@ export class Users {
     example: 'Avery',
     description: '사용자 닉네임',
   })
-  @Column('varchar', { name: 'nickname', length: 30 })
-  nickname: string;
+  @Column('varchar', { name: 'nickname', length: 30, nullable: true })
+  nickname: string | null;
 
   @IsString()
   @ApiProperty({
@@ -74,7 +74,6 @@ export class Users {
   imageUrl: string | null;
 
   @IsString()
-  @IsOptional()
   @ApiProperty({
     example: '백엔드 개발자',
     description: '사용자 직무',
@@ -83,7 +82,6 @@ export class Users {
   job: string | null;
 
   @IsString()
-  @IsOptional()
   @ApiProperty({
     example: '1년차 이하',
     description: '사용자 경력',
