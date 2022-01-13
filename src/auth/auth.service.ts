@@ -1,10 +1,9 @@
-import { CreateUserProfile } from '../users/dto/create-user-profile.dto';
 import { GithubLoginUserDto } from './dto/github-login-user.dto';
 import bcrypt from 'bcrypt';
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -22,7 +21,7 @@ export class AuthService {
   async createUser(email: string, password: string) {
     const foundEmail = await this.usersRepository.findOne({ where: { email } });
     if (foundEmail) {
-      throw new UnauthorizedException('이미 해당하는 아이디가 존재합니다');
+      throw new ConflictException('이미 해당하는 아이디가 존재합니다');
     }
     const hashedPassword = await bcrypt.hash(
       password,
@@ -97,7 +96,7 @@ export class AuthService {
       where: { email },
     });
     if (foundEmail) {
-      throw new UnauthorizedException('이미 해당하는 아이디가 존재합니다');
+      throw new ConflictException('이미 해당하는 아이디가 존재합니다');
     }
     return true;
   }
@@ -107,7 +106,7 @@ export class AuthService {
       where: { nickname },
     });
     if (foundNick) {
-      throw new UnauthorizedException('이미 해당하는 닉네임이 존재합니다');
+      throw new ConflictException('이미 해당하는 닉네임이 존재합니다');
     }
     return true;
   }
@@ -132,12 +131,14 @@ export class AuthService {
         html: `임시 비밀번호 입니다. 해당 비밀번호로 로그인 후 비밀번호를 변경해주세요 : ${password}`,
       });
 
-      return this.usersRepository.save({
+      await this.usersRepository.save({
         ...user,
         password: hashedPassword,
       });
+      return true;
     } catch (err) {
       console.log(err);
+      throw err;
     }
   }
 }
