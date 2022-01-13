@@ -1,8 +1,10 @@
-import { CreateUserProfile } from './dto/create-user-profile.dto';
-import { ChangePassword } from './dto/change-password.dto';
+import { SetPasswordDto } from './dto/set-password.dto';
+import { CurrentUserDto } from './../common/dto/current-user.dto';
+import { CurrentUser } from './../common/decorators/current-user.decorator';
+import { CreateUserProfileDto } from './dto/create-user-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { UndefinedToNullInterceptor } from './../common/interceptors/undefinedToNull.interceptor';
-import { UserDto } from './dto/user.dto';
-import { ReturnUserDto } from './dto/return-user.dto';
+import { ReturnUserDto } from '../common/dto/return-user.dto';
 import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import { UsersService } from './users.service';
 import {
@@ -18,9 +20,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { User } from '../common/decorators/user.decorator';
 import { Serialize } from 'src/common/interceptors/serialize.interceptor';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto } from './dto/update-user-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multerS3 from 'multer-s3';
 import AWS from 'aws-sdk';
@@ -43,8 +44,8 @@ export class UsersController {
 
   @ApiOperation({ summary: '내 정보 받아오기' })
   @Serialize(ReturnUserDto)
-  @Get('me')
-  getMyInfo(@User() user: UserDto) {
+  @Get('/me')
+  async getMyInfo(@CurrentUser() user: CurrentUserDto) {
     return this.usersService.findById(user.id);
   }
 
@@ -65,11 +66,11 @@ export class UsersController {
   )
   @Patch('/profile')
   async createUserProfile(
-    @User() user: UserDto,
-    @Body() data: CreateUserProfile,
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: CreateUserProfileDto,
     @UploadedFile() file?: Express.MulterS3.File,
   ) {
-    return await this.usersService.createProfile(user.id, data, file);
+    return this.usersService.createProfile(user.id, body, file);
   }
 
   @ApiOperation({ summary: '내 정보 수정하기' })
@@ -88,29 +89,50 @@ export class UsersController {
     }),
   )
   @Patch('/me')
-  updateMyInfo(
-    @User() user: UserDto,
-    @Body() data: Partial<UpdateUserDto>,
+  async updateMyInfo(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: Partial<UpdateUserDto>,
     @UploadedFile() file?: Express.MulterS3.File,
   ) {
     console.log(file);
-    return this.usersService.updateProfile(user.id, data, file);
+    return this.usersService.updateProfile(user.id, body, file);
   }
 
   @ApiOperation({ summary: '회원 탈퇴' })
   @Post('/delete/me')
-  deleteMyAccount(@User() user: UserDto, @Body('password') password: string) {
+  async deleteMyAccount(
+    @CurrentUser() user: CurrentUserDto,
+    @Body('password') password: string,
+  ) {
     return this.usersService.delete(user.id, password);
+  }
+
+  @ApiOperation({ summary: '비밀번호 설정하기' })
+  @Serialize(ReturnUserDto)
+  @Patch('/set/password')
+  async setNewPassword(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: SetPasswordDto,
+  ) {
+    return this.usersService.setPassword(
+      user.id,
+      body.newPassword,
+      body.checkPassword,
+    );
   }
 
   @ApiOperation({ summary: '비밀번호 변경하기' })
   @Serialize(ReturnUserDto)
-  @Patch('/password')
-  updateMyPassword(@User() user: UserDto, @Body() data: ChangePassword) {
+  @Patch('/change/password')
+  async updateMyPassword(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: ChangePasswordDto,
+  ) {
     return this.usersService.changePassword(
       user.id,
-      data.newPassword,
-      data.checkPassword,
+      body.password,
+      body.newPassword,
+      body.checkPassword,
     );
   }
 
@@ -122,7 +144,7 @@ export class UsersController {
   })
   @Serialize(ReturnUserDto)
   @Get('/:id')
-  getUserInfo(@Param('id', ParseIntPipe) id: number) {
+  async getUserInfo(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findById(id);
   }
 }

@@ -1,5 +1,6 @@
-import { CreateUserProfile } from './dto/create-user-profile.dto';
+import { CreateUserProfileDto } from './dto/create-user-profile.dto';
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -7,7 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/Users';
 import { Repository } from 'typeorm';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto } from './dto/update-user-profile.dto';
 import bcrypt from 'bcrypt';
 
 @Injectable()
@@ -27,7 +28,7 @@ export class UsersService {
 
   async createProfile(
     id: number,
-    data: CreateUserProfile,
+    data: CreateUserProfileDto,
     file?: Express.MulterS3.File,
   ) {
     const user = await this.usersRepository.findOne(id);
@@ -38,10 +39,10 @@ export class UsersService {
       where: { nickname: data.nickname },
     });
     if (foundNick) {
-      throw new UnauthorizedException('해당 하는 닉네임이 이미 존재합니다');
+      throw new ConflictException('해당 닉네임은 이미 사용중 입니다');
     }
     if (file) {
-      data.imageUrl = file.location;
+      user.imageUrl = file.location;
     }
     const updatedUser = {
       ...user,
@@ -59,15 +60,17 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('해당 유저를 찾을 수 없습니다');
     }
-    if (data.nickname) {
+
+    if (user.nickname !== data.nickname) {
       const foundNick = await this.usersRepository.findOne({
         where: { nickname: data.nickname },
       });
-      if (foundNick)
-        throw new UnauthorizedException('해당 닉네임이 이미 존재 합니다');
+      if (foundNick) {
+        throw new ConflictException('해당 닉네임은 이미 사용중 입니다');
+      }
     }
     if (file) {
-      data.imageUrl = file.location;
+      user.imageUrl = file.location;
     }
     const updatedUser = {
       ...user,
@@ -90,18 +93,51 @@ export class UsersService {
     return this.usersRepository.softDelete(user);
   }
 
-  async changePassword(id: number, newPassword: string, checkPassword: string) {
+  async setPassword(id: number, newPassword: string, checkPassword: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
     });
     if (!user) {
       throw new NotFoundException('해당 유저를 찾을 수 없습니다');
     }
+    if (user.password) {
+      throw new UnauthorizedException('비밀번호를 변경하기를 해주세요');
+    }
     if (newPassword !== checkPassword) {
       throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
     }
-    if (await bcrypt.compare(newPassword, user.password)) {
-      throw new UnauthorizedException('같은 비밀번호는 설정할 수 없습니다');
+
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      parseInt(process.env.BCRYPT_SALT_ROUNDS),
+    );
+
+    return this.usersRepository.save({
+      ...user,
+      password: hashedPassword,
+    });
+  }
+
+  async changePassword(
+    id: number,
+    password: string,
+    newPassword: string,
+    checkPassword: string,
+  ) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException('해당 유저를 찾을 수 없습니다');
+    }
+    if (await bcrypt.compare(password, user.password)) {
+      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
+    }
+    if (password === newPassword) {
+      throw new ConflictException('같은 비밀번호를 설정할 수 없습니다');
+    }
+    if (newPassword !== checkPassword) {
+      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
     }
     const hashedPassword = await bcrypt.hash(
       newPassword,
