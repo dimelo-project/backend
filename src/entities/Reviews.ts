@@ -1,26 +1,27 @@
+import { ReviewHelpes } from './ReviewHelpes';
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
   Index,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import { Users } from './Users';
 import { Courses } from './Courses';
 import { Instructors } from './Instructors';
 import { ApiProperty } from '@nestjs/swagger';
-
 @Index('FK_review_course_idx', ['courseId'], {})
 @Index('FK_review_instructor_idx', ['instructorId'], {})
 @Index('FK_review_user_idx', ['userId'], {})
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('reviews', { schema: 'dimelo' })
-export class Reviews {
+export class Reviews extends BaseEntity {
   @ApiProperty({
     example: 1,
     description: 'review id',
@@ -111,14 +112,8 @@ export class Reviews {
   @UpdateDateColumn()
   updatedAt: Date | null;
 
-  @ManyToMany(() => Users, (users) => users.Reviews2)
-  @JoinTable({
-    name: 'review_helped',
-    joinColumns: [{ name: 'review_id', referencedColumnName: 'id' }],
-    inverseJoinColumns: [{ name: 'user_id', referencedColumnName: 'id' }],
-    schema: 'dimelo',
-  })
-  Users: Users[];
+  @OneToMany(() => ReviewHelpes, (reviewHelpes) => reviewHelpes.Review)
+  ReviewHelpes: ReviewHelpes[];
 
   @ManyToOne(() => Courses, (courses) => courses.Reviews, {
     onDelete: 'CASCADE',
@@ -127,6 +122,9 @@ export class Reviews {
   @JoinColumn([{ name: 'course_id', referencedColumnName: 'id' }])
   Course: Courses;
 
+  @RelationId((reviews: Reviews) => reviews.Course)
+  CourseId: number;
+
   @ManyToOne(() => Instructors, (instructors) => instructors.Reviews, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
@@ -134,10 +132,16 @@ export class Reviews {
   @JoinColumn([{ name: 'instructor_id', referencedColumnName: 'id' }])
   Instructor: Instructors;
 
+  @RelationId((reviews: Reviews) => reviews.Instructor)
+  InstructorId: number;
+
   @ManyToOne(() => Users, (users) => users.Reviews, {
     onDelete: 'NO ACTION',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'user_id', referencedColumnName: 'id' }])
   User: Users;
+
+  @RelationId((reviews: Reviews) => reviews.User)
+  UserId: number;
 }

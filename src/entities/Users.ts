@@ -1,5 +1,7 @@
+import { ReviewHelpes } from './ReviewHelpes';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -8,6 +10,7 @@ import {
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import { Likes } from './Likes';
@@ -30,7 +33,7 @@ import {
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Index('nickname_UNIQUE', ['nickname'], { unique: true })
 @Entity('users', { schema: 'dimelo' })
-export class Users {
+export class Users extends BaseEntity {
   @ApiProperty({
     example: 1,
     description: 'user id',
@@ -125,8 +128,8 @@ export class Users {
   )
   ProjectsComments: ProjectsComments[];
 
-  @ManyToMany(() => Reviews, (reviews) => reviews.Users)
-  Reviews2: Reviews[];
+  @OneToMany(() => ReviewHelpes, (reviewHelpes) => reviewHelpes.User)
+  ReviewHelpes: ReviewHelpes[];
 
   @OneToMany(() => Reviews, (reviews) => reviews.User)
   Reviews: Reviews[];

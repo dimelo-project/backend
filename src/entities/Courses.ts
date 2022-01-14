@@ -1,23 +1,22 @@
+import { InstructorsCourses } from './InstructorsCourses';
+import { CoursesSkillsTags } from './CoursesSkillsTags';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
   Index,
-  JoinTable,
-  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CoursesSkills } from './CoursesSkills';
-import { Instructors } from './Instructors';
 import { Likes } from './Likes';
 import { Reviews } from './Reviews';
 
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('courses', { schema: 'dimelo' })
-export class Courses {
+export class Courses extends BaseEntity {
   @ApiProperty({
     example: 1,
     description: 'course id',
@@ -77,23 +76,17 @@ export class Courses {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToMany(() => CoursesSkills, (coursesSkills) => coursesSkills.Courses)
-  @JoinTable({
-    name: 'courses_skills_tags',
-    joinColumns: [{ name: 'course_id', referencedColumnName: 'id' }],
-    inverseJoinColumns: [{ name: 'skill_id', referencedColumnName: 'id' }],
-    schema: 'dimelo',
-  })
-  CoursesSkills: CoursesSkills[];
+  @OneToMany(
+    () => CoursesSkillsTags,
+    (coursesSkillsTags) => coursesSkillsTags.Course,
+  )
+  CoursesSkillsTags: CoursesSkillsTags[];
 
-  @ManyToMany(() => Instructors, (instructors) => instructors.Courses)
-  @JoinTable({
-    name: 'instructors_courses',
-    joinColumns: [{ name: 'course_id', referencedColumnName: 'id' }],
-    inverseJoinColumns: [{ name: 'instructor_id', referencedColumnName: 'id' }],
-    schema: 'dimelo',
-  })
-  Instructors: Instructors[];
+  @OneToMany(
+    () => InstructorsCourses,
+    (instructorsCourses) => instructorsCourses.Instructor,
+  )
+  InstructorsCourses: InstructorsCourses[];
 
   @OneToMany(() => Likes, (likes) => likes.Course)
   Likes: Likes[];

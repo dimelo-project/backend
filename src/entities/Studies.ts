@@ -1,24 +1,25 @@
+import { StudiesSkillsTags } from './StudiesSkillsTags';
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
   Index,
   JoinColumn,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import { Users } from './Users';
-import { StudiesSkills } from './StudiesSkills';
 import { StudiesComments } from './StudiesComments';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Index('FK_study_user_idx', ['userId'], {})
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('studies', { schema: 'dimelo' })
-export class Studies {
+export class Studies extends BaseEntity {
   @ApiProperty({
     example: 1,
     description: 'study id',
@@ -81,8 +82,14 @@ export class Studies {
   @JoinColumn([{ name: 'user_id', referencedColumnName: 'id' }])
   User: Users;
 
-  @ManyToMany(() => StudiesSkills, (studiesSkills) => studiesSkills.Studies)
-  StudiesSkills: StudiesSkills[];
+  @RelationId((studies: Studies) => studies.User)
+  UserId: number;
+
+  @OneToMany(
+    () => StudiesSkillsTags,
+    (studiesSkillsTags) => studiesSkillsTags.Study,
+  )
+  StudiesSkillsTags: StudiesSkillsTags[];
 
   @OneToMany(() => StudiesComments, (studiesComments) => studiesComments.Study)
   StudiesComments: StudiesComments[];

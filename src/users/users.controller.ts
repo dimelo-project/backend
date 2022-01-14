@@ -1,5 +1,4 @@
 import { ReturnUserDto } from './../common/dto/return-user.dto';
-import { FileUploadDto } from './dto/file-upload.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { CurrentUser } from './../common/decorators/current-user.decorator';
@@ -21,7 +20,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
-  ApiBody,
   ApiConsumes,
   ApiOkResponse,
   ApiOperation,

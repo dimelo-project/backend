@@ -6,6 +6,7 @@ import { AppModule } from './app.module';
 import passport from 'passport';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+import { setupAdminPanel } from './admin-panel/admin-panel.plugin';
 
 declare const module: any;
 
@@ -33,7 +34,7 @@ async function bootstrap() {
   app.use(
     session({
       resave: false,
-      saveUnitialized: false,
+      saveUninitialized: false,
       secret: process.env.COOKIE_SECRET,
       cookie: {
         httpOnly: true,
@@ -43,6 +44,8 @@ async function bootstrap() {
 
   app.use(passport.initialize());
   app.use(passport.session());
+
+  await setupAdminPanel(app);
 
   await app.listen(port);
   console.log(`Listening on port ${port}`);

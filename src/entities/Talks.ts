@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -8,6 +9,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import { Users } from './Users';
@@ -16,7 +18,7 @@ import { TalksComments } from './TalksComments';
 @Index('FK_talk_user_idx', ['userId'], {})
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('talks', { schema: 'dimelo' })
-export class Talks {
+export class Talks extends BaseEntity{
   @ApiProperty({
     example: 1,
     description: 'talk id',
@@ -67,6 +69,11 @@ export class Talks {
   })
   @JoinColumn([{ name: 'user_id', referencedColumnName: 'id' }])
   User: Users;
+
+  @RelationId(
+    (talks: Talks) => talks.User,
+  )
+  UserId: number;
 
   @OneToMany(() => TalksComments, (talksComments) => talksComments.Talk)
   TalksComments: TalksComments[];

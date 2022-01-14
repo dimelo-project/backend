@@ -1,17 +1,18 @@
+import { CoursesSkillsTags } from './CoursesSkillsTags';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  BaseEntity,
   Column,
   Entity,
   Index,
-  ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Courses } from './Courses';
 
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Index('skill_UNIQUE', ['skill'], { unique: true })
 @Entity('courses_skills', { schema: 'dimelo' })
-export class CoursesSkills {
+export class CoursesSkills extends BaseEntity {
   @ApiProperty({
     example: 1,
     description: 'course skill id',
@@ -26,6 +27,9 @@ export class CoursesSkills {
   @Column('varchar', { name: 'skill', unique: true, length: 45 })
   skill: string;
 
-  @ManyToMany(() => Courses, (courses) => courses.CoursesSkills)
-  Courses: Courses[];
+  @OneToMany(
+    () => CoursesSkillsTags,
+    (coursesSkillsTags) => coursesSkillsTags.CoursesSkill,
+  )
+  CoursesSkillsTgas: CoursesSkillsTags[];
 }
