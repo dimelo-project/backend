@@ -60,7 +60,7 @@ const config: TypeOrmModuleOptions = {
   cli: { migrationsDir: 'src/migrations' },
   autoLoadEntities: false,
   charset: 'utf8mb4',
-  synchronize: true,
+  synchronize: false,
   logging: true,
   keepConnectionAlive: true,
   namingStrategy: new SnakeNamingStrategy(),
