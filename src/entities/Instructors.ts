@@ -1,5 +1,7 @@
+import { InstructorsCourses } from './InstructorsCourses';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  BaseEntity,
   Column,
   Entity,
   Index,
@@ -12,7 +14,7 @@ import { Reviews } from './Reviews';
 
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('instructors', { schema: 'dimelo' })
-export class Instructors {
+export class Instructors extends BaseEntity {
   @ApiProperty({
     example: 1,
     description: 'instructor id',
@@ -27,8 +29,11 @@ export class Instructors {
   @Column('varchar', { name: 'name', length: 100 })
   name: string;
 
-  @ManyToMany(() => Courses, (courses) => courses.Instructors)
-  Courses: Courses[];
+  @OneToMany(
+    () => InstructorsCourses,
+    (InstructorsCourses) => InstructorsCourses.Instructor,
+  )
+  InstructorsCourses: InstructorsCourses[];
 
   @OneToMany(() => Reviews, (reviews) => reviews.Instructor)
   Reviews: Reviews[];

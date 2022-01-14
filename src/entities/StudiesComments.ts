@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -7,6 +8,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import { Studies } from './Studies';
@@ -16,7 +18,7 @@ import { Users } from './Users';
 @Index('FK_study_comment_user_idx', ['userId'], {})
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('sutdies_comments', { schema: 'dimelo' })
-export class StudiesComments {
+export class StudiesComments extends BaseEntity {
   @ApiProperty({
     example: 1,
     description: 'project의 comment id',
@@ -58,10 +60,16 @@ export class StudiesComments {
   @JoinColumn([{ name: 'study_id', referencedColumnName: 'id' }])
   Study: Studies;
 
+  @RelationId((studiesComments: StudiesComments) => studiesComments.Study)
+  StudyId: number;
+
   @ManyToOne(() => Users, (users) => users.StudiesComments, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'user_id', referencedColumnName: 'id' }])
   User: Users;
+
+  @RelationId((studiesComments: StudiesComments) => studiesComments.User)
+  UserId: number;
 }

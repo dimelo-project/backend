@@ -1,3 +1,8 @@
+import { ReviewHelpes } from './src/entities/ReviewHelpes';
+import { ProjectsSkillsTags } from './src/entities/ProjectsSkillsTags';
+import { ProjectsPositionsTags } from './src/entities/ProjectsPositionsTags';
+import { StudiesSkillsTags } from './src/entities/StudiesSkillsTags';
+import { InstructorsCourses } from './src/entities/InstructorsCourses';
 import dotenv from 'dotenv';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ProjectsComments } from './src/entities/ProjectsComments';
@@ -15,6 +20,7 @@ import { Instructors } from './src/entities/Instructors';
 import { CoursesSkills } from './src/entities/CoursesSkills';
 import { Courses } from './src/entities/Courses';
 import { Users } from './src/entities/Users';
+import { CoursesSkillsTags } from 'src/entities/CoursesSkillsTags';
 
 const SnakeNamingStrategy =
   require('typeorm-naming-strategies').SnakeNamingStrategy;
@@ -31,24 +37,30 @@ const config: TypeOrmModuleOptions = {
     Users,
     Courses,
     CoursesSkills,
+    CoursesSkillsTags,
     Instructors,
+    InstructorsCourses,
     Likes,
     Reviews,
+    ReviewHelpes,
     Talks,
     TalksComments,
     Studies,
     StudiesSkills,
+    StudiesSkillsTags,
     StudiesComments,
     Projects,
     ProjectsPositions,
+    ProjectsPositionsTags,
     ProjectsSkills,
+    ProjectsSkillsTags,
     ProjectsComments,
   ],
   migrations: [__dirname + '/src/migrations/*.ts'],
   cli: { migrationsDir: 'src/migrations' },
   autoLoadEntities: false,
   charset: 'utf8mb4',
-  synchronize: false,
+  synchronize: true,
   logging: true,
   keepConnectionAlive: true,
   namingStrategy: new SnakeNamingStrategy(),

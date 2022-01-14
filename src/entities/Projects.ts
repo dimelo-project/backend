@@ -1,4 +1,7 @@
+import { ProjectsSkillsTags } from './ProjectsSkillsTags';
+import { ProjectsPositionsTags } from './ProjectsPositionsTags';
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -8,6 +11,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import { Users } from './Users';
@@ -19,7 +23,7 @@ import { ApiProperty } from '@nestjs/swagger';
 @Index('FK_project_user_idx', ['userId'], {})
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('projects', { schema: 'dimelo' })
-export class Projects {
+export class Projects extends BaseEntity {
   @ApiProperty({
     example: 1,
     description: 'project id',
@@ -57,14 +61,14 @@ export class Projects {
 
   @ApiProperty({
     example: 2,
-    description: '모집하는 참여자 수'
+    description: '모집하는 참여자 수',
   })
   @Column('int', { name: 'participant', nullable: true })
   participant: number | null;
 
   @ApiProperty({
     example: 1,
-    description: '글을 작성한 user id'
+    description: '글을 작성한 user id',
   })
   @Column('int', { name: 'user_id' })
   userId: number;
@@ -82,18 +86,24 @@ export class Projects {
   @JoinColumn([{ name: 'user_id', referencedColumnName: 'id' }])
   User: Users;
 
+  @RelationId((projects: Projects) => projects.User)
+  UserId: number;
+
   @OneToMany(
     () => ProjectsComments,
     (projectsComments) => projectsComments.Project,
   )
   ProjectsComments: ProjectsComments[];
 
-  @ManyToMany(
-    () => ProjectsPositions,
-    (projectsPositions) => projectsPositions.Projects,
+  @OneToMany(
+    () => ProjectsPositionsTags,
+    (projectsPositionsTags) => projectsPositionsTags.Project,
   )
-  ProjectsPositions: ProjectsPositions[];
+  ProjectsPositionsTags: ProjectsPositionsTags[];
 
-  @ManyToMany(() => ProjectsSkills, (projectsSkills) => projectsSkills.Projects)
-  ProjectsSkills: ProjectsSkills[];
+  @OneToMany(
+    () => ProjectsSkillsTags,
+    (projectsSkillsTags) => projectsSkillsTags.Project,
+  )
+  ProjectsSkillsTags: ProjectsSkillsTags[];
 }
