@@ -6,6 +6,7 @@ import {
   Entity,
   Index,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -15,6 +16,7 @@ import {
 import { Users } from './Users';
 import { StudiesComments } from './StudiesComments';
 import { ApiProperty } from '@nestjs/swagger';
+import { StudiesSkills } from './StudiesSkills';
 
 @Index('FK_study_user_idx', ['userId'], {})
 @Index('id_UNIQUE', ['id'], { unique: true })
@@ -93,4 +95,7 @@ export class Studies extends BaseEntity {
 
   @OneToMany(() => StudiesComments, (studiesComments) => studiesComments.Study)
   StudiesComments: StudiesComments[];
+
+  @ManyToMany(() => StudiesSkills, (studiesSkills) => studiesSkills.Studies)
+  StudiesSkills: StudiesSkills[];
 }
