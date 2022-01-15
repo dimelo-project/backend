@@ -5,9 +5,11 @@ import {
   Column,
   Entity,
   Index,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Courses } from './Courses';
 
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Index('skill_UNIQUE', ['skill'], { unique: true })
@@ -32,4 +34,7 @@ export class CoursesSkills extends BaseEntity {
     (coursesSkillsTags) => coursesSkillsTags.CoursesSkill,
   )
   CoursesSkillsTgas: CoursesSkillsTags[];
+
+  @ManyToMany(() => Courses, (courses) => courses.CoursesSkills)
+  Courses: Courses[];
 }

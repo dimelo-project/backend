@@ -7,12 +7,16 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Likes } from './Likes';
 import { Reviews } from './Reviews';
+import { Instructors } from './Instructors';
+import { CoursesSkills } from './CoursesSkills';
 
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('courses', { schema: 'dimelo' })
@@ -93,4 +97,22 @@ export class Courses extends BaseEntity {
 
   @OneToMany(() => Reviews, (reviews) => reviews.Course)
   Reviews: Reviews[];
+
+  @ManyToMany(() => CoursesSkills, (coursesSkills) => coursesSkills.Courses)
+  @JoinTable({
+    name: 'courses_skills_tags',
+    joinColumns: [{ name: 'course_id', referencedColumnName: 'id' }],
+    inverseJoinColumns: [{ name: 'skill_id', referencedColumnName: 'id' }],
+    schema: 'dimelo',
+  })
+  CoursesSkills: CoursesSkills[];
+
+  @ManyToMany(() => Instructors, (instructors) => instructors.Courses)
+  @JoinTable({
+    name: 'instructors_courses',
+    joinColumns: [{ name: 'course_id', referencedColumnName: 'id' }],
+    inverseJoinColumns: [{ name: 'instructor_id', referencedColumnName: 'id' }],
+    schema: 'dimelo',
+  })
+  Instructors: Instructors[];
 }

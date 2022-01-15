@@ -1,3 +1,4 @@
+import { DeleteUserDto } from './dto/delete-user.dto';
 import { ReturnUserDto } from './../common/dto/return-user.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
@@ -156,9 +157,9 @@ export class UsersController {
   @Post('/delete/me')
   async deleteMyAccount(
     @CurrentUser() user: CurrentUserDto,
-    @Body('password') password: string,
+    @Body() body: DeleteUserDto,
   ) {
-    return this.usersService.delete(user.id, password);
+    return this.usersService.delete(user.id, body.password);
   }
 
   @ApiOkResponse({

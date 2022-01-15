@@ -37,4 +37,7 @@ export class Instructors extends BaseEntity {
 
   @OneToMany(() => Reviews, (reviews) => reviews.Instructor)
   Reviews: Reviews[];
+
+  @ManyToMany(() => Courses, (courses) => courses.Instructors)
+  Courses: Courses[];
 }

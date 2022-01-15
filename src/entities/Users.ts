@@ -145,4 +145,7 @@ export class Users extends BaseEntity {
 
   @OneToMany(() => TalksComments, (talksComments) => talksComments.User)
   TalksComments: TalksComments[];
+
+  @ManyToMany(() => Reviews, (reviews) => reviews.Users)
+  Help: Reviews[];
 }

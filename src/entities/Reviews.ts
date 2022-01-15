@@ -6,6 +6,8 @@ import {
   Entity,
   Index,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -144,4 +146,13 @@ export class Reviews extends BaseEntity {
 
   @RelationId((reviews: Reviews) => reviews.User)
   UserId: number;
+
+  @ManyToMany(() => Users, (users) => users.Help)
+  @JoinTable({
+    name: 'review_helpes',
+    joinColumns: [{ name: 'review_id', referencedColumnName: 'id' }],
+    inverseJoinColumns: [{ name: 'user_id', referencedColumnName: 'id' }],
+    schema: 'dimelo',
+  })
+  Users: Users[];
 }

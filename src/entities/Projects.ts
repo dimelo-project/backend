@@ -106,4 +106,13 @@ export class Projects extends BaseEntity {
     (projectsSkillsTags) => projectsSkillsTags.Project,
   )
   ProjectsSkillsTags: ProjectsSkillsTags[];
+
+  @ManyToMany(
+    () => ProjectsPositions,
+    (projectsPositions) => projectsPositions.Projects,
+  )
+  ProjectsPositions: ProjectsPositions[];
+
+  @ManyToMany(() => ProjectsSkills, (projectsSkills) => projectsSkills.Projects)
+  ProjectsSkills: ProjectsSkills[];
 }
