@@ -155,7 +155,6 @@ export class AuthController {
     status: 409,
     description: '해당 닉네임이 이미 사용중인 경우',
   })
-  @ApiBody({})
   @ApiOperation({ summary: '닉네임 중복 확인' })
   @Post('/check/nickname')
   async checkNickname(@Body() body: CheckNicknameDto) {
