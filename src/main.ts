@@ -21,6 +21,11 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Dimelo API')
     .setDescription('Dimelo 개발을 위한 API 문서')
