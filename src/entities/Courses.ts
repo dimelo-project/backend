@@ -1,4 +1,3 @@
-import { InstructorsCourses } from './InstructorsCourses';
 import { CoursesSkillsTags } from './CoursesSkillsTags';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -8,7 +7,9 @@ import {
   Entity,
   Index,
   JoinTable,
+  JoinColumn,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -74,6 +75,9 @@ export class Courses extends BaseEntity {
   @Column('varchar', { name: 'site_url', length: 45 })
   siteUrl: string;
 
+  @Column('int', { primary: true, name: 'instructor_id' })
+  instructorId: number;
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -85,12 +89,6 @@ export class Courses extends BaseEntity {
     (coursesSkillsTags) => coursesSkillsTags.Course,
   )
   CoursesSkillsTags: CoursesSkillsTags[];
-
-  @OneToMany(
-    () => InstructorsCourses,
-    (instructorsCourses) => instructorsCourses.Instructor,
-  )
-  InstructorsCourses: InstructorsCourses[];
 
   @OneToMany(() => Likes, (likes) => likes.Course)
   Likes: Likes[];
@@ -107,12 +105,10 @@ export class Courses extends BaseEntity {
   })
   CoursesSkills: CoursesSkills[];
 
-  @ManyToMany(() => Instructors, (instructors) => instructors.Courses)
-  @JoinTable({
-    name: 'instructors_courses',
-    joinColumns: [{ name: 'course_id', referencedColumnName: 'id' }],
-    inverseJoinColumns: [{ name: 'instructor_id', referencedColumnName: 'id' }],
-    schema: 'dimelo',
+  @ManyToOne(() => Instructors, (instructors) => instructors.Courses, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
-  Instructors: Instructors[];
+  @JoinColumn([{ name: 'instructor_id', referencedColumnName: 'id' }])
+  Instructor: Instructors;
 }

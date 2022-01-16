@@ -2,7 +2,6 @@ import { ReviewHelpes } from './src/entities/ReviewHelpes';
 import { ProjectsSkillsTags } from './src/entities/ProjectsSkillsTags';
 import { ProjectsPositionsTags } from './src/entities/ProjectsPositionsTags';
 import { StudiesSkillsTags } from './src/entities/StudiesSkillsTags';
-import { InstructorsCourses } from './src/entities/InstructorsCourses';
 import dotenv from 'dotenv';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ProjectsComments } from './src/entities/ProjectsComments';
@@ -39,7 +38,6 @@ const config: TypeOrmModuleOptions = {
     CoursesSkills,
     CoursesSkillsTags,
     Instructors,
-    InstructorsCourses,
     Likes,
     Reviews,
     ReviewHelpes,
