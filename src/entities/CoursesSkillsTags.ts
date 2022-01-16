@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { Courses } from './Courses';
 
-@Entity('course_skills_tags', { schema: 'dimelo' })
+@Entity('courses_skills_tags', { schema: 'dimelo' })
 export class CoursesSkillsTags extends BaseEntity {
   @Column('int', { primary: true, name: 'skill_id' })
   skillId: number;

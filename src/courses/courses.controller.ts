@@ -1,3 +1,6 @@
+import { CoursesService } from './courses.service';
+import { CurrentUserDto } from './../common/dto/current-user.dto';
+import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import {
   Controller,
   Delete,
@@ -6,12 +9,15 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @ApiTags('COURSE')
 @Controller('api/courses')
 export class CoursesController {
+  constructor(private readonly coursesService: CoursesService) {}
   @ApiOperation({ summary: '강의들 받아오기' })
   @ApiQuery({
     name: 'big',
@@ -54,7 +60,9 @@ export class CoursesController {
     description: 'course id',
   })
   @Get('/:id')
-  getCourse(@Param('id', ParseIntPipe) id: number) {}
+  getCourse(@Param('id', ParseIntPipe) id: number) {
+    return this.coursesService.findById(id);
+  }
 
   @ApiOperation({ summary: '강의 검색하기' })
   @ApiQuery({
@@ -66,8 +74,11 @@ export class CoursesController {
   searchCourse(@Query('keyword') keyword: string) {}
 
   @ApiOperation({ summary: '내가 북마크한 강의 받아오기' })
+  @UseGuards(new LoggedInGuard())
   @Get('/likes/me')
-  getLikedCourses() {}
+  getCoursesLiked(@CurrentUser() user: CurrentUserDto) {
+    return this.coursesService.getLiked(user.id);
+  }
 
   @ApiOperation({ summary: '강의 북마크 하기' })
   @ApiParam({
@@ -75,8 +86,14 @@ export class CoursesController {
     required: true,
     description: 'course id',
   })
+  @UseGuards(new LoggedInGuard())
   @Post('/likes/:id')
-  likeCourse(@Param('id', ParseIntPipe) id: number) {}
+  likeCourse(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.coursesService.addLike(id, user.id);
+  }
 
   @ApiOperation({ summary: '강의 북마크 취소' })
   @ApiParam({
@@ -84,8 +101,14 @@ export class CoursesController {
     required: true,
     description: 'course id',
   })
+  @UseGuards(new LoggedInGuard())
   @Delete('/likes/:id')
-  dislikeCourse(@Param('id', ParseIntPipe) id: number) {}
+  dislikeCourse(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.coursesService.removeLike(id, user.id);
+  }
 
   @ApiOperation({ summary: '해당 강사의 모든 강의 받아오기' })
   @ApiParam({
@@ -96,5 +119,7 @@ export class CoursesController {
   @Get('/instructors/:instructor_id')
   getCoursesByInstructor(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
-  ) {}
+  ) {
+    return this.coursesService.findByInstructor(instructor_id);
+  }
 }
