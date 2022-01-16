@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   ManyToMany,
@@ -28,6 +29,9 @@ export class CoursesSkills extends BaseEntity {
   })
   @Column('varchar', { name: 'skill', unique: true, length: 45 })
   skill: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @OneToMany(
     () => CoursesSkillsTags,

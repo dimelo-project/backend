@@ -1,7 +1,9 @@
+import { CreateCourseDto } from './dto/create-course.dto';
 import { CoursesService } from './courses.service';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -123,8 +125,19 @@ export class CoursesController {
     return this.coursesService.findByInstructor(instructor_id);
   }
 
+  @ApiOperation({ summary: '해당 기술의 강의 모두 받아오기' })
+  @ApiParam({
+    name: 'skill_name',
+    required: true,
+    description: 'skill name',
+  })
   @Get('/skills/:skill_name')
   getCoursesBySkill(@Param('skill_name') skill_name: string) {
     return this.coursesService.findBySkill(skill_name);
+  }
+
+  @Post()
+  createCourseForAdmin(@Body() body: CreateCourseDto) {
+    return this.coursesService.createCourse(body);
   }
 }
