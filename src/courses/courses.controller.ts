@@ -122,4 +122,9 @@ export class CoursesController {
   ) {
     return this.coursesService.findByInstructor(instructor_id);
   }
+
+  @Get('/skills/:skill_name')
+  getCoursesBySkill(@Param('skill_name') skill_name: string) {
+    return this.coursesService.findBySkill(skill_name);
+  }
 }

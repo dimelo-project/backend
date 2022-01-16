@@ -1,3 +1,4 @@
+import { CoursesSkills } from './../entities/CoursesSkills';
 import { Likes } from './../entities/Likes';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -21,6 +22,8 @@ export class CoursesService {
     private readonly instructorsRepository: Repository<Instructors>,
     @InjectRepository(Likes)
     private readonly likesRepository: Repository<Likes>,
+    @InjectRepository(CoursesSkills)
+    private readonly coursesSkillsRepository: Repository<CoursesSkills>,
   ) {}
 
   async findById(id: number) {
@@ -90,5 +93,19 @@ export class CoursesService {
         instructorId: id,
       },
     });
+  }
+
+  async findBySkill(skill: string) {
+    const foundSkill = await this.coursesSkillsRepository.findOne({ skill });
+    if (!foundSkill) {
+      throw new NotFoundException('해당하는 기술을 찾을 수 없습니다');
+    }
+    return this.coursesRepository
+      .createQueryBuilder('courses')
+      .innerJoin('courses.CoursesSkills', 'skills', 'skills.skill =:skill', {
+        skill,
+      })
+      .innerJoinAndSelect('courses.Instructor', 'instructor')
+      .getMany();
   }
 }
