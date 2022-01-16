@@ -13,7 +13,6 @@ import { TalksCommentsResource } from './resources/talks-comments.resource';
 import { TalksResource } from './resources/talks.resource';
 import { ReviewHelpesResource } from './resources/review-helpes.resource';
 import { LikesResource } from './resources/likes.resource';
-import { InstructorsCoursesResource } from './resources/instructors-courses.resource';
 import { InstructorsResource } from './resources/instructors.resource';
 import { CoursesSkillsTagsResource } from './resources/courses-skills-tags.resource';
 import { CoursesSkillResource } from './resources/courses-skills.resource';
@@ -36,7 +35,6 @@ export async function setupAdminPanel(app: INestApplication): Promise<void> {
       CoursesSkillResource,
       CoursesSkillsTagsResource,
       InstructorsResource,
-      InstructorsCoursesResource,
       LikesResource,
       ReviewsResource,
       ReviewHelpesResource,

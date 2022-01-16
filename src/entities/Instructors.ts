@@ -1,11 +1,9 @@
-import { InstructorsCourses } from './InstructorsCourses';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   BaseEntity,
   Column,
   Entity,
   Index,
-  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -29,15 +27,9 @@ export class Instructors extends BaseEntity {
   @Column('varchar', { name: 'name', length: 100 })
   name: string;
 
-  @OneToMany(
-    () => InstructorsCourses,
-    (InstructorsCourses) => InstructorsCourses.Instructor,
-  )
-  InstructorsCourses: InstructorsCourses[];
+  @OneToMany(() => Courses, (courses) => courses.Instructor)
+  Courses: Courses[];
 
   @OneToMany(() => Reviews, (reviews) => reviews.Instructor)
   Reviews: Reviews[];
-
-  @ManyToMany(() => Courses, (courses) => courses.Instructors)
-  Courses: Courses[];
 }
