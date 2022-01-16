@@ -1,23 +1,35 @@
-import { ApiProperty, PickType } from '@nestjs/swagger';
-import { Courses } from 'src/entities/Courses';
+import { IsArray, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateCourseDto extends PickType(Courses, [
-  'title',
-  'platform',
-  'categoryBig',
-  'categorySmall',
-  'price',
-  'siteUrl',
-]) {
-  @ApiProperty({
-    example: 'Spring',
-    description: '강의에서 가르치는 기술',
-  })
-  skill: string;
+export class CreateCourseDto {
+  @IsString()
+  @IsNotEmpty()
+  title: string;
 
-  @ApiProperty({
-    example: '김영한',
-    description: '강사 이름',
-  })
+  @IsString()
+  @IsNotEmpty()
+  platform: string;
+
+  @IsEnum(['개발', '데이터 과학', '디자인'])
+  @IsNotEmpty()
+  categoryBig: '개발' | '데이터 과학' | '디자인';
+
+  @IsString()
+  @IsNotEmpty()
+  categorySmall: string;
+
+  @IsString()
+  @IsNotEmpty()
+  price: number;
+
+  @IsString()
+  @IsNotEmpty()
+  siteUrl: string;
+
+  @IsArray()
+  @IsNotEmpty()
+  skills: string[];
+
+  @IsString()
+  @IsNotEmpty()
   instructor: string;
 }

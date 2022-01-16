@@ -1,3 +1,5 @@
+import { CreateCourseDto } from './dto/create-course.dto';
+import { CoursesSkillsTags } from '../entities/CoursesSkillsTags';
 import { CoursesSkills } from './../entities/CoursesSkills';
 import { Likes } from './../entities/Likes';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,7 +9,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Courses } from '../entities/Courses';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { Instructors } from '../entities/Instructors';
 import { Users } from '../entities/Users';
 
@@ -24,12 +26,13 @@ export class CoursesService {
     private readonly likesRepository: Repository<Likes>,
     @InjectRepository(CoursesSkills)
     private readonly coursesSkillsRepository: Repository<CoursesSkills>,
+    private connection: Connection,
   ) {}
 
   async findById(id: number) {
     const course = await this.coursesRepository.findOne({
       where: { id },
-      relations: ['Instructor'],
+      relations: ['Instructor', 'CoursesSkills'],
     });
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
@@ -107,5 +110,75 @@ export class CoursesService {
       })
       .innerJoinAndSelect('courses.Instructor', 'instructor')
       .getMany();
+  }
+
+  async createCourse({
+    title,
+    platform,
+    categoryBig,
+    categorySmall,
+    siteUrl,
+    price,
+    skills,
+    instructor,
+  }: CreateCourseDto) {
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      let returnedInstructor = await queryRunner.manager
+        .getRepository(Instructors)
+        .findOne({ name: instructor });
+      if (!returnedInstructor) {
+        returnedInstructor = await queryRunner.manager
+          .getRepository(Instructors)
+          .save({ name: instructor });
+      }
+
+      const skillsId = await Promise.all(
+        skills.map(async (skill: string): Promise<number> => {
+          let returnedSkill = await queryRunner.manager
+            .getRepository(CoursesSkills)
+            .findOne({ skill });
+          if (!returnedSkill) {
+            returnedSkill = await queryRunner.manager
+              .getRepository(CoursesSkills)
+              .save({ skill });
+          }
+          return returnedSkill.id;
+        }),
+      );
+
+      const newCourse = new Courses();
+      newCourse.title = title;
+      newCourse.platform = platform;
+      newCourse.categoryBig = categoryBig;
+      newCourse.categorySmall = categorySmall;
+      newCourse.siteUrl = siteUrl;
+      newCourse.price = price;
+      newCourse.instructorId = returnedInstructor.id;
+
+      const returnedCourse = await queryRunner.manager
+        .getRepository(Courses)
+        .save(newCourse);
+
+      await Promise.all(
+        skillsId.map(async (skillId: number): Promise<void> => {
+          const skillTag = new CoursesSkillsTags();
+          skillTag.courseId = returnedCourse.id;
+          skillTag.skillId = skillId;
+          skillTag;
+          await queryRunner.manager
+            .getRepository(CoursesSkillsTags)
+            .save(skillTag);
+        }),
+      );
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
