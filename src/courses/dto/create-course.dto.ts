@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsArray, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateCourseDto {
@@ -13,9 +14,10 @@ export class CreateCourseDto {
   @IsNotEmpty()
   categoryBig: '개발' | '데이터 과학' | '디자인';
 
-  @IsString()
+  @IsArray()
+  @Transform(({ value }) => value.split(','))
   @IsNotEmpty()
-  categorySmall: string;
+  categories: string[];
 
   @IsString()
   @IsNotEmpty()
@@ -26,6 +28,7 @@ export class CreateCourseDto {
   siteUrl: string;
 
   @IsArray()
+  @Transform(({ value }) => value.split(','))
   @IsNotEmpty()
   skills: string[];
 

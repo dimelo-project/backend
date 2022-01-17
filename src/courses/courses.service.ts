@@ -1,3 +1,7 @@
+import { SearchCoursesDto } from './dto/search-course.dto';
+import { CoursesCategories } from './../entities/CoursesCategories';
+import { Categories } from './../entities/Categories';
+import { GetCoursesDto } from './dto/get-courses.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CoursesSkillsTags } from '../entities/CoursesSkillsTags';
 import { CoursesSkills } from './../entities/CoursesSkills';
@@ -28,6 +32,97 @@ export class CoursesService {
     private readonly coursesSkillsRepository: Repository<CoursesSkills>,
     private connection: Connection,
   ) {}
+
+  async findAll({
+    categoryBig,
+    category,
+    perPage,
+    page,
+    skill,
+  }: GetCoursesDto) {
+    if (!categoryBig || !category) {
+      throw new NotFoundException('카테고리를 선택해 주세요');
+    }
+    const query = this.coursesRepository.createQueryBuilder('courses');
+    query
+      .where('courses.categoryBig =:categoryBig', { categoryBig })
+      .innerJoinAndSelect('courses.Instructor', 'instructor')
+      .innerJoin(
+        'courses.Categories',
+        'category',
+        'category.category =:category',
+        { category },
+      );
+    if (skill) {
+      query.innerJoinAndSelect(
+        'courses.CoursesSkills',
+        's',
+        's.skill =:skill',
+        {
+          skill,
+        },
+      );
+    }
+    const courses = await query
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .getMany();
+    return courses;
+  }
+
+  async searchFromAll(
+    perPage: number,
+    page: number,
+    { keyword }: SearchCoursesDto,
+  ) {
+    if (!keyword) {
+      throw new NotFoundException('키워드를 입력해주세요');
+    }
+
+    return this.coursesRepository
+      .createQueryBuilder('courses')
+      .innerJoinAndSelect('courses.Instructor', 'instructor')
+      .andWhere(
+        '(courses.title LIKE :keyword OR instructor.name LIKE :keyword)',
+        {
+          keyword: `%${keyword}%`,
+        },
+      )
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .getMany();
+  }
+
+  async searchFromCategory(
+    { categoryBig, category, perPage, page }: GetCoursesDto,
+    { keyword }: SearchCoursesDto,
+  ) {
+    if (!categoryBig || !category) {
+      throw new NotFoundException('카테고리를 선택해 주세요');
+    }
+    if (!keyword) {
+      throw new NotFoundException('키워드를 입력해주세요');
+    }
+    return this.coursesRepository
+      .createQueryBuilder('courses')
+      .where('courses.categoryBig =:categoryBig', { categoryBig })
+      .innerJoin(
+        'courses.Categories',
+        'category',
+        'category.category =:category',
+        { category },
+      )
+      .innerJoinAndSelect('courses.Instructor', 'instructor')
+      .andWhere(
+        '(courses.title LIKE :keyword OR instructor.name LIKE :keyword)',
+        {
+          keyword: `%${keyword}%`,
+        },
+      )
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .getMany();
+  }
 
   async findById(id: number) {
     const course = await this.coursesRepository.findOne({
@@ -116,7 +211,7 @@ export class CoursesService {
     title,
     platform,
     categoryBig,
-    categorySmall,
+    categories,
     siteUrl,
     price,
     skills,
@@ -134,6 +229,20 @@ export class CoursesService {
           .getRepository(Instructors)
           .save({ name: instructor });
       }
+
+      const categoriesId = await Promise.all(
+        categories.map(async (category: string): Promise<number> => {
+          let returnedCategory = await queryRunner.manager
+            .getRepository(Categories)
+            .findOne({ category });
+          if (!returnedCategory) {
+            returnedCategory = await queryRunner.manager
+              .getRepository(Categories)
+              .save({ category });
+          }
+          return returnedCategory.id;
+        }),
+      );
 
       const skillsId = await Promise.all(
         skills.map(async (skill: string): Promise<number> => {
@@ -153,7 +262,6 @@ export class CoursesService {
       newCourse.title = title;
       newCourse.platform = platform;
       newCourse.categoryBig = categoryBig;
-      newCourse.categorySmall = categorySmall;
       newCourse.siteUrl = siteUrl;
       newCourse.price = price;
       newCourse.instructorId = returnedInstructor.id;
@@ -163,11 +271,21 @@ export class CoursesService {
         .save(newCourse);
 
       await Promise.all(
+        categoriesId.map(async (categoryId: number): Promise<void> => {
+          const courseCategory = new CoursesCategories();
+          courseCategory.courseId = returnedCourse.id;
+          courseCategory.categoryId = categoryId;
+          await queryRunner.manager
+            .getRepository(CoursesCategories)
+            .save(courseCategory);
+        }),
+      );
+
+      await Promise.all(
         skillsId.map(async (skillId: number): Promise<void> => {
           const skillTag = new CoursesSkillsTags();
           skillTag.courseId = returnedCourse.id;
           skillTag.skillId = skillId;
-          skillTag;
           await queryRunner.manager
             .getRepository(CoursesSkillsTags)
             .save(skillTag);

@@ -1,8 +1,10 @@
+import { CoursesSkillsTags } from './src/entities/CoursesSkillsTags';
+import { CoursesCategories } from './src/entities/CoursesCategories';
+import { Categories } from './src/entities/Categories';
 import { ReviewHelpes } from './src/entities/ReviewHelpes';
 import { ProjectsSkillsTags } from './src/entities/ProjectsSkillsTags';
 import { ProjectsPositionsTags } from './src/entities/ProjectsPositionsTags';
 import { StudiesSkillsTags } from './src/entities/StudiesSkillsTags';
-import dotenv from 'dotenv';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ProjectsComments } from './src/entities/ProjectsComments';
 import { ProjectsSkills } from './src/entities/ProjectsSkills';
@@ -19,7 +21,7 @@ import { Instructors } from './src/entities/Instructors';
 import { CoursesSkills } from './src/entities/CoursesSkills';
 import { Courses } from './src/entities/Courses';
 import { Users } from './src/entities/Users';
-import { CoursesSkillsTags } from 'src/entities/CoursesSkillsTags';
+import dotenv from 'dotenv';
 
 const SnakeNamingStrategy =
   require('typeorm-naming-strategies').SnakeNamingStrategy;
@@ -35,6 +37,8 @@ const config: TypeOrmModuleOptions = {
   entities: [
     Users,
     Courses,
+    Categories,
+    CoursesCategories,
     CoursesSkills,
     CoursesSkillsTags,
     Instructors,

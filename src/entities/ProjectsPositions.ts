@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   JoinTable,
@@ -31,6 +32,9 @@ export class ProjectsPositions extends BaseEntity {
     enum: ['프론트', '백엔드', '기획자', '디자이너'],
   })
   position: '프론트' | '백엔드' | '기획자' | '디자이너';
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @OneToMany(
     () => ProjectsPositionsTags,
