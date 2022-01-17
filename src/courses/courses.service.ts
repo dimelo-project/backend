@@ -1,5 +1,7 @@
+import { SearchCoursesDto } from './dto/search-course.dto';
 import { CoursesCategories } from './../entities/CoursesCategories';
 import { Categories } from './../entities/Categories';
+import { GetCoursesDto } from './dto/get-courses.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CoursesSkillsTags } from '../entities/CoursesSkillsTags';
 import { CoursesSkills } from './../entities/CoursesSkills';
@@ -30,6 +32,95 @@ export class CoursesService {
     private readonly coursesSkillsRepository: Repository<CoursesSkills>,
     private connection: Connection,
   ) {}
+
+  async findAll({
+    categoryBig,
+    category,
+    perPage,
+    page,
+    skills,
+  }: GetCoursesDto) {
+    if (!categoryBig || !category) {
+      throw new NotFoundException('카테고리를 선택해 주세요');
+    }
+    const query = this.coursesRepository.createQueryBuilder('courses');
+    query.where('courses.categoryBig =:categoryBig', { categoryBig });
+    query.innerJoin(
+      'courses.Categories',
+      'category',
+      'category.category =:category',
+      { category },
+    );
+    if (skills) {
+      query.innerJoinAndSelect(
+        'courses.CoursesSkills',
+        's',
+        's.skill IN (:...skills)',
+        {
+          skills,
+        },
+      );
+    }
+    const courses = await query
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .getMany();
+    return courses;
+  }
+
+  async searchFromAll(
+    perPage: number,
+    page: number,
+    { keyword }: SearchCoursesDto,
+  ) {
+    if (!keyword) {
+      throw new NotFoundException('키워드를 입력해주세요');
+    }
+
+    return this.coursesRepository
+      .createQueryBuilder('courses')
+      .innerJoinAndSelect('courses.Instructor', 'instructor')
+      .andWhere(
+        '(courses.title LIKE :keyword OR instructor.name LIKE :keyword)',
+        {
+          keyword: `%${keyword}%`,
+        },
+      )
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .getMany();
+  }
+
+  async searchFromCategory(
+    { categoryBig, category, perPage, page }: GetCoursesDto,
+    { keyword }: SearchCoursesDto,
+  ) {
+    if (!categoryBig || !category) {
+      throw new NotFoundException('카테고리를 선택해 주세요');
+    }
+    if (!keyword) {
+      throw new NotFoundException('키워드를 입력해주세요');
+    }
+    return this.coursesRepository
+      .createQueryBuilder('courses')
+      .where('courses.categoryBig =:categoryBig', { categoryBig })
+      .innerJoin(
+        'courses.Categories',
+        'category',
+        'category.category =:category',
+        { category },
+      )
+      .innerJoinAndSelect('courses.Instructor', 'instructor')
+      .andWhere(
+        '(courses.title LIKE :keyword OR instructor.name LIKE :keyword)',
+        {
+          keyword: `%${keyword}%`,
+        },
+      )
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .getMany();
+  }
 
   async findById(id: number) {
     const course = await this.coursesRepository.findOne({

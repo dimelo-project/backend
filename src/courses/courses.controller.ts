@@ -1,3 +1,5 @@
+import { SearchCoursesDto } from './dto/search-course.dto';
+import { GetCoursesDto } from './dto/get-courses.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CoursesService } from './courses.service';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
@@ -8,6 +10,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseArrayPipe,
   ParseIntPipe,
   Post,
   Query,
@@ -22,14 +25,14 @@ export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
   @ApiOperation({ summary: '강의들 받아오기' })
   @ApiQuery({
-    name: 'big',
-    required: false,
-    description: '카테고리 big',
+    name: 'categoryBig',
+    required: true,
+    description: '큰 카테고리: 개발, 데이터 과학, 디자인 중 하나',
   })
   @ApiQuery({
-    name: 'small',
-    required: false,
-    description: '카테고리 small',
+    name: 'category',
+    required: true,
+    description: '큰 카테고리 내 카테고리',
   })
   @ApiQuery({
     name: 'skill',
@@ -47,13 +50,10 @@ export class CoursesController {
     description: '불러올 페이지',
   })
   @Get()
-  getCourses(
-    @Query('big') big: string,
-    @Query('small') small: string,
-    @Query('skill') skill: string,
-    @Query('perPage', ParseIntPipe) perPage: number,
-    @Query('page', ParseIntPipe) page: number,
-  ) {}
+  getCourses(@Query() query: GetCoursesDto) {
+    console.log(query);
+    return this.coursesService.findAll(query);
+  }
 
   @ApiOperation({ summary: '해당 강의 정보 받아오기' })
   @ApiParam({
@@ -66,14 +66,28 @@ export class CoursesController {
     return this.coursesService.findById(id);
   }
 
-  @ApiOperation({ summary: '강의 검색하기' })
+  @Post('/search')
+  searchCoursesFromAll(
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
+    @Body() body: SearchCoursesDto,
+  ) {
+    return this.coursesService.searchFromAll(perPage, page, body);
+  }
+
+  @ApiOperation({ summary: '카테고리 내 강의 검색하기' })
   @ApiQuery({
     name: 'keyword',
     required: true,
     description: '검색할 강의제목이나 강사',
   })
-  @Get('/search')
-  searchCourse(@Query('keyword') keyword: string) {}
+  @Post('/category/search')
+  searchCoursesFromCategory(
+    @Query() query: GetCoursesDto,
+    @Body() body: SearchCoursesDto,
+  ) {
+    return this.coursesService.searchFromCategory(query, body);
+  }
 
   @ApiOperation({ summary: '내가 북마크한 강의 받아오기' })
   @UseGuards(new LoggedInGuard())
