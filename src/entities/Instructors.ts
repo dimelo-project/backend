@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   OneToMany,
@@ -9,7 +10,6 @@ import {
 } from 'typeorm';
 import { Courses } from './Courses';
 import { Reviews } from './Reviews';
-
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('instructors', { schema: 'dimelo' })
 export class Instructors extends BaseEntity {
@@ -26,6 +26,9 @@ export class Instructors extends BaseEntity {
   })
   @Column('varchar', { name: 'name', length: 100 })
   name: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @OneToMany(() => Courses, (courses) => courses.Instructor)
   Courses: Courses[];

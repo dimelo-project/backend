@@ -1,3 +1,4 @@
+import { CategoriesResource } from './resources/categories.resource';
 import { ReviewsResource } from './resources/reviews.resource';
 import { ProjectsPositionsTagsResource } from './resources/projects-positions-tags.resource';
 import { ProjectsSkillsTagsResource } from './resources/projects-skills-tags.resource';
@@ -23,6 +24,7 @@ import AdminJS from 'adminjs';
 import { Database, Resource } from '@adminjs/typeorm';
 import AdminJSExpress from '@adminjs/express';
 import { validate } from 'class-validator';
+import { CoursesCategoriesResource } from './resources/courses-categires.resource';
 
 export async function setupAdminPanel(app: INestApplication): Promise<void> {
   Resource.validate = validate;
@@ -32,6 +34,8 @@ export async function setupAdminPanel(app: INestApplication): Promise<void> {
     resources: [
       UsersResource,
       CoursesResource,
+      CategoriesResource,
+      CoursesCategoriesResource,
       CoursesSkillResource,
       CoursesSkillsTagsResource,
       InstructorsResource,
