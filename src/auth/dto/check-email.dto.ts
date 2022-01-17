@@ -1,4 +1,6 @@
+import { CreateUserDto } from './create-user.dto';
 import { PickType } from '@nestjs/swagger';
-import { Users } from '../../entities/Users';
 
-export class CheckEmailDto extends PickType(Users, ['email'] as const) {}
+export class CheckEmailDto extends PickType(CreateUserDto, [
+  'email',
+] as const) {}

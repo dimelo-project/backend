@@ -1,6 +1,8 @@
+import { CreateUserDto } from './dto/create-user.dto';
 import { GithubLoginUserDto } from './dto/github-login-user.dto';
 import bcrypt from 'bcrypt';
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -18,11 +20,15 @@ export class AuthService {
     @InjectRepository(Users) private usersRepository: Repository<Users>,
     private readonly mailerService: MailerService,
   ) {}
-  async createUser(email: string, password: string) {
+  async createUser(email: string, password: string, checkPassword: string) {
     const foundEmail = await this.usersRepository.findOne({ where: { email } });
     if (foundEmail) {
       throw new ConflictException('이미 해당하는 아이디가 존재합니다');
     }
+    if (password !== checkPassword) {
+      throw new BadRequestException('비밀번호가 일치하지 않습니다');
+    }
+
     const hashedPassword = await bcrypt.hash(
       password,
       parseInt(process.env.BCRYPT_SALT_ROUNDS),

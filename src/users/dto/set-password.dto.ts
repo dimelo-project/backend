@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   Equals,
@@ -13,6 +14,7 @@ export class SetPasswordDto {
     description: '사용자 비밀번호',
   })
   @IsString()
+  @Transform((params) => params.value.trim())
   @IsNotEmpty()
   @MinLength(8, {
     message: '비밀번호는 8자 이상 입력해주세요',
@@ -27,6 +29,7 @@ export class SetPasswordDto {
     description: '사용자 비밀번호',
   })
   @IsString()
+  @Transform((params) => params.value.trim())
   @IsNotEmpty()
   @Equals('newPassword')
   checkPassword: string;
