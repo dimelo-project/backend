@@ -51,7 +51,11 @@ export class AuthController {
   @Serialize(ReturnUserDto)
   @Post('/signup')
   async signup(@Body() body: CreateUserDto) {
-    return this.authSerivce.createUser(body.email, body.password);
+    return this.authSerivce.createUser(
+      body.email,
+      body.password,
+      body.checkPassword,
+    );
   }
 
   @ApiResponse({

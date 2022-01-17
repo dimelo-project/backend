@@ -1,8 +1,13 @@
-import { PickType } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
-import { Users } from '../../entities/Users';
+import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 
-export class GoogleLoginUserDto extends PickType(Users, ['email', 'imageUrl']) {
+export class GoogleLoginUserDto {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsOptional()
+  imageUrl: string;
+
   @IsNotEmpty()
   googleId: number;
 }
