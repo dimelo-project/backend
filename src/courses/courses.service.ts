@@ -38,26 +38,28 @@ export class CoursesService {
     category,
     perPage,
     page,
-    skills,
+    skill,
   }: GetCoursesDto) {
     if (!categoryBig || !category) {
       throw new NotFoundException('카테고리를 선택해 주세요');
     }
     const query = this.coursesRepository.createQueryBuilder('courses');
-    query.where('courses.categoryBig =:categoryBig', { categoryBig });
-    query.innerJoin(
-      'courses.Categories',
-      'category',
-      'category.category =:category',
-      { category },
-    );
-    if (skills) {
+    query
+      .where('courses.categoryBig =:categoryBig', { categoryBig })
+      .innerJoinAndSelect('courses.Instructor', 'instructor')
+      .innerJoin(
+        'courses.Categories',
+        'category',
+        'category.category =:category',
+        { category },
+      );
+    if (skill) {
       query.innerJoinAndSelect(
         'courses.CoursesSkills',
         's',
-        's.skill IN (:...skills)',
+        's.skill =:skill',
         {
-          skills,
+          skill,
         },
       );
     }

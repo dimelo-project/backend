@@ -17,8 +17,8 @@ export class GetCoursesDto {
   category: string;
 
   @IsOptional()
-  @Transform(({ value }) => value.split(','))
-  skills: string[];
+  @IsString()
+  skill: string;
 
   @IsNotEmpty()
   @IsNumber()
