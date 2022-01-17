@@ -13,9 +13,9 @@ export class CreateCourseDto {
   @IsNotEmpty()
   categoryBig: '개발' | '데이터 과학' | '디자인';
 
-  @IsString()
+  @IsArray()
   @IsNotEmpty()
-  categorySmall: string;
+  categories: string[];
 
   @IsString()
   @IsNotEmpty()

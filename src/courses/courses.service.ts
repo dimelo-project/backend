@@ -1,3 +1,5 @@
+import { CoursesCategories } from './../entities/CoursesCategories';
+import { Categories } from './../entities/Categories';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CoursesSkillsTags } from '../entities/CoursesSkillsTags';
 import { CoursesSkills } from './../entities/CoursesSkills';
@@ -116,7 +118,7 @@ export class CoursesService {
     title,
     platform,
     categoryBig,
-    categorySmall,
+    categories,
     siteUrl,
     price,
     skills,
@@ -134,6 +136,20 @@ export class CoursesService {
           .getRepository(Instructors)
           .save({ name: instructor });
       }
+
+      const categoriesId = await Promise.all(
+        categories.map(async (category: string): Promise<number> => {
+          let returnedCategory = await queryRunner.manager
+            .getRepository(Categories)
+            .findOne({ category });
+          if (!returnedCategory) {
+            returnedCategory = await queryRunner.manager
+              .getRepository(Categories)
+              .save({ category });
+          }
+          return returnedCategory.id;
+        }),
+      );
 
       const skillsId = await Promise.all(
         skills.map(async (skill: string): Promise<number> => {
@@ -153,7 +169,6 @@ export class CoursesService {
       newCourse.title = title;
       newCourse.platform = platform;
       newCourse.categoryBig = categoryBig;
-      newCourse.categorySmall = categorySmall;
       newCourse.siteUrl = siteUrl;
       newCourse.price = price;
       newCourse.instructorId = returnedInstructor.id;
@@ -163,11 +178,21 @@ export class CoursesService {
         .save(newCourse);
 
       await Promise.all(
+        categoriesId.map(async (categoryId: number): Promise<void> => {
+          const courseCategory = new CoursesCategories();
+          courseCategory.courseId = returnedCourse.id;
+          courseCategory.categoryId = categoryId;
+          await queryRunner.manager
+            .getRepository(CoursesCategories)
+            .save(courseCategory);
+        }),
+      );
+
+      await Promise.all(
         skillsId.map(async (skillId: number): Promise<void> => {
           const skillTag = new CoursesSkillsTags();
           skillTag.courseId = returnedCourse.id;
           skillTag.skillId = skillId;
-          skillTag;
           await queryRunner.manager
             .getRepository(CoursesSkillsTags)
             .save(skillTag);
