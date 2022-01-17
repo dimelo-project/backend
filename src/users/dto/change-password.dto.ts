@@ -38,6 +38,5 @@ export class ChangePasswordDto {
   })
   @IsString()
   @IsNotEmpty()
-  @Equals('newPassword')
-  checkPassword: string;
+  passwordConfirm: string;
 }

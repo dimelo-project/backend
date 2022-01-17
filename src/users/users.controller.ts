@@ -180,7 +180,7 @@ export class UsersController {
     return this.usersService.setPassword(
       user.id,
       body.newPassword,
-      body.checkPassword,
+      body.passwordConfirm,
     );
   }
 
@@ -207,7 +207,7 @@ export class UsersController {
       user.id,
       body.password,
       body.newPassword,
-      body.checkPassword,
+      body.passwordConfirm,
     );
   }
 

@@ -93,7 +93,7 @@ export class UsersService {
     return this.usersRepository.softDelete(user);
   }
 
-  async setPassword(id: number, newPassword: string, checkPassword: string) {
+  async setPassword(id: number, newPassword: string, passwordConfirm: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
     });
@@ -103,7 +103,7 @@ export class UsersService {
     if (user.password) {
       throw new UnauthorizedException('비밀번호를 변경하기를 해주세요');
     }
-    if (newPassword !== checkPassword) {
+    if (newPassword !== passwordConfirm) {
       throw new BadRequestException('비밀번호가 일치하지 않습니다');
     }
 
@@ -122,7 +122,7 @@ export class UsersService {
     id: number,
     password: string,
     newPassword: string,
-    checkPassword: string,
+    passwordConfirm: string,
   ) {
     const user = await this.usersRepository.findOne({
       where: { id },
@@ -136,7 +136,7 @@ export class UsersService {
     if (password === newPassword) {
       throw new ConflictException('같은 비밀번호를 설정할 수 없습니다');
     }
-    if (newPassword !== checkPassword) {
+    if (newPassword !== passwordConfirm) {
       throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
     }
     const hashedPassword = await bcrypt.hash(

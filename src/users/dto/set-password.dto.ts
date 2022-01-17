@@ -31,6 +31,5 @@ export class SetPasswordDto {
   @IsString()
   @Transform((params) => params.value.trim())
   @IsNotEmpty()
-  @Equals('newPassword')
-  checkPassword: string;
+  passwordConfirm: string;
 }

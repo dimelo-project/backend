@@ -54,7 +54,7 @@ export class AuthController {
     return this.authSerivce.createUser(
       body.email,
       body.password,
-      body.checkPassword,
+      body.passwordConfirm,
     );
   }
 
@@ -98,14 +98,9 @@ export class AuthController {
   @ApiOperation({ summary: '구글 로그인 하기' })
   @UseGuards(AuthGuard('google'))
   @Get('/google')
-  async googleAuth(@Req() req) {}
+  async googleAuth() {}
 
-  @ApiResponse({
-    status: 301,
-    description: '로그인 성공 후 메인 페이지로 이동',
-  })
   @Redirect('http://www.dimelo.com', 301)
-  @ApiOperation({ summary: '구글 로그인이 성공되었을 경우 메인페이지로 경로' })
   @UseGuards(AuthGuard('google'))
   @Get('/google/redirect')
   googleAuthRedirect() {}
@@ -117,13 +112,8 @@ export class AuthController {
   @ApiOperation({ summary: '깃헙 로그인 하기' })
   @UseGuards(AuthGuard('github'))
   @Get('/github')
-  async githubAuth(@Req() req) {}
+  async githubAuth() {}
 
-  @ApiResponse({
-    status: 301,
-    description: '로그인 성공 후 메인 페이지로 이동',
-  })
-  @ApiOperation({ summary: '깃헙 로그인이 성공되었을 경우 메인페이지로 이동' })
   @Redirect('http://www.dimelo.com', 301)
   @UseGuards(AuthGuard('github'))
   @Get('/github/callback')
