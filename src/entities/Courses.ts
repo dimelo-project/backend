@@ -1,3 +1,4 @@
+import { CoursesCategories } from './CoursesCategories';
 import { CoursesSkillsTags } from './CoursesSkillsTags';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -18,6 +19,7 @@ import { Likes } from './Likes';
 import { Reviews } from './Reviews';
 import { Instructors } from './Instructors';
 import { CoursesSkills } from './CoursesSkills';
+import { Categories } from './Categories';
 
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('courses', { schema: 'dimelo' })
@@ -54,13 +56,6 @@ export class Courses extends BaseEntity {
   categoryBig: '개발' | '데이터 과학' | '디자인';
 
   @ApiProperty({
-    example: '백엔드',
-    description: '강의 작은 카테고리',
-  })
-  @Column('varchar', { name: 'category_small', length: 45 })
-  categorySmall: string;
-
-  @ApiProperty({
     example: 99000,
     description: '강의 가격',
   })
@@ -84,17 +79,17 @@ export class Courses extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(
-    () => CoursesSkillsTags,
-    (coursesSkillsTags) => coursesSkillsTags.Course,
-  )
-  CoursesSkillsTags: CoursesSkillsTags[];
-
   @OneToMany(() => Likes, (likes) => likes.Course)
   Likes: Likes[];
 
   @OneToMany(() => Reviews, (reviews) => reviews.Course)
   Reviews: Reviews[];
+
+  @OneToMany(
+    () => CoursesSkillsTags,
+    (coursesSkillsTags) => coursesSkillsTags.Course,
+  )
+  CoursesSkillsTags: CoursesSkillsTags[];
 
   @ManyToMany(() => CoursesSkills, (coursesSkills) => coursesSkills.Courses)
   @JoinTable({
@@ -111,4 +106,19 @@ export class Courses extends BaseEntity {
   })
   @JoinColumn([{ name: 'instructor_id', referencedColumnName: 'id' }])
   Instructor: Instructors;
+
+  @OneToMany(
+    () => CoursesCategories,
+    (coursesCategories) => coursesCategories.Course,
+  )
+  CoursesCategories: CoursesCategories[];
+
+  @ManyToMany(() => Categories, (categories) => categories.Courses)
+  @JoinTable({
+    name: 'courses_categories',
+    joinColumns: [{ name: 'course_id', referencedColumnName: 'id' }],
+    inverseJoinColumns: [{ name: 'category_id', referencedColumnName: 'id' }],
+    schema: 'dimelo',
+  })
+  Categories: Categories[];
 }
