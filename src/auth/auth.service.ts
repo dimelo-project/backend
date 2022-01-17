@@ -20,12 +20,12 @@ export class AuthService {
     @InjectRepository(Users) private usersRepository: Repository<Users>,
     private readonly mailerService: MailerService,
   ) {}
-  async createUser(email: string, password: string, checkPassword: string) {
+  async createUser(email: string, password: string, passwordConfirm: string) {
     const foundEmail = await this.usersRepository.findOne({ where: { email } });
     if (foundEmail) {
       throw new ConflictException('이미 해당하는 아이디가 존재합니다');
     }
-    if (password !== checkPassword) {
+    if (password !== passwordConfirm) {
       throw new BadRequestException('비밀번호가 일치하지 않습니다');
     }
 

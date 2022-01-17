@@ -4,17 +4,17 @@ import {
   Equals,
   IsEmail,
   IsNotEmpty,
+  IsString,
   Matches,
   MinLength,
 } from 'class-validator';
-import { Users } from '../../entities/Users';
 
 export class CreateUserDto {
   @ApiProperty({
     example: 'vltndus95@gmail.com',
     description: '사용자 이메일',
   })
-  @Transform(({value}) => value.trim())
+  @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @IsEmail()
   email: string;
@@ -24,7 +24,7 @@ export class CreateUserDto {
     description: '사용자 비밀번호',
   })
   @IsNotEmpty()
-  @Transform(({value}) => value.trim())
+  @Transform(({ value }) => value.trim())
   @MinLength(8, {
     message: '비밀번호는 8자 이상 입력해주세요',
   })
@@ -38,6 +38,6 @@ export class CreateUserDto {
     description: '사용자 비밀번호',
   })
   @IsNotEmpty()
-  @Equals('password')
-  checkPassword: string;
+  @IsString()
+  passwordConfirm: string;
 }
