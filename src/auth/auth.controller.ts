@@ -100,10 +100,19 @@ export class AuthController {
   @Get('/google')
   async googleAuth() {}
 
-  @Redirect('http://www.dimelo.com', 301)
+  @ApiResponse({
+    status: 301,
+    description:
+      '구글 로그인 성공시 메인 페이지로 이동하면서 현재 유저 정보 리턴',
+    type: ReturnUserDto,
+  })
+  @ApiOperation({ summary: '구글 로그인 성공시 메인 페이지로 이동' })
+  // @Redirect('http://localhost:3000', 301)
   @UseGuards(AuthGuard('google'))
   @Get('/google/redirect')
-  googleAuthRedirect() {}
+  googleAuthRedirect(@CurrentUser() user: CurrentUserDto) {
+    return user;
+  }
 
   @ApiResponse({
     status: 200,
@@ -114,10 +123,19 @@ export class AuthController {
   @Get('/github')
   async githubAuth() {}
 
-  @Redirect('http://www.dimelo.com', 301)
+  @ApiResponse({
+    status: 301,
+    description:
+      '깃허브 로그인 성공시 메인 페이지로 이동하면서 현재 유저 정보 리턴',
+    type: ReturnUserDto,
+  })
+  @ApiOperation({ summary: '깃허브 로그인 성공시 메인 페이지로 이동' })
+  // @Redirect('http://localhost:3000', 301)
   @UseGuards(AuthGuard('github'))
   @Get('/github/callback')
-  githubAuthCallback() {}
+  githubAuthCallback(@CurrentUser() user: CurrentUserDto) {
+    return user;
+  }
 
   @ApiResponse({
     status: 201,
