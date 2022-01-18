@@ -109,8 +109,7 @@ export class UsersController {
   })
   @ApiResponse({
     status: 400,
-    description:
-      'nickname, job, career, imageUrl 값을 제대로 전달 하지 않은 경우',
+    description: 'nickname, job, career 값을 전달 하지 않은 경우',
   })
   @ApiResponse({
     status: 409,

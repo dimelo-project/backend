@@ -10,35 +10,78 @@ import {
   Delete,
   Get,
   Param,
-  ParseArrayPipe,
   ParseIntPipe,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiOkResponse,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @ApiTags('COURSE')
 @Controller('api/courses')
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
-  @ApiOperation({ summary: '강의들 받아오기' })
-  @ApiQuery({
-    name: 'categoryBig',
+  @ApiOkResponse({
+    description: '강의 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'parameter를 제대로 전달 하지 않은 경우',
+  })
+  @ApiOperation({ summary: '해당 카테고리 내의 강의들 모두 받아오기' })
+  @Get()
+  async getCourses(@Query() query: GetCoursesDto) {
+    console.log(query);
+    return this.coursesService.findAll(query);
+  }
+
+  @ApiOkResponse({
+    description: '강의 생성 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'body를 제대로 전달 하지 않은 경우',
+  })
+  @ApiOperation({ summary: '강의 생성하기 (for Admin)' })
+  @Post()
+  async createCourseForAdmin(@Body() body: CreateCourseDto) {
+    return this.coursesService.createCourse(body);
+  }
+
+  @ApiOkResponse({
+    description: '강의 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
+  })
+  @ApiOperation({ summary: '해당 강의 정보 받아오기' })
+  @ApiParam({
+    name: 'id',
     required: true,
-    description: '큰 카테고리: 개발, 데이터 과학, 디자인 중 하나',
+    description: 'course id',
   })
-  @ApiQuery({
-    name: 'category',
-    required: true,
-    description: '큰 카테고리 내 카테고리',
+  @Get('/:id')
+  async getCourse(@Param('id', ParseIntPipe) id: number) {
+    return this.coursesService.findById(id);
+  }
+
+  @ApiOkResponse({
+    description: '검색 강의 받아오기 성공',
   })
-  @ApiQuery({
-    name: 'skill',
-    required: false,
-    description: '기술',
+  @ApiResponse({
+    status: 400,
+    description: 'parameter와 keyword를 제공하지 않은 경우',
   })
+  @ApiOperation({ summary: '전체 메뉴에서 제목, 강사로 강의 검색하기' })
   @ApiQuery({
     name: 'perPage',
     required: true,
@@ -49,53 +92,56 @@ export class CoursesController {
     required: true,
     description: '불러올 페이지',
   })
-  @Get()
-  getCourses(@Query() query: GetCoursesDto) {
-    console.log(query);
-    return this.coursesService.findAll(query);
-  }
-
-  @ApiOperation({ summary: '해당 강의 정보 받아오기' })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'course id',
-  })
-  @Get('/:id')
-  getCourse(@Param('id', ParseIntPipe) id: number) {
-    return this.coursesService.findById(id);
-  }
-
   @Post('/search')
-  searchCoursesFromAll(
+  async searchCoursesFromAll(
     @Query('perPage', ParseIntPipe) perPage: number,
     @Query('page', ParseIntPipe) page: number,
     @Body() body: SearchCoursesDto,
   ) {
-    return this.coursesService.searchFromAll(perPage, page, body);
+    return this.coursesService.searchFromAll(perPage, page, body.keyword);
   }
 
-  @ApiOperation({ summary: '카테고리 내 강의 검색하기' })
-  @ApiQuery({
-    name: 'keyword',
-    required: true,
-    description: '검색할 강의제목이나 강사',
+  @ApiOkResponse({
+    description: '검색 강의 받아오기 성공',
   })
+  @ApiResponse({
+    status: 400,
+    description: 'parameter와 keyword를 제공하지 않은 경우',
+  })
+  @ApiOperation({ summary: '카테고리 내에서 제목, 강사로 강의 검색하기' })
   @Post('/category/search')
-  searchCoursesFromCategory(
+  async searchCoursesFromCategory(
     @Query() query: GetCoursesDto,
     @Body() body: SearchCoursesDto,
   ) {
-    return this.coursesService.searchFromCategory(query, body);
+    return this.coursesService.searchFromCategory(query, body.keyword);
   }
 
+  @ApiOkResponse({
+    description: '북마크 한 강의 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '로그인을 하지 않은 경우',
+  })
   @ApiOperation({ summary: '내가 북마크한 강의 받아오기' })
   @UseGuards(new LoggedInGuard())
   @Get('/likes/me')
-  getCoursesLiked(@CurrentUser() user: CurrentUserDto) {
+  async getCoursesLiked(@CurrentUser() user: CurrentUserDto) {
     return this.coursesService.getLiked(user.id);
   }
 
+  @ApiOkResponse({
+    description: '강의 북마크 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '해당 강의를 찾을 수 없는 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '로그인을 하지 않은 경우',
+  })
   @ApiOperation({ summary: '강의 북마크 하기' })
   @ApiParam({
     name: 'id',
@@ -104,13 +150,24 @@ export class CoursesController {
   })
   @UseGuards(new LoggedInGuard())
   @Post('/likes/:id')
-  likeCourse(
+  async likeCourse(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.coursesService.addLike(id, user.id);
   }
 
+  @ApiOkResponse({
+    description: '강의 북마크 취소 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '해당 강의를 찾을 수 없는 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '로그인을 하지 않은 경우',
+  })
   @ApiOperation({ summary: '강의 북마크 취소' })
   @ApiParam({
     name: 'id',
@@ -119,39 +176,46 @@ export class CoursesController {
   })
   @UseGuards(new LoggedInGuard())
   @Delete('/likes/:id')
-  dislikeCourse(
+  async removelikeCourse(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.coursesService.removeLike(id, user.id);
   }
 
+  @ApiOkResponse({
+    description: '해당 강사 강의들 불러오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '해당 강사를 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 강사의 모든 강의 받아오기' })
   @ApiParam({
-    name: 'instructor_id',
+    name: 'name',
     required: true,
-    description: 'instrouctor id',
+    description: '해당 강사 이름',
   })
-  @Get('/instructors/:instructor_id')
-  getCoursesByInstructor(
-    @Param('instructor_id', ParseIntPipe) instructor_id: number,
-  ) {
-    return this.coursesService.findByInstructor(instructor_id);
+  @Get('/instructors/:name')
+  async getCoursesByInstructor(@Param('name') name: string) {
+    return this.coursesService.findByInstructor(name);
   }
 
+  @ApiOkResponse({
+    description: '해당 기술 강의들 불러오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '해당 기술의 강의를 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 기술의 강의 모두 받아오기' })
   @ApiParam({
-    name: 'skill_name',
+    name: 'skill',
     required: true,
-    description: 'skill name',
+    description: '기술 이름',
   })
-  @Get('/skills/:skill_name')
-  getCoursesBySkill(@Param('skill_name') skill_name: string) {
-    return this.coursesService.findBySkill(skill_name);
-  }
-
-  @Post()
-  createCourseForAdmin(@Body() body: CreateCourseDto) {
-    return this.coursesService.createCourse(body);
+  @Get('/skills/:skill')
+  async getCoursesBySkill(@Param('skill') skill: string) {
+    return this.coursesService.findBySkill(skill);
   }
 }
