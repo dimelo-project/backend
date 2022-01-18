@@ -23,7 +23,11 @@ export class ReviewsController {
     description: 'course id',
   })
   @Get('/:course_id')
-  getAllReviewsOfCourse(@Param('course_id', ParseIntPipe) course_id: number) {}
+  async getAllReviewsOfCourse(
+    @Param('course_id', ParseIntPipe) course_id: number,
+  ) {
+    return this.reviewsService.getReviewsByCourse(course_id);
+  }
 
   @ApiOperation({ summary: '해당 강의에 리뷰 작성하기' })
   @ApiParam({
@@ -75,22 +79,17 @@ export class ReviewsController {
     description: 'instructor id',
   })
   @Get('/instructors/:instructor_id')
-  getAllReviewsOfInstructur(
+  async getAllReviewsOfInstructur(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
-  ) {}
+  ) {
+    return this.reviewsService.getReviewsByInstructor(instructor_id);
+  }
 
   @ApiOperation({ summary: '내가 작성한 모든 리뷰 받아오기' })
   @Get('/me')
-  getMyAllReviews() {}
-
-  @ApiOperation({ summary: '해당 유저가 작성한 모든 리뷰 받아오기' })
-  @ApiParam({
-    name: 'user_id',
-    required: true,
-    description: 'user id',
-  })
-  @Get('/users/:user_id')
-  getAllReviewsByUser(@Param('user_id', ParseIntPipe) user_id: number) {}
+  async getMyAllReviews(@CurrentUser() user: CurrentUserDto) {
+    return this.reviewsService.getMyReviews(user.id);
+  }
 
   @ApiOperation({ summary: '해당 리뷰 도움됨 갯수 받아오기' })
   @ApiParam({

@@ -1,3 +1,4 @@
+import { Courses } from './../entities/Courses';
 import { ReviewHelpes } from './../entities/ReviewHelpes';
 import { Reviews } from './../entities/Reviews';
 import {
@@ -7,7 +8,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Connection } from 'typeorm';
-import { Users } from 'src/entities/Users';
+import { Users } from '../entities/Users';
+import { Instructors } from '../entities/Instructors';
 @Injectable()
 export class ReviewsService {
   constructor(
@@ -17,7 +19,50 @@ export class ReviewsService {
     private readonly usersRepository: Repository<Users>,
     @InjectRepository(ReviewHelpes)
     private readonly reviewHelpesRepository: Repository<ReviewHelpes>,
+    @InjectRepository(Instructors)
+    private readonly instructorsRepository: Repository<Instructors>,
+    @InjectRepository(Courses)
+    private readonly coursesRepository: Repository<Courses>,
   ) {}
+
+  async getReviewsByCourse(id: number) {
+    const course = await this.coursesRepository.findOne({ id });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('reviews')
+      .innerJoin('reviews.Course', 'course', 'course.id =:id', { id })
+      .innerJoinAndSelect('reviews.User', 'user')
+      .getMany();
+  }
+
+  async getReviewsByInstructor(id: number) {
+    const instructor = await this.instructorsRepository.findOne({ id });
+    if (!instructor) {
+      throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('reviews')
+      .innerJoin('reviews.Instructor', 'instructor', 'instructor.id =:id', {
+        id,
+      })
+      .innerJoinAndSelect('reviews.User', 'user')
+      .getMany();
+  }
+
+  async getMyReviews(userId: number) {
+    const user = await this.usersRepository.findOne({
+      id: userId,
+    });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 해주세요');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('reviews')
+      .innerJoin('reviews.User', 'user', 'user.id =:id', { id: userId })
+      .getMany();
+  }
 
   async giveThumbsUp(id: number, userId: number) {
     const user = await this.usersRepository.findOne({
