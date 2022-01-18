@@ -7,6 +7,7 @@ export class CheckNicknameDto {
   @ApiProperty({
     example: 'Avery',
     description: '사용자 닉네임',
+    required: true,
   })
   @Transform(({ value }) => value.trim())
   @IsString()

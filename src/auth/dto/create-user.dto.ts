@@ -13,6 +13,7 @@ export class CreateUserDto {
   @ApiProperty({
     example: 'vltndus95@gmail.com',
     description: '사용자 이메일',
+    required: true,
   })
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
@@ -22,6 +23,7 @@ export class CreateUserDto {
   @ApiProperty({
     example: 'Dimelo12345',
     description: '사용자 비밀번호',
+    required: true,
   })
   @IsNotEmpty()
   @Transform(({ value }) => value.trim())
@@ -36,6 +38,7 @@ export class CreateUserDto {
   @ApiProperty({
     example: 'Dimelo54321',
     description: '사용자 비밀번호',
+    required: true,
   })
   @IsNotEmpty()
   @IsString()

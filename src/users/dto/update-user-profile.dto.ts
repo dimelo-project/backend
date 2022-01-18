@@ -1,13 +1,21 @@
+import { CreateUserProfileDto } from './create-user-profile.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
-import { Users } from '../../entities/Users';
 
-export class UpdateUserDto extends PickType(Users, [
+export class UpdateUserDto extends PickType(CreateUserProfileDto, [
   'nickname',
   'job',
   'career',
-  'introduction',
 ] as const) {
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: '안녕하세요!',
+    description: '자기소개',
+    required: false,
+  })
+  introduction: string;
+
   @IsString()
   @IsOptional()
   @ApiProperty({

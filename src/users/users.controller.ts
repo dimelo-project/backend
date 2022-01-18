@@ -109,7 +109,8 @@ export class UsersController {
   })
   @ApiResponse({
     status: 400,
-    description: 'nickname, job, career 값을 전달 하지 않은 경우',
+    description:
+      'nickname, job, career 값을 전달 하지 않은 경우, 닉네임이 10자 이상인 경우',
   })
   @ApiResponse({
     status: 409,
@@ -167,9 +168,16 @@ export class UsersController {
   })
   @ApiResponse({
     status: 400,
-    description: '비밀번호 형식을 지키지 않은 경우',
+    description: '비밀번호 형식이 잘못되었거나 일치하지 않을 경우',
   })
-  @ApiOperation({ summary: '구글, 깃허브 회원 비밀번호 설정하기' })
+  @ApiResponse({
+    status: 401,
+    description:
+      '비밀번호가 이미 있는데 설정하려는 경우 (잘못된 경로: 비밀번호 수정하기로 가야함)',
+  })
+  @ApiOperation({
+    summary: '구글, 깃허브 회원가입한 회원 첫 비밀번호 생성하기',
+  })
   @Serialize(ReturnUserDto)
   @Patch('/set/password')
   async setNewPassword(
@@ -189,11 +197,15 @@ export class UsersController {
   })
   @ApiResponse({
     status: 400,
-    description: '비밀번호 형식을 지키지 않은 경우',
+    description: '비밀번호 형식이 잘못되었거나 일치하지 않을 경우',
   })
   @ApiResponse({
     status: 401,
-    description: '비밀번호를 틀려 탈퇴 권한이 없을 경우',
+    description: '비밀번호를 틀려 변경 권한이 없을 경우',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '이전 비밀번호와 같은 비밀번호를 설정하려는 경우',
   })
   @ApiOperation({ summary: '비밀번호 변경하기' })
   @Serialize(ReturnUserDto)

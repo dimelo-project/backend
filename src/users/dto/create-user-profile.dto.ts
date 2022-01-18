@@ -1,12 +1,29 @@
+import { CheckNicknameDto } from './../../auth/dto/check-nickname.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsNotEmpty, IsString } from 'class-validator';
 import { Users } from 'src/entities/Users';
 
-export class CreateUserProfileDto extends PickType(Users, [
+export class CreateUserProfileDto extends PickType(CheckNicknameDto, [
   'nickname',
-  'job',
-  'career',
 ]) {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: '백엔드 개발자',
+    description: '사용자 직무',
+    required: true,
+  })
+  job: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: '1년차 이하',
+    description: '사용자 경력',
+    required: true,
+  })
+  career: string;
+
   @ApiProperty({
     type: 'string',
     format: 'binary',

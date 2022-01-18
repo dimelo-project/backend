@@ -12,6 +12,7 @@ export class ChangePasswordDto {
   @ApiProperty({
     example: 'Dimelo12345',
     description: '사용자 비밀번호',
+    required: true,
   })
   @IsString()
   @IsNotEmpty()
@@ -20,10 +21,10 @@ export class ChangePasswordDto {
   @ApiProperty({
     example: 'Dimelo54321',
     description: '사용자 비밀번호',
+    required: true,
   })
   @IsString()
   @IsNotEmpty()
-  @NotEquals('password')
   @MinLength(8, {
     message: '비밀번호는 12자 이상 입력해주세요',
   })
@@ -35,6 +36,7 @@ export class ChangePasswordDto {
   @ApiProperty({
     example: 'Dimelo54321',
     description: '사용자 비밀번호',
+    required: true,
   })
   @IsString()
   @IsNotEmpty()
