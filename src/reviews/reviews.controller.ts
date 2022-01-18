@@ -1,3 +1,5 @@
+import { ReviewsService } from './reviews.service';
+import { CurrentUserDto } from './../common/dto/current-user.dto';
 import {
   Controller,
   Delete,
@@ -8,10 +10,12 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiParam } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @ApiTags('REVIEW')
 @Controller('api/reviews')
 export class ReviewsController {
+  constructor(private readonly reviewsService: ReviewsService) {}
   @ApiOperation({ summary: '해당 강의의 모든 리뷰들 받아오기' })
   @ApiParam({
     name: 'course_id',
@@ -88,14 +92,44 @@ export class ReviewsController {
   @Get('/users/:user_id')
   getAllReviewsByUser(@Param('user_id', ParseIntPipe) user_id: number) {}
 
+  @ApiOperation({ summary: '해당 리뷰 도움됨 갯수 받아오기' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'review id',
+  })
+  @Get('/help/:id')
+  async getCountofThumbsUp(@Param('id', ParseIntPipe) id: number) {
+    return this.reviewsService.checkThumbsUpCount(id);
+  }
+
+  @ApiOperation({ summary: '해당 리뷰 내가 도움됨 눌렀는지 체크' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'review id',
+  })
+  @Get('/help/me/:id')
+  async checkIgaveThumbsUp(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.reviewsService.checkIgaveThumbsUp(id, user.id);
+  }
+
   @ApiOperation({ summary: '해당 리뷰 도움됨 누르기' })
   @ApiParam({
     name: 'id',
     required: true,
     description: 'review id',
   })
-  @Post('/helped/:id')
-  giveThumsUp(@Param('id', ParseIntPipe) id: number) {}
+  @Post('/help/me/:id')
+  async giveThumbsUpOnReview(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.reviewsService.giveThumbsUp(id, user.id);
+  }
 
   @ApiOperation({ summary: '해당 리뷰 도움됨 취소' })
   @ApiParam({
@@ -103,6 +137,11 @@ export class ReviewsController {
     required: true,
     description: 'review id',
   })
-  @Delete('/helped/:id')
-  revokeThumsUp(@Param('id', ParseIntPipe) id: number) {}
+  @Delete('/help/me/:id')
+  async revokeThumbsUpOnReview(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.reviewsService.revokeThumbsUp(id, user.id);
+  }
 }

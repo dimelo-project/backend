@@ -101,13 +101,6 @@ export class Reviews extends BaseEntity {
   @Column('text', { name: 'cons' })
   cons: string;
 
-  @ApiProperty({
-    example: 5,
-    description: '리뷰가 도움됨을 받은 수',
-  })
-  @Column('int', { name: 'helped', nullable: true, default: () => "'0'" })
-  helped: number | null;
-
   @CreateDateColumn()
   createdAt: Date | null;
 
