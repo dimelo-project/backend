@@ -1,4 +1,3 @@
-import { SearchCoursesDto } from './dto/search-course.dto';
 import { CoursesCategories } from './../entities/CoursesCategories';
 import { Categories } from './../entities/Categories';
 import { GetCoursesDto } from './dto/get-courses.dto';
@@ -67,14 +66,11 @@ export class CoursesService {
       .take(perPage)
       .skip(perPage * (page - 1))
       .getMany();
+
     return courses;
   }
 
-  async searchFromAll(
-    perPage: number,
-    page: number,
-    { keyword }: SearchCoursesDto,
-  ) {
+  async searchFromAll(perPage: number, page: number, keyword: string) {
     if (!keyword) {
       throw new NotFoundException('키워드를 입력해주세요');
     }
@@ -95,7 +91,7 @@ export class CoursesService {
 
   async searchFromCategory(
     { categoryBig, category, perPage, page }: GetCoursesDto,
-    { keyword }: SearchCoursesDto,
+    keyword: string,
   ) {
     if (!categoryBig || !category) {
       throw new NotFoundException('카테고리를 선택해 주세요');
@@ -181,16 +177,20 @@ export class CoursesService {
       .getMany();
   }
 
-  async findByInstructor(id: number) {
-    const instructor = await this.instructorsRepository.findOne({ id });
+  async findByInstructor(name: string) {
+    const instructor = await this.instructorsRepository.findOne({ name });
     if (!instructor) {
       throw new NotFoundException('해당 강사를 찾을 수 없습니다');
     }
-    return this.coursesRepository.find({
-      where: {
-        instructorId: id,
-      },
-    });
+    return this.coursesRepository
+      .createQueryBuilder('courses')
+      .innerJoinAndSelect(
+        'courses.Instructor',
+        'instructor',
+        'instructor.name =:name',
+        { name },
+      )
+      .getMany();
   }
 
   async findBySkill(skill: string) {
