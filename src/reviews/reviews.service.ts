@@ -1,7 +1,9 @@
+import { CreateReviewDto } from './dto/create-review.dto';
 import { Courses } from './../entities/Courses';
 import { ReviewHelpes } from './../entities/ReviewHelpes';
 import { Reviews } from './../entities/Reviews';
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -25,6 +27,40 @@ export class ReviewsService {
     private readonly coursesRepository: Repository<Courses>,
   ) {}
 
+  async writeReview(
+    courseId: number,
+    { q1, q2, q3, q4, pros, cons }: CreateReviewDto,
+    userId: number,
+  ) {
+    const user = await this.usersRepository.findOne({
+      id: userId,
+    });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 해주세요');
+    }
+    if (!user.nickname) {
+      throw new UnauthorizedException('프로필을 설정 해주세요');
+    }
+    const course = await this.coursesRepository.findOne({ id: courseId });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+
+    const review = new Reviews();
+    review.userId = user.id;
+    review.courseId = course.id;
+    review.instructorId = course.instructorId;
+    review.q1 = q1;
+    review.q2 = q2;
+    review.q3 = q3;
+    review.q4 = q4;
+    review.avg = (q1 + q2 + q3 + q4) / 4;
+    review.pros = pros;
+    review.cons = cons;
+
+    return this.reviewsRepository.save(review);
+  }
+
   async getReviewsByCourse(id: number) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
@@ -33,7 +69,18 @@ export class ReviewsService {
     return this.reviewsRepository
       .createQueryBuilder('reviews')
       .innerJoin('reviews.Course', 'course', 'course.id =:id', { id })
-      .innerJoinAndSelect('reviews.User', 'user')
+      .innerJoin('reviews.User', 'user')
+      .select([
+        'reviews.id',
+        'reviews.pros',
+        'reviews.cons',
+        'reviews.avg',
+        'reviews.createdAt',
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl',
+      ])
       .getMany();
   }
 
@@ -47,7 +94,18 @@ export class ReviewsService {
       .innerJoin('reviews.Instructor', 'instructor', 'instructor.id =:id', {
         id,
       })
-      .innerJoinAndSelect('reviews.User', 'user')
+      .innerJoin('reviews.User', 'user')
+      .select([
+        'reviews.id',
+        'reviews.pros',
+        'reviews.cons',
+        'reviews.avg',
+        'reviews.createdAt',
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl',
+      ])
       .getMany();
   }
 
@@ -61,6 +119,18 @@ export class ReviewsService {
     return this.reviewsRepository
       .createQueryBuilder('reviews')
       .innerJoin('reviews.User', 'user', 'user.id =:id', { id: userId })
+      .innerJoin('reviews.Course', 'course')
+      .innerJoin('reviews.Instructor', 'instructor')
+      .select([
+        'reviews.id',
+        'reviews.pros',
+        'reviews.cons',
+        'reviews.avg',
+        'reviews.createdAt',
+        'instructor.name',
+        'course.title',
+        'course.platform',
+      ])
       .getMany();
   }
 
@@ -77,6 +147,16 @@ export class ReviewsService {
     if (!review) {
       throw new NotFoundException('해당 리뷰를 찾을 수 없습니다');
     }
+    const helped = await this.reviewHelpesRepository.findOne({
+      where: {
+        reviewId: review.id,
+        userId,
+      },
+    });
+    if (helped) {
+      throw new ConflictException('이미 도움됨을 눌렀습니다');
+    }
+
     await this.reviewHelpesRepository.save({
       reviewId: review.id,
       userId: user.id,
@@ -101,9 +181,10 @@ export class ReviewsService {
     const helped = await this.reviewHelpesRepository.findOne({
       where: { reviewId: id, userId },
     });
-    if (helped) {
-      await this.reviewHelpesRepository.remove(helped);
+    if (!helped) {
+      throw new ConflictException('도움됨을 누른적이 없습니다');
     }
+    await this.reviewHelpesRepository.remove(helped);
     return true;
   }
 
@@ -136,10 +217,9 @@ export class ReviewsService {
     if (!review) {
       throw new NotFoundException('해당 리뷰를 찾을 수 없습니다');
     }
-    await this.reviewHelpesRepository.count({
-      where: {
-        reviewId: id,
-      },
-    });
+    return this.reviewHelpesRepository
+      .createQueryBuilder('help')
+      .innerJoin('help.Review', 'review', 'review.id =:id', { id })
+      .getCount();
   }
 }

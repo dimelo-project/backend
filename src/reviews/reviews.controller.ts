@@ -1,6 +1,8 @@
+import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewsService } from './reviews.service';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -16,61 +18,11 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 @Controller('api/reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
-  @ApiOperation({ summary: '해당 강의의 모든 리뷰들 받아오기' })
-  @ApiParam({
-    name: 'course_id',
-    required: true,
-    description: 'course id',
-  })
-  @Get('/:course_id')
-  async getAllReviewsOfCourse(
-    @Param('course_id', ParseIntPipe) course_id: number,
-  ) {
-    return this.reviewsService.getReviewsByCourse(course_id);
+  @ApiOperation({ summary: '내가 작성한 모든 리뷰 받아오기' })
+  @Get('/me')
+  async getMyAllReviews(@CurrentUser() user: CurrentUserDto) {
+    return this.reviewsService.getMyReviews(user.id);
   }
-
-  @ApiOperation({ summary: '해당 강의에 리뷰 작성하기' })
-  @ApiParam({
-    name: 'course_id',
-    required: true,
-    description: 'course id',
-  })
-  @Post('/:course_id')
-  writeReview(@Param('course_id', ParseIntPipe) course_id: number) {}
-
-  @ApiOperation({ summary: '해당 강의의 해당 리뷰 수정' })
-  @ApiParam({
-    name: 'course_id',
-    required: true,
-    description: 'course id',
-  })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'review id',
-  })
-  @Patch('/:course_id/:id')
-  updateReview(
-    @Param('course_id', ParseIntPipe) course_id: number,
-    @Param('id', ParseIntPipe) id: number,
-  ) {}
-
-  @ApiOperation({ summary: '해당 강의의 해당 리뷰 삭제' })
-  @ApiParam({
-    name: 'course_id',
-    required: true,
-    description: 'course id',
-  })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'review id',
-  })
-  @Delete('/:course_id/:id')
-  deleteReview(
-    @Param('course_id', ParseIntPipe) course_id: number,
-    @Param('id', ParseIntPipe) id: number,
-  ) {}
 
   @ApiOperation({ summary: '해당 강사의 모든 리뷰 받아오기' })
   @ApiParam({
@@ -83,12 +35,6 @@ export class ReviewsController {
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
   ) {
     return this.reviewsService.getReviewsByInstructor(instructor_id);
-  }
-
-  @ApiOperation({ summary: '내가 작성한 모든 리뷰 받아오기' })
-  @Get('/me')
-  async getMyAllReviews(@CurrentUser() user: CurrentUserDto) {
-    return this.reviewsService.getMyReviews(user.id);
   }
 
   @ApiOperation({ summary: '해당 리뷰 도움됨 갯수 받아오기' })
@@ -143,4 +89,66 @@ export class ReviewsController {
   ) {
     return this.reviewsService.revokeThumbsUp(id, user.id);
   }
+
+  @ApiOperation({ summary: '해당 강의의 모든 리뷰들 받아오기' })
+  @ApiParam({
+    name: 'course_id',
+    required: true,
+    description: 'course id',
+  })
+  @Get('/:course_id')
+  async getAllReviewsOfCourse(
+    @Param('course_id', ParseIntPipe) course_id: number,
+  ) {
+    return this.reviewsService.getReviewsByCourse(course_id);
+  }
+
+  @ApiOperation({ summary: '해당 강의에 리뷰 작성하기' })
+  @ApiParam({
+    name: 'course_id',
+    required: true,
+    description: 'course id',
+  })
+  @Post('/:course_id')
+  async createReviewOfCourse(
+    @Param('course_id', ParseIntPipe) course_id: number,
+    @Body() body: CreateReviewDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.reviewsService.writeReview(course_id, body, user.id);
+  }
+
+  @ApiOperation({ summary: '해당 강의의 해당 리뷰 수정' })
+  @ApiParam({
+    name: 'course_id',
+    required: true,
+    description: 'course id',
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'review id',
+  })
+  @Patch('/:course_id/:id')
+  updateReview(
+    @Param('course_id', ParseIntPipe) course_id: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {}
+
+  @ApiOperation({ summary: '해당 강의의 해당 리뷰 삭제' })
+  @ApiParam({
+    name: 'course_id',
+    required: true,
+    description: 'course id',
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'review id',
+  })
+  @Delete('/:course_id/:id')
+  deleteReview(
+    @Param('course_id', ParseIntPipe) course_id: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {}
 }

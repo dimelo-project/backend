@@ -85,7 +85,7 @@ export class Reviews extends BaseEntity {
     description: 'q1-q4의 평균 점수',
   })
   @Column('decimal', { name: 'avg', precision: 2, scale: 1 })
-  avg: string;
+  avg: number;
 
   @ApiProperty({
     example: '좋아요 들으세요',
