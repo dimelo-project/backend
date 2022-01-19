@@ -21,35 +21,63 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 @Controller('api/reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
-  @ApiOperation({ summary: '내가 작성한 모든 리뷰 받아오기' })
+  @ApiOperation({ summary: '내가 작성한 모든 리뷰 최신순으로 받아오기' })
   @UseGuards(new LoggedInGuard())
   @Get('/me')
   async getMyAllReviews(@CurrentUser() user: CurrentUserDto) {
     return this.reviewsService.getMyReviews(user.id);
   }
 
-  @ApiOperation({ summary: '해당 강사의 모든 리뷰 받아오기' })
+  @ApiOperation({ summary: '해당 강사의 모든 리뷰 최신순으로 받아오기' })
   @ApiParam({
     name: 'instructor_id',
     required: true,
     description: 'instructor id',
   })
   @Get('/instructors/:instructor_id')
-  async getAllReviewsOfInstructur(
+  async getAllReviewsOfInstructurOrderByDate(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
   ) {
-    return this.reviewsService.getReviewsByInstructor(instructor_id);
+    return this.reviewsService.getByInstructorOrderByDate(instructor_id);
   }
 
-  @ApiOperation({ summary: '해당 리뷰 도움됨 갯수 받아오기' })
+  @ApiOperation({ summary: '해당 강사의 모든 리뷰 추천순으로 받아오기' })
   @ApiParam({
-    name: 'id',
+    name: 'instructor_id',
     required: true,
-    description: 'review id',
+    description: 'instructor id',
   })
-  @Get('/help/:id')
-  async getCountofThumbsUp(@Param('id', ParseIntPipe) id: number) {
-    return this.reviewsService.checkThumbsUpCount(id);
+  @Get('/instructors/:instructor_id/help')
+  async getAllReviewsOfInstructurOrderByThumbsUp(
+    @Param('instructor_id', ParseIntPipe) instructor_id: number,
+  ) {
+    return this.reviewsService.getByInstructorOrderByThumbsUp(instructor_id);
+  }
+
+  @ApiOperation({ summary: '해당 강사의 모든 리뷰 평점 낮은순으로 받아오기' })
+  @ApiParam({
+    name: 'instructor_id',
+    required: true,
+    description: 'instructor id',
+  })
+  @Get('/instructors/:instructor_id/avg/asc')
+  async getAllReviewsOfInstructurOrderByAvgASC(
+    @Param('instructor_id', ParseIntPipe) instructor_id: number,
+  ) {
+    return this.reviewsService.getByInstructorOrderByAvgASC(instructor_id);
+  }
+
+  @ApiOperation({ summary: '해당 강사의 모든 리뷰 평점 높은순으로 받아오기' })
+  @ApiParam({
+    name: 'instructor_id',
+    required: true,
+    description: 'instructor id',
+  })
+  @Get('/instructors/:instructor_id/avg/desc')
+  async getAllReviewsOfInstructurOrderByAvgDESC(
+    @Param('instructor_id', ParseIntPipe) instructor_id: number,
+  ) {
+    return this.reviewsService.getByInstructorOrderByAvgDESC(instructor_id);
   }
 
   @ApiOperation({ summary: '해당 리뷰 내가 도움됨 눌렀는지 체크' })
@@ -97,17 +125,56 @@ export class ReviewsController {
     return this.reviewsService.revokeThumbsUp(id, user.id);
   }
 
-  @ApiOperation({ summary: '해당 강의의 모든 리뷰들 받아오기' })
+  @ApiOperation({ summary: '해당 강의의 리뷰 추천순으로 받아오기' })
   @ApiParam({
     name: 'course_id',
     required: true,
     description: 'course id',
   })
-  @Get('/:course_id')
-  async getAllReviewsOfCourse(
+  @Get('courses/:course_id/help')
+  async getReviewsOfCourseOrderByThumbsUp(
     @Param('course_id', ParseIntPipe) course_id: number,
   ) {
-    return this.reviewsService.getReviewsByCourse(course_id);
+    return this.reviewsService.getByCourseOrderByThumbsUp(course_id);
+  }
+
+  @ApiOperation({ summary: '해당 강의의 리뷰 별점 낮은순으로 받아오기' })
+  @ApiParam({
+    name: 'course_id',
+    required: true,
+    description: 'course id',
+  })
+  @Get('courses/:course_id/avg/asc')
+  async getReviewsOfCourseOrderByAvgASC(
+    @Param('course_id', ParseIntPipe) course_id: number,
+  ) {
+    return this.reviewsService.getByCourseOrderByAvgASC(course_id);
+  }
+
+  @ApiOperation({ summary: '해당 강의의 리뷰 별점 높은순으로 받아오기' })
+  @ApiParam({
+    name: 'course_id',
+    required: true,
+    description: 'course id',
+  })
+  @Get('courses/:course_id/avg/desc')
+  async getReviewsOfCourseOrderByAvgDESC(
+    @Param('course_id', ParseIntPipe) course_id: number,
+  ) {
+    return this.reviewsService.getByCourseOrderByAvgDESC(course_id);
+  }
+
+  @ApiOperation({ summary: '해당 강의의 모든 리뷰들 최신순으로 받아오기' })
+  @ApiParam({
+    name: 'course_id',
+    required: true,
+    description: 'course id',
+  })
+  @Get('courses/:course_id')
+  async getAllReviewsOfCourseOrderByDate(
+    @Param('course_id', ParseIntPipe) course_id: number,
+  ) {
+    return this.reviewsService.getByCourseOrderByDate(course_id);
   }
 
   @ApiOperation({ summary: '해당 강의에 리뷰 작성하기' })
@@ -117,7 +184,7 @@ export class ReviewsController {
     description: 'course id',
   })
   @UseGuards(new LoggedInGuard())
-  @Post('/:course_id')
+  @Post('courses/:course_id')
   async createReviewOfCourse(
     @Param('course_id', ParseIntPipe) course_id: number,
     @Body() body: CreateReviewDto,
@@ -138,8 +205,8 @@ export class ReviewsController {
     description: 'review id',
   })
   @UseGuards(new LoggedInGuard())
-  @Patch('/:course_id/:id')
-  updateReviewOfCourse(
+  @Patch('courses/:course_id/:id')
+  async updateReviewOfCourse(
     @Param('course_id', ParseIntPipe) course_id: number,
     @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateReviewDto,
@@ -160,8 +227,8 @@ export class ReviewsController {
     description: 'review id',
   })
   @UseGuards(new LoggedInGuard())
-  @Delete('/:course_id/:id')
-  deleteReview(
+  @Delete('courses/:course_id/:id')
+  async deleteReview(
     @Param('course_id', ParseIntPipe) course_id: number,
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,

@@ -112,52 +112,228 @@ export class ReviewsService {
     return true;
   }
 
-  async getReviewsByCourse(id: number) {
+  async getByCourseOrderByDate(id: number) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
     return this.reviewsRepository
-      .createQueryBuilder('reviews')
-      .innerJoin('reviews.Course', 'course', 'course.id =:id', { id })
-      .innerJoin('reviews.User', 'user')
+      .createQueryBuilder('review')
+      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
+      .innerJoin('review.User', 'user')
+      .leftJoin('review.ReviewHelpes', 'help')
       .select([
-        'reviews.id',
-        'reviews.pros',
-        'reviews.cons',
-        'reviews.avg',
-        'reviews.createdAt',
+        'review.id',
+        'review.pros',
+        'review.cons',
+        'review.avg',
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
         'user.nickname',
         'user.job',
         'user.career',
         'user.imageUrl',
       ])
-      .getMany();
+      .addSelect('COUNT(help.reviewId) AS review_helpes')
+      .groupBy('help.reviewId')
+      .orderBy('review_createdAt', 'DESC')
+      .getRawMany();
   }
 
-  async getReviewsByInstructor(id: number) {
+  async getByCourseOrderByThumbsUp(id: number) {
+    const course = await this.coursesRepository.findOne({ id });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
+      .innerJoin('review.User', 'user')
+      .leftJoin('review.ReviewHelpes', 'help')
+      .select([
+        'review.id',
+        'review.pros',
+        'review.cons',
+        'review.avg',
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl',
+      ])
+      .addSelect('COUNT(help.reviewId) AS review_helpes')
+      .groupBy('help.reviewId')
+      .orderBy('review_helpes', 'DESC')
+      .getRawMany();
+  }
+
+  async getByCourseOrderByAvgASC(id: number) {
+    const course = await this.coursesRepository.findOne({ id });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
+      .innerJoin('review.User', 'user')
+      .leftJoin('review.ReviewHelpes', 'help')
+      .select([
+        'review.id',
+        'review.pros',
+        'review.cons',
+        'review.avg',
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl',
+      ])
+      .addSelect('COUNT(help.reviewId) AS review_helpes')
+      .groupBy('help.reviewId')
+      .orderBy('review.avg', 'ASC')
+      .getRawMany();
+  }
+
+  async getByCourseOrderByAvgDESC(id: number) {
+    const course = await this.coursesRepository.findOne({ id });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
+      .innerJoin('review.User', 'user')
+      .leftJoin('review.ReviewHelpes', 'help')
+      .select([
+        'review.id',
+        'review.pros',
+        'review.cons',
+        'review.avg',
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl',
+      ])
+      .addSelect('COUNT(help.reviewId) AS review_helpes')
+      .groupBy('help.reviewId')
+      .orderBy('review.avg', 'DESC')
+      .getRawMany();
+  }
+
+  async getByInstructorOrderByDate(id: number) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
       throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
     }
     return this.reviewsRepository
-      .createQueryBuilder('reviews')
-      .innerJoin('reviews.Instructor', 'instructor', 'instructor.id =:id', {
+      .createQueryBuilder('review')
+      .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
         id,
       })
-      .innerJoin('reviews.User', 'user')
+      .innerJoin('review.User', 'user')
+      .leftJoin('review.ReviewHelpes', 'help')
       .select([
-        'reviews.id',
-        'reviews.pros',
-        'reviews.cons',
-        'reviews.avg',
-        'reviews.createdAt',
+        'review.id',
+        'review.pros',
+        'review.cons',
+        'review.avg',
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
         'user.nickname',
         'user.job',
         'user.career',
         'user.imageUrl',
       ])
-      .getMany();
+      .addSelect('COUNT(help.reviewId) AS review_helpes')
+      .groupBy('help.reviewId')
+      .orderBy('review_createdAt', 'DESC')
+      .getRawMany();
+  }
+
+  async getByInstructorOrderByThumbsUp(id: number) {
+    const instructor = await this.instructorsRepository.findOne({ id });
+    if (!instructor) {
+      throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
+        id,
+      })
+      .innerJoin('review.User', 'user')
+      .leftJoin('review.ReviewHelpes', 'help')
+      .select([
+        'review.id',
+        'review.pros',
+        'review.cons',
+        'review.avg',
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl',
+      ])
+      .addSelect('COUNT(help.reviewId) AS review_helpes')
+      .groupBy('help.reviewId')
+      .orderBy('review_helpes', 'DESC')
+      .getRawMany();
+  }
+
+  async getByInstructorOrderByAvgASC(id: number) {
+    const instructor = await this.instructorsRepository.findOne({ id });
+    if (!instructor) {
+      throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
+        id,
+      })
+      .innerJoin('review.User', 'user')
+      .leftJoin('review.ReviewHelpes', 'help')
+      .select([
+        'review.id',
+        'review.pros',
+        'review.cons',
+        'review.avg',
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl',
+      ])
+      .addSelect('COUNT(help.reviewId) AS review_helpes')
+      .groupBy('help.reviewId')
+      .orderBy('review.avg', 'ASC')
+      .getRawMany();
+  }
+
+  async getByInstructorOrderByAvgDESC(id: number) {
+    const instructor = await this.instructorsRepository.findOne({ id });
+    if (!instructor) {
+      throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
+        id,
+      })
+      .innerJoin('review.User', 'user')
+      .leftJoin('review.ReviewHelpes', 'help')
+      .select([
+        'review.id',
+        'review.pros',
+        'review.cons',
+        'review.avg',
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl',
+      ])
+      .addSelect('COUNT(help.reviewId) AS review_helpes')
+      .groupBy('help.reviewId')
+      .orderBy('review.avg', 'DESC')
+      .getRawMany();
   }
 
   async getMyReviews(userId: number) {
@@ -168,21 +344,22 @@ export class ReviewsService {
       throw new UnauthorizedException('로그인을 해주세요');
     }
     return this.reviewsRepository
-      .createQueryBuilder('reviews')
-      .innerJoin('reviews.User', 'user', 'user.id =:id', { id: userId })
-      .innerJoin('reviews.Course', 'course')
-      .innerJoin('reviews.Instructor', 'instructor')
+      .createQueryBuilder('review')
+      .innerJoin('review.User', 'user', 'user.id =:id', { id: userId })
+      .innerJoin('review.Course', 'course')
+      .innerJoin('review.Instructor', 'instructor')
       .select([
-        'reviews.id',
-        'reviews.pros',
-        'reviews.cons',
-        'reviews.avg',
-        'reviews.createdAt',
+        'review.id',
+        'review.pros',
+        'review.cons',
+        'review.avg',
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
         'instructor.name',
         'course.title',
         'course.platform',
       ])
-      .getMany();
+      .orderBy('review_createdAt', 'DESC')
+      .getRawMany();
   }
 
   async giveThumbsUp(id: number, userId: number) {
@@ -257,18 +434,5 @@ export class ReviewsService {
       return false;
     }
     return true;
-  }
-
-  async checkThumbsUpCount(id: number) {
-    const review = await this.reviewsRepository.findOne({
-      id,
-    });
-    if (!review) {
-      throw new NotFoundException('해당 리뷰를 찾을 수 없습니다');
-    }
-    return this.reviewHelpesRepository
-      .createQueryBuilder('help')
-      .innerJoin('help.Review', 'review', 'review.id =:id', { id })
-      .getCount();
   }
 }
