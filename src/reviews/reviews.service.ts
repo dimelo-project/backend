@@ -1,3 +1,4 @@
+import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { Courses } from './../entities/Courses';
 import { ReviewHelpes } from './../entities/ReviewHelpes';
@@ -9,7 +10,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Connection } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Users } from '../entities/Users';
 import { Instructors } from '../entities/Instructors';
 @Injectable()
@@ -59,6 +60,56 @@ export class ReviewsService {
     review.cons = cons;
 
     return this.reviewsRepository.save(review);
+  }
+
+  async updateReview(
+    courseId: number,
+    id: number,
+    { q1, q2, q3, q4, pros, cons }: UpdateReviewDto,
+    userId: number,
+  ) {
+    const user = await this.usersRepository.findOne({
+      id: userId,
+    });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 해주세요');
+    }
+    const course = await this.coursesRepository.findOne({ id: courseId });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+    const review = await this.reviewsRepository.findOne({ id });
+    if (!review) {
+      throw new NotFoundException('해당 리뷰가 존재하지 않습니다');
+    }
+    review.q1 = q1;
+    review.q2 = q2;
+    review.q3 = q3;
+    review.q4 = q4;
+    review.avg = (q1 + q2 + q3 + q4) / 4;
+    review.pros = pros;
+    review.cons = cons;
+
+    return this.reviewsRepository.save(review);
+  }
+
+  async deleteReview(courseId: number, id: number, userId: number) {
+    const user = await this.usersRepository.findOne({
+      id: userId,
+    });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 해주세요');
+    }
+    const course = await this.coursesRepository.findOne({ id: courseId });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+    const review = await this.reviewsRepository.findOne({ id });
+    if (!review) {
+      throw new NotFoundException('해당 리뷰가 존재하지 않습니다');
+    }
+    await this.reviewsRepository.delete({ id });
+    return true;
   }
 
   async getReviewsByCourse(id: number) {
@@ -156,12 +207,10 @@ export class ReviewsService {
     if (helped) {
       throw new ConflictException('이미 도움됨을 눌렀습니다');
     }
-
     await this.reviewHelpesRepository.save({
       reviewId: review.id,
       userId: user.id,
     });
-
     return true;
   }
 

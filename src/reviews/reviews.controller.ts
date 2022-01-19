@@ -1,3 +1,5 @@
+import { LoggedInGuard } from './../common/guards/logged-in.guard';
+import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewsService } from './reviews.service';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
@@ -10,6 +12,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiParam } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
@@ -19,6 +22,7 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
   @ApiOperation({ summary: '내가 작성한 모든 리뷰 받아오기' })
+  @UseGuards(new LoggedInGuard())
   @Get('/me')
   async getMyAllReviews(@CurrentUser() user: CurrentUserDto) {
     return this.reviewsService.getMyReviews(user.id);
@@ -54,6 +58,7 @@ export class ReviewsController {
     required: true,
     description: 'review id',
   })
+  @UseGuards(new LoggedInGuard())
   @Get('/help/me/:id')
   async checkIgaveThumbsUp(
     @Param('id', ParseIntPipe) id: number,
@@ -68,6 +73,7 @@ export class ReviewsController {
     required: true,
     description: 'review id',
   })
+  @UseGuards(new LoggedInGuard())
   @Post('/help/me/:id')
   async giveThumbsUpOnReview(
     @Param('id', ParseIntPipe) id: number,
@@ -82,6 +88,7 @@ export class ReviewsController {
     required: true,
     description: 'review id',
   })
+  @UseGuards(new LoggedInGuard())
   @Delete('/help/me/:id')
   async revokeThumbsUpOnReview(
     @Param('id', ParseIntPipe) id: number,
@@ -109,6 +116,7 @@ export class ReviewsController {
     required: true,
     description: 'course id',
   })
+  @UseGuards(new LoggedInGuard())
   @Post('/:course_id')
   async createReviewOfCourse(
     @Param('course_id', ParseIntPipe) course_id: number,
@@ -129,11 +137,16 @@ export class ReviewsController {
     required: true,
     description: 'review id',
   })
+  @UseGuards(new LoggedInGuard())
   @Patch('/:course_id/:id')
-  updateReview(
+  updateReviewOfCourse(
     @Param('course_id', ParseIntPipe) course_id: number,
     @Param('id', ParseIntPipe) id: number,
-  ) {}
+    @Body() body: UpdateReviewDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.reviewsService.updateReview(course_id, id, body, user.id);
+  }
 
   @ApiOperation({ summary: '해당 강의의 해당 리뷰 삭제' })
   @ApiParam({
@@ -146,9 +159,13 @@ export class ReviewsController {
     required: true,
     description: 'review id',
   })
+  @UseGuards(new LoggedInGuard())
   @Delete('/:course_id/:id')
   deleteReview(
     @Param('course_id', ParseIntPipe) course_id: number,
     @Param('id', ParseIntPipe) id: number,
-  ) {}
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.reviewsService.deleteReview(course_id, id, user.id);
+  }
 }
