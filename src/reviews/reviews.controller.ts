@@ -12,9 +12,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags, ApiParam } from '@nestjs/swagger';
+import { ApiOperation, ApiTags, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @ApiTags('REVIEW')
@@ -27,11 +28,27 @@ export class ReviewsController {
     required: true,
     description: 'course id',
   })
+  @ApiQuery({
+    name: 'perPage',
+    required: true,
+    description: '한 번에 가져오는 개수',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: true,
+    description: '불러올 페이지',
+  })
   @Get('courses/:course_id/help')
   async getReviewsOfCourseOrderByThumbsUp(
     @Param('course_id', ParseIntPipe) course_id: number,
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
   ) {
-    return this.reviewsService.getByCourseOrderByThumbsUp(course_id);
+    return this.reviewsService.getByCourseOrderByThumbsUp(
+      course_id,
+      perPage,
+      page,
+    );
   }
 
   @ApiOperation({ summary: '해당 강의의 리뷰 별점 낮은순으로 받아오기' })
@@ -40,11 +57,27 @@ export class ReviewsController {
     required: true,
     description: 'course id',
   })
+  @ApiQuery({
+    name: 'perPage',
+    required: true,
+    description: '한 번에 가져오는 개수',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: true,
+    description: '불러올 페이지',
+  })
   @Get('courses/:course_id/avg/asc')
   async getReviewsOfCourseOrderByAvgASC(
     @Param('course_id', ParseIntPipe) course_id: number,
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
   ) {
-    return this.reviewsService.getByCourseOrderByAvgASC(course_id);
+    return this.reviewsService.getByCourseOrderByAvgASC(
+      course_id,
+      perPage,
+      page,
+    );
   }
 
   @ApiOperation({ summary: '해당 강의의 리뷰 별점 높은순으로 받아오기' })
@@ -53,11 +86,27 @@ export class ReviewsController {
     required: true,
     description: 'course id',
   })
+  @ApiQuery({
+    name: 'perPage',
+    required: true,
+    description: '한 번에 가져오는 개수',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: true,
+    description: '불러올 페이지',
+  })
   @Get('courses/:course_id/avg/desc')
   async getReviewsOfCourseOrderByAvgDESC(
     @Param('course_id', ParseIntPipe) course_id: number,
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
   ) {
-    return this.reviewsService.getByCourseOrderByAvgDESC(course_id);
+    return this.reviewsService.getByCourseOrderByAvgDESC(
+      course_id,
+      perPage,
+      page,
+    );
   }
 
   @ApiOperation({ summary: '해당 강의의 평점 보기' })
@@ -79,11 +128,23 @@ export class ReviewsController {
     required: true,
     description: 'course id',
   })
+  @ApiQuery({
+    name: 'perPage',
+    required: true,
+    description: '한 번에 가져오는 개수',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: true,
+    description: '불러올 페이지',
+  })
   @Get('courses/:course_id')
   async getAllReviewsOfCourseOrderByDate(
     @Param('course_id', ParseIntPipe) course_id: number,
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
   ) {
-    return this.reviewsService.getByCourseOrderByDate(course_id);
+    return this.reviewsService.getByCourseOrderByDate(course_id, perPage, page);
   }
 
   @ApiOperation({ summary: '해당 강의에 리뷰 작성하기' })

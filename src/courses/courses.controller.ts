@@ -196,26 +196,22 @@ export class CoursesController {
     required: true,
     description: '해당 강사 이름',
   })
-  @Get('/instructors/:name')
-  async getCoursesByInstructor(@Param('name') name: string) {
-    return this.coursesService.findByInstructor(name);
-  }
-
-  @ApiOkResponse({
-    description: '해당 기술 강의들 불러오기 성공',
-  })
-  @ApiResponse({
-    status: 400,
-    description: '해당 기술의 강의를 찾을 수 없는 경우',
-  })
-  @ApiOperation({ summary: '해당 기술의 강의 모두 받아오기' })
-  @ApiParam({
-    name: 'skill',
+  @ApiQuery({
+    name: 'perPage',
     required: true,
-    description: '기술 이름',
+    description: '한 번에 가져오는 개수',
   })
-  @Get('/skills/:skill')
-  async getCoursesBySkill(@Param('skill') skill: string) {
-    return this.coursesService.findBySkill(skill);
+  @ApiQuery({
+    name: 'page',
+    required: true,
+    description: '불러올 페이지',
+  })
+  @Get('/instructors/:name')
+  async getCoursesByInstructor(
+    @Param('name') name: string,
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
+  ) {
+    return this.coursesService.findByInstructor(name, perPage, page);
   }
 }

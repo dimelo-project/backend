@@ -112,7 +112,7 @@ export class ReviewsService {
     return true;
   }
 
-  async getByCourseOrderByDate(id: number) {
+  async getByCourseOrderByDate(id: number, perPage: number, page: number) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
@@ -131,15 +131,17 @@ export class ReviewsService {
         'user.nickname',
         'user.job',
         'user.career',
-        'user.imageUrl',
+        'user.imageUrl AS user_imageUrl',
       ])
       .addSelect('COUNT(help.reviewId) AS review_helpes')
       .groupBy('help.reviewId')
       .orderBy('review_createdAt', 'DESC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
       .getRawMany();
   }
 
-  async getByCourseOrderByThumbsUp(id: number) {
+  async getByCourseOrderByThumbsUp(id: number, perPage: number, page: number) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
@@ -158,15 +160,17 @@ export class ReviewsService {
         'user.nickname',
         'user.job',
         'user.career',
-        'user.imageUrl',
+        'user.imageUrl AS user_imageUrl',
       ])
       .addSelect('COUNT(help.reviewId) AS review_helpes')
       .groupBy('help.reviewId')
       .orderBy('review_helpes', 'DESC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
       .getRawMany();
   }
 
-  async getByCourseOrderByAvgASC(id: number) {
+  async getByCourseOrderByAvgASC(id: number, perPage: number, page: number) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
@@ -185,15 +189,17 @@ export class ReviewsService {
         'user.nickname',
         'user.job',
         'user.career',
-        'user.imageUrl',
+        'user.imageUrl AS user_imageUrl',
       ])
       .addSelect('COUNT(help.reviewId) AS review_helpes')
       .groupBy('help.reviewId')
       .orderBy('review.avg', 'ASC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
       .getRawMany();
   }
 
-  async getByCourseOrderByAvgDESC(id: number) {
+  async getByCourseOrderByAvgDESC(id: number, perPage: number, page: number) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
@@ -212,11 +218,13 @@ export class ReviewsService {
         'user.nickname',
         'user.job',
         'user.career',
-        'user.imageUrl',
+        'user.imageUrl AS user_imageUrl',
       ])
       .addSelect('COUNT(help.reviewId) AS review_helpes')
       .groupBy('help.reviewId')
       .orderBy('review.avg', 'DESC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
       .getRawMany();
   }
 
@@ -225,25 +233,17 @@ export class ReviewsService {
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
-    const { q1, q2, q3, q4, avg } = await this.reviewsRepository
+    return await this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Course', 'course', 'course.id =:id', { id })
       .select([
-        'AVG(review.q1) AS q1',
-        'AVG(review.q2) AS q2',
-        'AVG(review.q3) AS q3',
-        'AVG(review.q4) AS q4',
-        'AVG(review.avg) AS avg',
+        'ROUND(AVG(review.q1),1) AS q1',
+        'ROUND(AVG(review.q2),1) AS q2',
+        'ROUND(AVG(review.q3),1) AS q3',
+        'ROUND(AVG(review.q4),1) AS q4',
+        'ROUND(AVG(review.avg),1) AS avg',
       ])
       .getRawOne();
-
-    return {
-      q1: Number(q1).toFixed(1),
-      q2: Number(q2).toFixed(1),
-      q3: Number(q3).toFixed(1),
-      q4: Number(q4).toFixed(1),
-      avg: Number(avg).toFixed(1),
-    };
   }
 
   async getByInstructorOrderByDate(id: number) {
@@ -267,7 +267,7 @@ export class ReviewsService {
         'user.nickname',
         'user.job',
         'user.career',
-        'user.imageUrl',
+        'user.imageUrl AS user_imageUrl',
       ])
       .addSelect('COUNT(help.reviewId) AS review_helpes')
       .groupBy('help.reviewId')
@@ -296,7 +296,7 @@ export class ReviewsService {
         'user.nickname',
         'user.job',
         'user.career',
-        'user.imageUrl',
+        'user.imageUrl AS user_imageUrl',
       ])
       .addSelect('COUNT(help.reviewId) AS review_helpes')
       .groupBy('help.reviewId')
@@ -325,7 +325,7 @@ export class ReviewsService {
         'user.nickname',
         'user.job',
         'user.career',
-        'user.imageUrl',
+        'user.imageUrl AS user_imageUrl',
       ])
       .addSelect('COUNT(help.reviewId) AS review_helpes')
       .groupBy('help.reviewId')
@@ -354,7 +354,7 @@ export class ReviewsService {
         'user.nickname',
         'user.job',
         'user.career',
-        'user.imageUrl',
+        'user.imageUrl AS user_imageUrl',
       ])
       .addSelect('COUNT(help.reviewId) AS review_helpes')
       .groupBy('help.reviewId')
@@ -367,27 +367,19 @@ export class ReviewsService {
     if (!instructor) {
       throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
     }
-    const { q1, q2, q3, q4, avg } = await this.reviewsRepository
+    return await this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
         id,
       })
       .select([
-        'AVG(review.q1) AS q1',
-        'AVG(review.q2) AS q2',
-        'AVG(review.q3) AS q3',
-        'AVG(review.q4) AS q4',
-        'AVG(review.avg) AS avg',
+        'ROUND(AVG(review.q1),1) AS q1',
+        'ROUND(AVG(review.q2),1) AS q2',
+        'ROUND(AVG(review.q3),1) AS q3',
+        'ROUND(AVG(review.q4),1) AS q4',
+        'ROUND(AVG(review.avg),1) AS avg',
       ])
       .getRawOne();
-
-    return {
-      q1: Number(q1).toFixed(1),
-      q2: Number(q2).toFixed(1),
-      q3: Number(q3).toFixed(1),
-      q4: Number(q4).toFixed(1),
-      avg: Number(avg).toFixed(1),
-    };
   }
 
   async getMyReviews(userId: number) {
