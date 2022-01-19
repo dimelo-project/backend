@@ -55,14 +55,14 @@ export class UsersController {
     type: ReturnUserDto,
   })
   @ApiResponse({
-    status: 404,
+    status: 401,
     description: '로그인을 하지 않은 경우',
   })
   @ApiOperation({ summary: '내 정보 받아오기' })
   @Serialize(ReturnUserDto)
   @Get('/me')
   async getMyInfo(@CurrentUser() user: CurrentUserDto) {
-    return this.usersService.findById(user.id);
+    return this.usersService.getMyInfo(user.id);
   }
 
   @ApiOkResponse({
@@ -220,25 +220,5 @@ export class UsersController {
       body.newPassword,
       body.passwordConfirm,
     );
-  }
-
-  @ApiOkResponse({
-    description: '회원 프로필 받아오기 성공',
-    type: ReturnUserDto,
-  })
-  @ApiResponse({
-    status: 404,
-    description: '해당 유저를 찾을 수 없는 경우',
-  })
-  @ApiOperation({ summary: '특정 회원 정보 받아오기' })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'user id',
-  })
-  @Serialize(ReturnUserDto)
-  @Get('/:id')
-  async getUserInfo(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findById(id);
   }
 }

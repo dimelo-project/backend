@@ -19,10 +19,10 @@ export class UsersService {
     private readonly usersRepository: Repository<Users>,
   ) {}
 
-  async findById(id: number) {
+  async getMyInfo(id: number) {
     const user = await this.usersRepository.findOne(id);
     if (!user) {
-      throw new NotFoundException('해당 유저를 찾을 수 없습니다');
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
     return user;
   }
