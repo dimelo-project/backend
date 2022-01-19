@@ -220,6 +220,32 @@ export class ReviewsService {
       .getRawMany();
   }
 
+  async getAverageOfCourse(id: number) {
+    const course = await this.coursesRepository.findOne({ id });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+    const { q1, q2, q3, q4, avg } = await this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
+      .select([
+        'AVG(review.q1) AS q1',
+        'AVG(review.q2) AS q2',
+        'AVG(review.q3) AS q3',
+        'AVG(review.q4) AS q4',
+        'AVG(review.avg) AS avg',
+      ])
+      .getRawOne();
+
+    return {
+      q1: Number(q1).toFixed(1),
+      q2: Number(q2).toFixed(1),
+      q3: Number(q3).toFixed(1),
+      q4: Number(q4).toFixed(1),
+      avg: Number(avg).toFixed(1),
+    };
+  }
+
   async getByInstructorOrderByDate(id: number) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
@@ -334,6 +360,34 @@ export class ReviewsService {
       .groupBy('help.reviewId')
       .orderBy('review.avg', 'DESC')
       .getRawMany();
+  }
+
+  async getAverageOfInstructor(id: number) {
+    const instructor = await this.instructorsRepository.findOne({ id });
+    if (!instructor) {
+      throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
+    }
+    const { q1, q2, q3, q4, avg } = await this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
+        id,
+      })
+      .select([
+        'AVG(review.q1) AS q1',
+        'AVG(review.q2) AS q2',
+        'AVG(review.q3) AS q3',
+        'AVG(review.q4) AS q4',
+        'AVG(review.avg) AS avg',
+      ])
+      .getRawOne();
+
+    return {
+      q1: Number(q1).toFixed(1),
+      q2: Number(q2).toFixed(1),
+      q3: Number(q3).toFixed(1),
+      q4: Number(q4).toFixed(1),
+      avg: Number(avg).toFixed(1),
+    };
   }
 
   async getMyReviews(userId: number) {
