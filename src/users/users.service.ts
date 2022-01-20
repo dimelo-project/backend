@@ -37,6 +37,9 @@ export class UsersService {
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
+    if (!user.nickname) {
+      throw new ForbiddenError('이미 프로필을 생성하였습니다');
+    }
     const foundNick = await this.usersRepository.findOne({
       where: { nickname: data.nickname },
     });
@@ -60,7 +63,7 @@ export class UsersService {
   ) {
     const user = await this.usersRepository.findOne(id);
     if (!user) {
-      throw new NotFoundException('로그인을 먼저 해주세요');
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
 
     if (user.nickname !== data.nickname) {
@@ -86,12 +89,13 @@ export class UsersService {
       where: { id },
     });
     if (!user) {
-      throw new NotFoundException('해당 유저를 찾을 수 없습니다');
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
     if (!(await bcrypt.compare(password, user.password))) {
       throw new ForbiddenError('비밀번호가 일치하지 않습니다');
     }
-    return this.usersRepository.softDelete(user);
+    await this.usersRepository.softDelete(user);
+    return true;
   }
 
   async setPassword(id: number, newPassword: string, passwordConfirm: string) {
@@ -131,7 +135,7 @@ export class UsersService {
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
-    if (await bcrypt.compare(password, user.password)) {
+    if (!(await bcrypt.compare(password, user.password))) {
       throw new ForbiddenError('비밀번호가 일치하지 않습니다');
     }
     if (password === newPassword) {
