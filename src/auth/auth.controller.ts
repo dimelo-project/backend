@@ -28,11 +28,15 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { Serialize } from '../common/interceptors/serialize.interceptor';
+import { MailService } from 'src/mail/mail.service';
 
 @ApiTags('AUTH')
 @Controller('api/auth')
 export class AuthController {
-  constructor(private readonly authSerivce: AuthService) {}
+  constructor(
+    private readonly authSerivce: AuthService,
+    private readonly maileService: MailService,
+  ) {}
 
   @ApiOkResponse({
     description: '회원가입 성공',
@@ -41,6 +45,10 @@ export class AuthController {
   @ApiResponse({
     status: 400,
     description: '비밀번호가 8자 이하거나 영문, 숫자를 포함하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '로그인한 상태에서 회원가입을 하려고한 경우',
   })
   @ApiResponse({
     status: 409,
@@ -102,12 +110,11 @@ export class AuthController {
 
   @ApiResponse({
     status: 301,
-    description:
-      '구글 로그인 성공시 메인 페이지로 이동하면서 현재 유저 정보 리턴',
+    description: '구글 로그인 성공시 프로필 설정 페이지로 이동 시킴',
     type: ReturnUserDto,
   })
-  @ApiOperation({ summary: '구글 로그인 성공시 메인 페이지로 이동' })
-  // @Redirect('http://localhost:3000', 301)
+  @ApiOperation({ summary: '구글 로그인 성공시 프로필 설정 페이지로 이동' })
+  @Redirect('http://localhost:3000', 301)
   @UseGuards(AuthGuard('google'))
   @Get('/google/redirect')
   googleAuthRedirect(@CurrentUser() user: CurrentUserDto) {
@@ -125,12 +132,11 @@ export class AuthController {
 
   @ApiResponse({
     status: 301,
-    description:
-      '깃허브 로그인 성공시 메인 페이지로 이동하면서 현재 유저 정보 리턴',
+    description: '깃허브 로그인 성공시 프로필 설정 페이지로 이동 시킴',
     type: ReturnUserDto,
   })
-  @ApiOperation({ summary: '깃허브 로그인 성공시 메인 페이지로 이동' })
-  // @Redirect('http://localhost:3000', 301)
+  @ApiOperation({ summary: '깃허브 로그인 성공시 프로필 설정 페이지로 이동' })
+  @Redirect('http://localhost:3000', 301)
   @UseGuards(AuthGuard('github'))
   @Get('/github/callback')
   githubAuthCallback(@CurrentUser() user: CurrentUserDto) {
@@ -189,6 +195,6 @@ export class AuthController {
   @Serialize(ReturnUserDto)
   @Post('/find/password')
   findMyPassword(@Body() body: CheckEmailDto) {
-    return this.authSerivce.sendMail(body.email);
+    return this.maileService.sendPassword(body.email);
   }
 }

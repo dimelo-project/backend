@@ -1,5 +1,10 @@
 import { Observable } from 'rxjs';
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 @Injectable()
 export class LoggedInGuard implements CanActivate {
@@ -7,6 +12,8 @@ export class LoggedInGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    return request.isAuthenticated();
+    if (!request.isAuthenticated())
+      throw new UnauthorizedException('로그인을 해주세요');
+    return true;
   }
 }

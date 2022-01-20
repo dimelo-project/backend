@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
+type Grade = 1 | 2 | 3 | 4 | 5;
 export class CreateReviewDto {
   @ApiProperty({
     example: 5,
@@ -8,8 +15,9 @@ export class CreateReviewDto {
     required: true,
   })
   @IsNumber()
+  @IsEnum([1, 2, 3, 4, 5])
   @IsNotEmpty()
-  q1: number;
+  q1: Grade;
 
   @ApiProperty({
     example: 5,
@@ -17,8 +25,9 @@ export class CreateReviewDto {
     required: true,
   })
   @IsNumber()
+  @IsEnum([1, 2, 3, 4, 5])
   @IsNotEmpty()
-  q2: number;
+  q2: Grade;
 
   @ApiProperty({
     example: 4,
@@ -26,8 +35,9 @@ export class CreateReviewDto {
     required: true,
   })
   @IsNumber()
+  @IsEnum([1, 2, 3, 4, 5])
   @IsNotEmpty()
-  q3: number;
+  q3: Grade;
 
   @ApiProperty({
     example: 3,
@@ -35,8 +45,9 @@ export class CreateReviewDto {
     required: true,
   })
   @IsNumber()
+  @IsEnum([1, 2, 3, 4, 5])
   @IsNotEmpty()
-  q4: number;
+  q4: Grade;
 
   @ApiProperty({
     example: '좋아요 들으세요',
@@ -55,14 +66,4 @@ export class CreateReviewDto {
   @IsString()
   @IsNotEmpty()
   cons: string;
-
-  @ApiProperty({
-    example:
-      'https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-mvc-1',
-    description: '강의 주소',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  siteUrl: string;
 }

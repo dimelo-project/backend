@@ -1,12 +1,14 @@
+import { GetCoursesFromAllDto } from './dto/get-courses-from-all.dto';
 import { CoursesCategories } from './../entities/CoursesCategories';
 import { Categories } from './../entities/Categories';
-import { GetCoursesDto } from './dto/get-courses.dto';
+import { GetCoursesFromCategoryDto } from './dto/get-courses-from-category.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CoursesSkillsTags } from '../entities/CoursesSkillsTags';
 import { CoursesSkills } from './../entities/CoursesSkills';
 import { Likes } from './../entities/Likes';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -38,59 +40,98 @@ export class CoursesService {
     perPage,
     page,
     skill,
-  }: GetCoursesDto) {
+    sort,
+  }: GetCoursesFromCategoryDto) {
     if (!categoryBig || !category) {
       throw new NotFoundException('카테고리를 선택해 주세요');
     }
-    const query = this.coursesRepository.createQueryBuilder('courses');
+    const query = this.coursesRepository.createQueryBuilder('course');
     query
-      .where('courses.categoryBig =:categoryBig', { categoryBig })
-      .innerJoinAndSelect('courses.Instructor', 'instructor')
+      .where('course.categoryBig =:categoryBig', { categoryBig })
+      .innerJoin('course.Instructor', 'instructor')
       .innerJoin(
-        'courses.Categories',
+        'course.Categories',
         'category',
         'category.category =:category',
         { category },
-      );
+      )
+      .leftJoin('course.Reviews', 'review')
+      .select([
+        'course.id',
+        'course.title',
+        'course.platform',
+        'course.price',
+        'course.categoryBig AS course_categoryBig',
+        'category.category AS course_category',
+        'course.siteUrl AS course_siteUrl',
+        `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
+        'instructor.name',
+        'COUNT(review.id) AS course_num_review',
+        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+      ])
+      .groupBy('review.courseId');
+
     if (skill) {
-      query.innerJoinAndSelect(
-        'courses.CoursesSkills',
-        's',
-        's.skill =:skill',
-        {
+      query
+        .innerJoin('course.CoursesSkills', 'skills', 'skills.skill =:skill', {
           skill,
-        },
-      );
+        })
+        .addSelect('skills.skill AS course_skill');
     }
-    const courses = await query
+    return query
       .take(perPage)
       .skip(perPage * (page - 1))
-      .getMany();
-
-    return courses;
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .getRawMany();
   }
 
-  async searchFromAll(perPage: number, page: number, keyword: string) {
+  async searchFromAll(
+    { perPage, page, sort }: GetCoursesFromAllDto,
+    keyword: string,
+  ) {
     if (!keyword) {
       throw new NotFoundException('키워드를 입력해주세요');
     }
 
-    return this.coursesRepository
-      .createQueryBuilder('courses')
-      .innerJoinAndSelect('courses.Instructor', 'instructor')
+    const query = this.coursesRepository
+      .createQueryBuilder('course')
+      .innerJoin('course.Instructor', 'instructor')
       .andWhere(
-        '(courses.title LIKE :keyword OR instructor.name LIKE :keyword)',
+        '(course.title LIKE :keyword OR instructor.name LIKE :keyword)',
         {
           keyword: `%${keyword}%`,
         },
-      )
+      );
+    const result = await query.getMany();
+
+    if (result.length === 0) {
+      throw new NotFoundException('해당 하는 강의를 찾을 수 없습니다');
+    }
+
+    return query
+      .leftJoin('course.Reviews', 'review')
+      .select([
+        'course.id',
+        'course.title',
+        'course.platform',
+        'course.price',
+        'course.siteUrl AS course_siteUrl',
+        `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
+        'instructor.name',
+        'COUNT(review.id) AS course_num_review',
+        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+      ])
+      .groupBy('review.courseId')
       .take(perPage)
       .skip(perPage * (page - 1))
-      .getMany();
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .getRawMany();
   }
 
   async searchFromCategory(
-    { categoryBig, category, perPage, page }: GetCoursesDto,
+    { categoryBig, category, perPage, page, sort }: GetCoursesFromCategoryDto,
     keyword: string,
   ) {
     if (!categoryBig || !category) {
@@ -99,36 +140,77 @@ export class CoursesService {
     if (!keyword) {
       throw new NotFoundException('키워드를 입력해주세요');
     }
-    return this.coursesRepository
-      .createQueryBuilder('courses')
-      .where('courses.categoryBig =:categoryBig', { categoryBig })
+    const query = this.coursesRepository
+      .createQueryBuilder('course')
+      .where('course.categoryBig =:categoryBig', { categoryBig })
       .innerJoin(
-        'courses.Categories',
+        'course.Categories',
         'category',
         'category.category =:category',
         { category },
       )
-      .innerJoinAndSelect('courses.Instructor', 'instructor')
+      .innerJoin('course.Instructor', 'instructor')
       .andWhere(
-        '(courses.title LIKE :keyword OR instructor.name LIKE :keyword)',
+        '(course.title LIKE :keyword OR instructor.name LIKE :keyword)',
         {
           keyword: `%${keyword}%`,
         },
-      )
+      );
+    const result = await query.getMany();
+
+    if (result.length === 0) {
+      throw new NotFoundException('해당 하는 강의를 찾을 수 없습니다');
+    }
+
+    return query
+      .leftJoin('course.Reviews', 'review')
+      .select([
+        'course.id',
+        'course.title',
+        'course.platform',
+        'course.price',
+        'course.categoryBig AS course_categoryBig',
+        'category.category AS course_category',
+        'course.siteUrl AS course_siteUrl',
+        `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
+        'instructor.name',
+        'COUNT(review.id) AS course_num_review',
+        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+      ])
+      .groupBy('review.courseId')
       .take(perPage)
       .skip(perPage * (page - 1))
-      .getMany();
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .getRawMany();
   }
 
   async findById(id: number) {
     const course = await this.coursesRepository.findOne({
       where: { id },
-      relations: ['Instructor', 'CoursesSkills'],
     });
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
-    return course;
+    return this.coursesRepository
+      .createQueryBuilder('course')
+      .where('course.id =:id', { id })
+      .innerJoin('course.Instructor', 'instructor')
+      .leftJoin('course.Reviews', 'review')
+      .select([
+        'course.id',
+        'course.title',
+        'course.platform',
+        'course.price',
+        'course.siteUrl AS course_siteUrl',
+        `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
+        'instructor.name',
+        'COUNT(review.id) AS course_num_review',
+        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+      ])
+      .groupBy('review.courseId')
+      .getRawOne();
   }
 
   async addLike(id: number, userId: number) {
@@ -139,6 +221,14 @@ export class CoursesService {
     const user = await this.usersRepository.findOne({ id: userId });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
+    }
+    const liked = await this.likesRepository.findOne({
+      courseId: course.id,
+      userId: user.id,
+    });
+
+    if (liked) {
+      throw new ConflictException('이미 북마크했습니다');
     }
     await this.likesRepository.save({
       courseId: course.id,
@@ -159,9 +249,10 @@ export class CoursesService {
     const liked = await this.likesRepository.findOne({
       where: { courseId: id, userId },
     });
-    if (liked) {
-      await this.likesRepository.remove(liked);
+    if (!liked) {
+      throw new ConflictException('북마크 한적이 없습니다');
     }
+    await this.likesRepository.remove(liked);
     return true;
   }
 
@@ -171,40 +262,59 @@ export class CoursesService {
       throw new UnauthorizedException('로그인을 해주세요');
     }
     return this.coursesRepository
-      .createQueryBuilder('courses')
-      .innerJoin('courses.Likes', 'likes', 'likes.userId =:myId', { myId })
-      .innerJoinAndSelect('courses.Instructor', 'instructor')
-      .getMany();
+      .createQueryBuilder('course')
+      .innerJoin('course.Likes', 'likes', 'likes.userId =:myId', { myId })
+      .innerJoin('course.Instructor', 'instructor')
+      .leftJoin('course.Reviews', 'review')
+      .select([
+        'course.id',
+        'course.title',
+        'course.platform',
+        'course.price',
+        'course.siteUrl AS course_siteUrl',
+        `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
+        'instructor.name',
+        'COUNT(review.id) AS course_num_review',
+        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+        `DATE_FORMAT(likes.createdAt, '%Y-%m-%d at %h:%i') AS course_like_date`,
+      ])
+      .groupBy('review.courseId')
+      .orderBy('course_like_date', 'DESC')
+      .getRawMany();
   }
 
-  async findByInstructor(name: string) {
-    const instructor = await this.instructorsRepository.findOne({ name });
+  async findByInstructor(
+    id: number,
+    { perPage, page, sort }: GetCoursesFromAllDto,
+  ) {
+    const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
       throw new NotFoundException('해당 강사를 찾을 수 없습니다');
     }
     return this.coursesRepository
-      .createQueryBuilder('courses')
-      .innerJoinAndSelect(
-        'courses.Instructor',
-        'instructor',
-        'instructor.name =:name',
-        { name },
-      )
-      .getMany();
-  }
-
-  async findBySkill(skill: string) {
-    const foundSkill = await this.coursesSkillsRepository.findOne({ skill });
-    if (!foundSkill) {
-      throw new NotFoundException('해당하는 기술을 찾을 수 없습니다');
-    }
-    return this.coursesRepository
-      .createQueryBuilder('courses')
-      .innerJoin('courses.CoursesSkills', 'skills', 'skills.skill =:skill', {
-        skill,
+      .createQueryBuilder('course')
+      .innerJoin('course.Instructor', 'instructor', 'instructor.id =:id', {
+        id,
       })
-      .innerJoinAndSelect('courses.Instructor', 'instructor')
-      .getMany();
+      .leftJoin('course.Reviews', 'review')
+      .select([
+        'course.id',
+        'course.title',
+        'course.platform',
+        'course.price',
+        'course.siteUrl AS course_siteUrl',
+        `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
+        'instructor.name',
+        'COUNT(review.id) AS course_num_review',
+        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+      ])
+      .groupBy('review.courseId')
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .getRawMany();
   }
 
   async createCourse({
@@ -292,6 +402,7 @@ export class CoursesService {
         }),
       );
       await queryRunner.commitTransaction();
+      return returnedCourse;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;

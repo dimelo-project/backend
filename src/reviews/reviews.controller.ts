@@ -1,3 +1,6 @@
+import { CreateReviewWithCourseDto } from './dto/create-review-with-course.dto';
+import { GetReviewByInstructorSortDto } from './dto/get-review-by-instructor-sort.dto';
+import { GetReviewByCourseSortDto } from './dto/get-review-by-course-sort.dto';
 import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -12,54 +15,57 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags, ApiParam } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiTags,
+  ApiParam,
+  ApiQuery,
+  ApiOkResponse,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { MailService } from '../mail/mail.service';
 
 @ApiTags('REVIEW')
 @Controller('api/reviews')
 export class ReviewsController {
-  constructor(private readonly reviewsService: ReviewsService) {}
-  @ApiOperation({ summary: '해당 강의의 리뷰 추천순으로 받아오기' })
+  constructor(
+    private readonly reviewsService: ReviewsService,
+    private readonly mailService: MailService,
+  ) {}
+  @ApiOkResponse({
+    description: '리뷰 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'course id, parameter를 제대로 전달 하지 않은 경우',
+  })
+  @ApiOperation({
+    summary: '해당 강의의 리뷰를 추천순, 퍙점순으로 받아오기',
+  })
   @ApiParam({
     name: 'course_id',
     required: true,
     description: 'course id',
   })
-  @Get('courses/:course_id/help')
-  async getReviewsOfCourseOrderByThumbsUp(
+  @Get('courses/:course_id/sort')
+  async getReviewsOfCourseWithSort(
     @Param('course_id', ParseIntPipe) course_id: number,
+    @Query() query: GetReviewByCourseSortDto,
   ) {
-    return this.reviewsService.getByCourseOrderByThumbsUp(course_id);
+    return this.reviewsService.getByCourseWithSort(course_id, query);
   }
 
-  @ApiOperation({ summary: '해당 강의의 리뷰 별점 낮은순으로 받아오기' })
-  @ApiParam({
-    name: 'course_id',
-    required: true,
-    description: 'course id',
+  @ApiOkResponse({
+    description: '강의 평점 받아오기 성공',
   })
-  @Get('courses/:course_id/avg/asc')
-  async getReviewsOfCourseOrderByAvgASC(
-    @Param('course_id', ParseIntPipe) course_id: number,
-  ) {
-    return this.reviewsService.getByCourseOrderByAvgASC(course_id);
-  }
-
-  @ApiOperation({ summary: '해당 강의의 리뷰 별점 높은순으로 받아오기' })
-  @ApiParam({
-    name: 'course_id',
-    required: true,
-    description: 'course id',
+  @ApiResponse({
+    status: 400,
+    description: 'course id를 제대로 전달 하지 않은 경우',
   })
-  @Get('courses/:course_id/avg/desc')
-  async getReviewsOfCourseOrderByAvgDESC(
-    @Param('course_id', ParseIntPipe) course_id: number,
-  ) {
-    return this.reviewsService.getByCourseOrderByAvgDESC(course_id);
-  }
-
   @ApiOperation({ summary: '해당 강의의 평점 보기' })
   @ApiParam({
     name: 'course_id',
@@ -73,19 +79,53 @@ export class ReviewsController {
     return this.reviewsService.getAverageOfCourse(course_id);
   }
 
+  @ApiOkResponse({
+    description: '리뷰 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'course id, parameter를 제대로 전달 하지 않은 경우',
+  })
   @ApiOperation({ summary: '해당 강의의 모든 리뷰들 최신순으로 받아오기' })
   @ApiParam({
     name: 'course_id',
     required: true,
     description: 'course id',
   })
+  @ApiQuery({
+    name: 'perPage',
+    required: true,
+    description: '한 번에 가져오는 개수',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: true,
+    description: '불러올 페이지',
+  })
   @Get('courses/:course_id')
   async getAllReviewsOfCourseOrderByDate(
     @Param('course_id', ParseIntPipe) course_id: number,
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
   ) {
-    return this.reviewsService.getByCourseOrderByDate(course_id);
+    return this.reviewsService.getByCourse(course_id, perPage, page);
   }
 
+  @ApiOkResponse({
+    description: '리뷰 작성 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'course id, body값을 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않았을 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '프로필을 작성하지 않았을 경우',
+  })
   @ApiOperation({ summary: '해당 강의에 리뷰 작성하기' })
   @ApiParam({
     name: 'course_id',
@@ -102,6 +142,17 @@ export class ReviewsController {
     return this.reviewsService.writeReview(course_id, body, user.id);
   }
 
+  @ApiOkResponse({
+    description: '리뷰 수정 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'course id, review id, body값을 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않았을 경우',
+  })
   @ApiOperation({ summary: '해당 강의의 해당 리뷰 수정' })
   @ApiParam({
     name: 'course_id',
@@ -124,6 +175,17 @@ export class ReviewsController {
     return this.reviewsService.updateReview(course_id, id, body, user.id);
   }
 
+  @ApiOkResponse({
+    description: '리뷰 삭제 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'course id, review id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않았을 경우',
+  })
   @ApiOperation({ summary: '해당 강의의 해당 리뷰 삭제' })
   @ApiParam({
     name: 'course_id',
@@ -145,45 +207,36 @@ export class ReviewsController {
     return this.reviewsService.deleteReview(course_id, id, user.id);
   }
 
-  @ApiOperation({ summary: '해당 강사의 모든 리뷰 추천순으로 받아오기' })
+  @ApiOkResponse({
+    description: '리뷰 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'instructor id, parameter를 제대로 전달 하지 않은 경우',
+  })
+  @ApiOperation({
+    summary: '해당 강사의 모든 리뷰 추천순, 평점 순으로 받아오기',
+  })
   @ApiParam({
     name: 'instructor_id',
     required: true,
     description: 'instructor id',
   })
-  @Get('/instructors/:instructor_id/help')
-  async getAllReviewsOfInstructurOrderByThumbsUp(
+  @Get('/instructors/:instructor_id/sort')
+  async getAllReviewsOfInstructorWithSort(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
+    @Query() query: GetReviewByInstructorSortDto,
   ) {
-    return this.reviewsService.getByInstructorOrderByThumbsUp(instructor_id);
+    return this.reviewsService.getByInstructorWithSort(instructor_id, query);
   }
 
-  @ApiOperation({ summary: '해당 강사의 모든 리뷰 평점 낮은순으로 받아오기' })
-  @ApiParam({
-    name: 'instructor_id',
-    required: true,
-    description: 'instructor id',
+  @ApiOkResponse({
+    description: '강의 평점받아오기 성공',
   })
-  @Get('/instructors/:instructor_id/avg/asc')
-  async getAllReviewsOfInstructurOrderByAvgASC(
-    @Param('instructor_id', ParseIntPipe) instructor_id: number,
-  ) {
-    return this.reviewsService.getByInstructorOrderByAvgASC(instructor_id);
-  }
-
-  @ApiOperation({ summary: '해당 강사의 모든 리뷰 평점 높은순으로 받아오기' })
-  @ApiParam({
-    name: 'instructor_id',
-    required: true,
-    description: 'instructor id',
+  @ApiResponse({
+    status: 400,
+    description: 'instructor id를 제대로 전달 하지 않은 경우',
   })
-  @Get('/instructors/:instructor_id/avg/desc')
-  async getAllReviewsOfInstructurOrderByAvgDESC(
-    @Param('instructor_id', ParseIntPipe) instructor_id: number,
-  ) {
-    return this.reviewsService.getByInstructorOrderByAvgDESC(instructor_id);
-  }
-
   @ApiOperation({ summary: '해당 강사의 평점 보기' })
   @ApiParam({
     name: 'instructor_id',
@@ -197,6 +250,13 @@ export class ReviewsController {
     return this.reviewsService.getAverageOfInstructor(instructor_id);
   }
 
+  @ApiOkResponse({
+    description: '리뷰 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'instructor id를 제대로 전달 하지 않은 경우',
+  })
   @ApiOperation({ summary: '해당 강사의 모든 리뷰 최신순으로 받아오기' })
   @ApiParam({
     name: 'instructor_id',
@@ -207,9 +267,20 @@ export class ReviewsController {
   async getAllReviewsOfInstructurOrderByDate(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
   ) {
-    return this.reviewsService.getByInstructorOrderByDate(instructor_id);
+    return this.reviewsService.getByInstructor(instructor_id);
   }
 
+  @ApiOkResponse({
+    description: 'true, false 리턴',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'review id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
   @ApiOperation({ summary: '해당 리뷰 내가 도움됨 눌렀는지 체크' })
   @ApiParam({
     name: 'id',
@@ -225,6 +296,21 @@ export class ReviewsController {
     return this.reviewsService.checkIgaveThumbsUp(id, user.id);
   }
 
+  @ApiOkResponse({
+    description: '해당 리뷰 도움됨 누름',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'review id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '해당 강의를 이미 도움됨 누른 경우',
+  })
   @ApiOperation({ summary: '해당 리뷰 도움됨 누르기' })
   @ApiParam({
     name: 'id',
@@ -240,6 +326,21 @@ export class ReviewsController {
     return this.reviewsService.giveThumbsUp(id, user.id);
   }
 
+  @ApiOkResponse({
+    description: '해당 리뷰 도움됨 취소',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'review id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '해당 강의를 이전에 도움됨 누른적이 없는 경우',
+  })
   @ApiOperation({ summary: '해당 리뷰 도움됨 취소' })
   @ApiParam({
     name: 'id',
@@ -254,10 +355,43 @@ export class ReviewsController {
   ) {
     return this.reviewsService.revokeThumbsUp(id, user.id);
   }
+
+  @ApiOkResponse({
+    description: '리뷰 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
   @ApiOperation({ summary: '내가 작성한 모든 리뷰 최신순으로 받아오기' })
   @UseGuards(new LoggedInGuard())
   @Get('/me')
   async getMyAllReviews(@CurrentUser() user: CurrentUserDto) {
     return this.reviewsService.getMyReviews(user.id);
+  }
+
+  @ApiOkResponse({
+    description: '강의 신청 및 리뷰 작성 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'body 값을 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '이메일 전송 실패한 경우',
+  })
+  @ApiOperation({ summary: '강의 신청하고 리뷰쓰기' })
+  @UseGuards(new LoggedInGuard())
+  @Post()
+  async createReviewWithCourse(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: CreateReviewWithCourseDto,
+  ) {
+    return this.mailService.sendReview(user.id, body);
   }
 }

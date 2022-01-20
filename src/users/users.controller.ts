@@ -12,8 +12,6 @@ import {
   Body,
   Controller,
   Get,
-  Param,
-  ParseIntPipe,
   Patch,
   Post,
   UploadedFile,
@@ -75,6 +73,10 @@ export class UsersController {
       'nickname, job, career 값을 제대로 보내지 않은 경우, 닉네임이 10자 이상인 경우',
   })
   @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
     status: 409,
     description: '이미 해당하는 닉네임이 있을 경우',
   })
@@ -111,6 +113,10 @@ export class UsersController {
     status: 400,
     description:
       'nickname, job, career 값을 전달 하지 않은 경우, 닉네임이 10자 이상인 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
   })
   @ApiResponse({
     status: 409,
@@ -151,6 +157,10 @@ export class UsersController {
   })
   @ApiResponse({
     status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
     description: '비밀번호를 틀려 탈퇴 권한이 없을 경우',
   })
   @ApiOperation({ summary: '회원 탈퇴' })
@@ -172,6 +182,10 @@ export class UsersController {
   })
   @ApiResponse({
     status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
     description:
       '비밀번호가 이미 있는데 설정하려는 경우 (잘못된 경로: 비밀번호 수정하기로 가야함)',
   })
@@ -180,7 +194,7 @@ export class UsersController {
   })
   @Serialize(ReturnUserDto)
   @Patch('/set/password')
-  async setNewPassword(
+  async setNewPasswordForOauth(
     @CurrentUser() user: CurrentUserDto,
     @Body() body: SetPasswordDto,
   ) {
@@ -201,6 +215,10 @@ export class UsersController {
   })
   @ApiResponse({
     status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
     description: '비밀번호를 틀려 변경 권한이 없을 경우',
   })
   @ApiResponse({
