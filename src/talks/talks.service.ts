@@ -1,4 +1,199 @@
-import { Injectable } from '@nestjs/common';
+import { UpdateTalkCommentDto } from './dto/update-talk-comment.dto';
+import { TalksComments } from './../entities/TalksComments';
+import { CreateTalkCommentDto } from './dto/create-talk-comment.dto';
+import { SearchTalkDto } from './dto/search-talk.dto';
+import { UpdateTalkDto } from './dto/update-talk.dto';
+import { ForbiddenError } from 'adminjs';
+import { GetTalksByCategoryDto } from './dto/get-talks-by-category.dto';
+import { CreateTalkDto } from './dto/create-talk.dto';
+import { Talks } from './../entities/Talks';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Users } from 'src/entities/Users';
 
 @Injectable()
-export class TalksService {}
+export class TalksService {
+  constructor(
+    @InjectRepository(Talks)
+    private readonly talksRepository: Repository<Talks>,
+    @InjectRepository(Users)
+    private readonly usersRepository: Repository<Users>,
+    @InjectRepository(TalksComments)
+    private readonly talksCommentsRepository: Repository<TalksComments>,
+  ) {}
+
+  async getAllTalks({ category }: GetTalksByCategoryDto) {
+    const query = this.talksRepository.createQueryBuilder('talk');
+
+    if (category) {
+      query.where('talk.category =:category', { category });
+    }
+
+    return query.getMany();
+  }
+
+  async getTalk(id: number) {
+    const talk = await this.talksRepository.findOne({ id });
+    if (!talk) {
+      throw new NotFoundException('해당 게시글을 찾을 수 없습니다');
+    }
+    return talk;
+  }
+
+  async createTalk(
+    { category, title, content }: CreateTalkDto,
+    userId: number,
+  ) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    if (!user.nickname) {
+      throw new ForbiddenException('프로필을 먼저 설정해주세요');
+    }
+    return this.talksRepository.save({
+      category,
+      title,
+      content,
+      userId: user.id,
+    });
+  }
+
+  async updateTalk(
+    id: number,
+    userId: number,
+    { category, title, content }: UpdateTalkDto,
+  ) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    const talk = await this.talksRepository.findOne({ id });
+    if (!talk) {
+      throw new NotFoundException('해당 게시글을 찾을 수 없습니다');
+    }
+    const myTalk = await this.talksRepository.findOne({
+      where: { id, userId: user.id },
+    });
+    if (!myTalk) {
+      throw new ForbiddenError('수정 권한이 없습니다');
+    }
+    myTalk.category = category;
+    myTalk.title = title;
+    myTalk.content = content;
+
+    return this.talksRepository.save(myTalk);
+  }
+
+  async deleteTalk(id: number, userId: number) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    const talk = await this.talksRepository.findOne({ id });
+    if (!talk) {
+      throw new NotFoundException('해당 게시글을 찾을 수 없습니다');
+    }
+    const myTalk = await this.talksRepository.findOne({
+      where: { id, userId: user.id },
+    });
+    if (!myTalk) {
+      throw new ForbiddenError('삭제 권한이 없습니다');
+    }
+    await this.talksRepository.remove(myTalk);
+    return true;
+  }
+
+  async searchTalk({ keyword }: SearchTalkDto) {
+    return this.talksRepository
+      .createQueryBuilder('talk')
+      .where('(talk.title LIKE :keyword OR talk.content LIKE :keyword)', {
+        keyword: `%${keyword}%`,
+      })
+      .getMany();
+  }
+
+  async getAllTalkComments(talkId: number) {
+    return this.talksCommentsRepository.find({ talkId });
+  }
+
+  async createTalkComment(
+    id: number,
+    userId: number,
+    { commentText }: CreateTalkCommentDto,
+  ) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    const talk = await this.talksRepository.findOne({ id });
+    if (!talk) {
+      throw new NotFoundException('해당 게시글을 찾을 수 없습니다');
+    }
+    return this.talksCommentsRepository.save({
+      userId: user.id,
+      talkId: id,
+      commentText,
+    });
+  }
+
+  async updateTalkComment(
+    talkId: number,
+    id: number,
+    userId: number,
+    { commentText }: UpdateTalkCommentDto,
+  ) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    const talk = await this.talksRepository.findOne({ id: talkId });
+    if (!talk) {
+      throw new NotFoundException('해당 게시글을 찾을 수 없습니다');
+    }
+    const comment = await this.talksCommentsRepository.findOne({ id });
+    if (!comment) {
+      throw new NotFoundException('해당 댓글을 찾을 수 없습니다');
+    }
+    const myComment = await this.talksCommentsRepository.findOne({
+      id,
+      userId: user.id,
+    });
+    if (!myComment) {
+      throw new ForbiddenException('수정 권한이 없습니다');
+    }
+    myComment.commentText = commentText;
+
+    return this.talksCommentsRepository.save(myComment);
+  }
+
+  async deleteTalkComment(talkId: number, id: number, userId: number) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    const talk = await this.talksRepository.findOne({ id: talkId });
+    if (!talk) {
+      throw new NotFoundException('해당 게시글을 찾을 수 없습니다');
+    }
+    const comment = await this.talksCommentsRepository.findOne({ id });
+    if (!comment) {
+      throw new NotFoundException('해당 댓글을 찾을 수 없습니다');
+    }
+    const myComment = await this.talksCommentsRepository.findOne({
+      id,
+      userId: user.id,
+    });
+    if (!myComment) {
+      throw new ForbiddenException('수정 권한이 없습니다');
+    }
+    await this.talksCommentsRepository.remove(myComment);
+    return true;
+  }
+}

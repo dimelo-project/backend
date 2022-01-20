@@ -1,3 +1,12 @@
+import { UpdateTalkCommentDto } from './dto/update-talk-comment.dto';
+import { CreateTalkCommentDto } from './dto/create-talk-comment.dto';
+import { SearchTalkDto } from './dto/search-talk.dto';
+import { UpdateTalkDto } from './dto/update-talk.dto';
+import { GetTalksByCategoryDto } from './dto/get-talks-by-category.dto';
+import { TalksService } from './talks.service';
+import { CurrentUserDto } from './../common/dto/current-user.dto';
+import { CreateTalkDto } from './dto/create-talk.dto';
+import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import {
   Controller,
   Get,
@@ -7,61 +16,16 @@ import {
   Query,
   ParseIntPipe,
   Delete,
+  UseGuards,
+  Body,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiParam } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @ApiTags('TALK')
 @Controller('api/talks')
 export class TalksController {
-  @ApiOperation({ summary: '자유게시판 모든 글 자겨오기' })
-  @ApiQuery({
-    name: 'category',
-    required: false,
-    description: '카테고리 (개발, 데이터, 디자인, 기타)',
-  })
-  @Get()
-  getAllTalks(@Query('category') category: string) {}
-
-  @ApiOperation({ summary: '자유게시판 해당 글 가져오기' })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'talk id',
-  })
-  @Get('/:id')
-  getTalk(@Param('id', ParseIntPipe) id: number) {}
-
-  @ApiOperation({ summary: '자유게시판 글 작성하기' })
-  @Post()
-  createTalk() {}
-
-  @ApiOperation({ summary: '자유게시판 해당 글 수정하기' })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'talk id',
-  })
-  @Patch('/:id')
-  updateTalk(@Param('id', ParseIntPipe) id: number) {}
-
-  @ApiOperation({ summary: '자유게시판 해당 글 삭제하기' })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'talk id',
-  })
-  @Delete('/:id')
-  deleteTalk(@Param('id', ParseIntPipe) id: number) {}
-
-  @ApiOperation({ summary: '자유게시판 글 검색하기' })
-  @ApiQuery({
-    name: 'keyword',
-    required: true,
-    description: '제목 검색할 키워드',
-  })
-  @Get('/search')
-  searchTalk(@Query('keyword') keyword: string) {}
-
+  constructor(private readonly talksService: TalksService) {}
   @ApiOperation({ summary: '해당 게시글의 댓글 모두 받아오기' })
   @ApiParam({
     name: 'talk_id',
@@ -69,7 +33,9 @@ export class TalksController {
     description: 'talk id',
   })
   @Get('/:talk_id/comments')
-  getAllCommentsOfTalk(@Param('talk_id', ParseIntPipe) talk_id: number) {}
+  getAllCommentsOfTalk(@Param('talk_id', ParseIntPipe) talk_id: number) {
+    return this.talksService.getAllTalkComments(talk_id);
+  }
 
   @ApiOperation({ summary: '해당 게시글에 댓글 작성하기' })
   @ApiParam({
@@ -78,7 +44,13 @@ export class TalksController {
     description: 'talk id',
   })
   @Post('/:talk_id/comments')
-  createCommentOfTalk(@Param('talk_id', ParseIntPipe) talk_id: number) {}
+  createCommentOfTalk(
+    @Param('talk_id', ParseIntPipe) talk_id: number,
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: CreateTalkCommentDto,
+  ) {
+    return this.talksService.createTalkComment(talk_id, user.id, body);
+  }
 
   @ApiOperation({ summary: '해당 게시글의 해당 댓글 수정하기' })
   @ApiParam({
@@ -95,7 +67,11 @@ export class TalksController {
   updateCommentOfTalk(
     @Param('talk_id', ParseIntPipe) talk_id: number,
     @Param('id', ParseIntPipe) id: number,
-  ) {}
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: UpdateTalkCommentDto,
+  ) {
+    return this.talksService.updateTalkComment(talk_id, id, user.id, body);
+  }
 
   @ApiOperation({ summary: '해당 게시글의 해당 댓글 삭제하기' })
   @ApiParam({
@@ -112,5 +88,67 @@ export class TalksController {
   deleteCommentOfTalk(
     @Param('talk_id', ParseIntPipe) talk_id: number,
     @Param('id', ParseIntPipe) id: number,
-  ) {}
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.talksService.deleteTalkComment(talk_id, id, user.id);
+  }
+
+  @ApiOperation({ summary: '자유게시판 글 검색하기' })
+  @Post('/search')
+  searchTalk(@Body() body: SearchTalkDto) {
+    return this.talksService.searchTalk(body);
+  }
+
+  @ApiOperation({ summary: '자유게시판 모든 글 자겨오기' })
+  @Get()
+  getAllTalks(@Query() query: GetTalksByCategoryDto) {
+    return this.talksService.getAllTalks(query);
+  }
+
+  @ApiOperation({ summary: '자유게시판 해당 글 가져오기' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'talk id',
+  })
+  @Get('/:id')
+  getTalk(@Param('id', ParseIntPipe) id: number) {
+    return this.talksService.getTalk(id);
+  }
+
+  @ApiOperation({ summary: '자유게시판 글 작성하기' })
+  @UseGuards(new LoggedInGuard())
+  @Post()
+  createTalk(@Body() body: CreateTalkDto, @CurrentUser() user: CurrentUserDto) {
+    return this.talksService.createTalk(body, user.id);
+  }
+
+  @ApiOperation({ summary: '자유게시판 해당 글 수정하기' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'talk id',
+  })
+  @Patch('/:id')
+  updateTalk(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: UpdateTalkDto,
+  ) {
+    return this.talksService.updateTalk(id, user.id, body);
+  }
+
+  @ApiOperation({ summary: '자유게시판 해당 글 삭제하기' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'talk id',
+  })
+  @Delete('/:id')
+  deleteTalk(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.talksService.deleteTalk(id, user.id);
+  }
 }
