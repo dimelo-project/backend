@@ -1,9 +1,12 @@
+import { GetReviewByInstructorSortDto } from './dto/get-review-by-instructor-sort.dto';
+import { GetReviewByCourseSortDto } from './dto/get-review-by-course-sort.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { Courses } from './../entities/Courses';
 import { ReviewHelpes } from './../entities/ReviewHelpes';
 import { Reviews } from './../entities/Reviews';
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -112,7 +115,40 @@ export class ReviewsService {
     return true;
   }
 
-  async getByCourseOrderByDate(id: number, perPage: number, page: number) {
+  async getByCourseWithSort(
+    id: number,
+    { perPage, page, sort, order }: GetReviewByCourseSortDto,
+  ) {
+    const course = await this.coursesRepository.findOne({ id });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+
+    return this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
+      .innerJoin('review.User', 'user')
+      .leftJoin('review.ReviewHelpes', 'help')
+      .select([
+        'review.id',
+        'review.pros',
+        'review.cons',
+        'review.avg',
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl AS user_imageUrl',
+      ])
+      .addSelect('COUNT(help.reviewId) AS review_help')
+      .groupBy('help.reviewId')
+      .orderBy(sort === 'avg' ? 'review.avg' : 'review_help', order)
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .getRawMany();
+  }
+
+  async getByCourse(id: number, perPage: number, page: number) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
@@ -133,96 +169,9 @@ export class ReviewsService {
         'user.career',
         'user.imageUrl AS user_imageUrl',
       ])
-      .addSelect('COUNT(help.reviewId) AS review_helpes')
+      .addSelect('COUNT(help.reviewId) AS review_help')
       .groupBy('help.reviewId')
       .orderBy('review_createdAt', 'DESC')
-      .take(perPage)
-      .skip(perPage * (page - 1))
-      .getRawMany();
-  }
-
-  async getByCourseOrderByThumbsUp(id: number, perPage: number, page: number) {
-    const course = await this.coursesRepository.findOne({ id });
-    if (!course) {
-      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
-    }
-    return this.reviewsRepository
-      .createQueryBuilder('review')
-      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
-      .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
-      .select([
-        'review.id',
-        'review.pros',
-        'review.cons',
-        'review.avg',
-        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
-        'user.nickname',
-        'user.job',
-        'user.career',
-        'user.imageUrl AS user_imageUrl',
-      ])
-      .addSelect('COUNT(help.reviewId) AS review_helpes')
-      .groupBy('help.reviewId')
-      .orderBy('review_helpes', 'DESC')
-      .take(perPage)
-      .skip(perPage * (page - 1))
-      .getRawMany();
-  }
-
-  async getByCourseOrderByAvgASC(id: number, perPage: number, page: number) {
-    const course = await this.coursesRepository.findOne({ id });
-    if (!course) {
-      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
-    }
-    return this.reviewsRepository
-      .createQueryBuilder('review')
-      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
-      .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
-      .select([
-        'review.id',
-        'review.pros',
-        'review.cons',
-        'review.avg',
-        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
-        'user.nickname',
-        'user.job',
-        'user.career',
-        'user.imageUrl AS user_imageUrl',
-      ])
-      .addSelect('COUNT(help.reviewId) AS review_helpes')
-      .groupBy('help.reviewId')
-      .orderBy('review.avg', 'ASC')
-      .take(perPage)
-      .skip(perPage * (page - 1))
-      .getRawMany();
-  }
-
-  async getByCourseOrderByAvgDESC(id: number, perPage: number, page: number) {
-    const course = await this.coursesRepository.findOne({ id });
-    if (!course) {
-      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
-    }
-    return this.reviewsRepository
-      .createQueryBuilder('review')
-      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
-      .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
-      .select([
-        'review.id',
-        'review.pros',
-        'review.cons',
-        'review.avg',
-        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
-        'user.nickname',
-        'user.job',
-        'user.career',
-        'user.imageUrl AS user_imageUrl',
-      ])
-      .addSelect('COUNT(help.reviewId) AS review_helpes')
-      .groupBy('help.reviewId')
-      .orderBy('review.avg', 'DESC')
       .take(perPage)
       .skip(perPage * (page - 1))
       .getRawMany();
@@ -246,7 +195,7 @@ export class ReviewsService {
       .getRawOne();
   }
 
-  async getByInstructorOrderByDate(id: number) {
+  async getByInstructor(id: number) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
       throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
@@ -269,13 +218,16 @@ export class ReviewsService {
         'user.career',
         'user.imageUrl AS user_imageUrl',
       ])
-      .addSelect('COUNT(help.reviewId) AS review_helpes')
+      .addSelect('COUNT(help.reviewId) AS review_help')
       .groupBy('help.reviewId')
       .orderBy('review_createdAt', 'DESC')
       .getRawMany();
   }
 
-  async getByInstructorOrderByThumbsUp(id: number) {
+  async getByInstructorWithSort(
+    id: number,
+    { sort, order }: GetReviewByInstructorSortDto,
+  ) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
       throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
@@ -298,67 +250,9 @@ export class ReviewsService {
         'user.career',
         'user.imageUrl AS user_imageUrl',
       ])
-      .addSelect('COUNT(help.reviewId) AS review_helpes')
+      .addSelect('COUNT(help.reviewId) AS review_help')
       .groupBy('help.reviewId')
-      .orderBy('review_helpes', 'DESC')
-      .getRawMany();
-  }
-
-  async getByInstructorOrderByAvgASC(id: number) {
-    const instructor = await this.instructorsRepository.findOne({ id });
-    if (!instructor) {
-      throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
-    }
-    return this.reviewsRepository
-      .createQueryBuilder('review')
-      .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
-        id,
-      })
-      .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
-      .select([
-        'review.id',
-        'review.pros',
-        'review.cons',
-        'review.avg',
-        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
-        'user.nickname',
-        'user.job',
-        'user.career',
-        'user.imageUrl AS user_imageUrl',
-      ])
-      .addSelect('COUNT(help.reviewId) AS review_helpes')
-      .groupBy('help.reviewId')
-      .orderBy('review.avg', 'ASC')
-      .getRawMany();
-  }
-
-  async getByInstructorOrderByAvgDESC(id: number) {
-    const instructor = await this.instructorsRepository.findOne({ id });
-    if (!instructor) {
-      throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
-    }
-    return this.reviewsRepository
-      .createQueryBuilder('review')
-      .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
-        id,
-      })
-      .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
-      .select([
-        'review.id',
-        'review.pros',
-        'review.cons',
-        'review.avg',
-        `DATE_FORMAT(review.createdAt, '%Y-%m-%d at %h:%i') AS review_createdAt`,
-        'user.nickname',
-        'user.job',
-        'user.career',
-        'user.imageUrl AS user_imageUrl',
-      ])
-      .addSelect('COUNT(help.reviewId) AS review_helpes')
-      .groupBy('help.reviewId')
-      .orderBy('review.avg', 'DESC')
+      .orderBy(sort === 'avg' ? 'review.avg' : 'review_help', order)
       .getRawMany();
   }
 

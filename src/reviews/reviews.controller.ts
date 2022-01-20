@@ -1,3 +1,5 @@
+import { GetReviewByInstructorSortDto } from './dto/get-review-by-instructor-sort.dto';
+import { GetReviewByCourseSortDto } from './dto/get-review-by-course-sort.dto';
 import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -22,91 +24,20 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 @Controller('api/reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
-  @ApiOperation({ summary: '해당 강의의 리뷰 추천순으로 받아오기' })
+  @ApiOperation({
+    summary: '해당 강의의 리뷰를 추천순, 퍙점순으로 받아오기',
+  })
   @ApiParam({
     name: 'course_id',
     required: true,
     description: 'course id',
   })
-  @ApiQuery({
-    name: 'perPage',
-    required: true,
-    description: '한 번에 가져오는 개수',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: true,
-    description: '불러올 페이지',
-  })
-  @Get('courses/:course_id/help')
-  async getReviewsOfCourseOrderByThumbsUp(
+  @Get('courses/:course_id/sort')
+  async getReviewsOfCourseWithSort(
     @Param('course_id', ParseIntPipe) course_id: number,
-    @Query('perPage', ParseIntPipe) perPage: number,
-    @Query('page', ParseIntPipe) page: number,
+    @Query() query: GetReviewByCourseSortDto,
   ) {
-    return this.reviewsService.getByCourseOrderByThumbsUp(
-      course_id,
-      perPage,
-      page,
-    );
-  }
-
-  @ApiOperation({ summary: '해당 강의의 리뷰 별점 낮은순으로 받아오기' })
-  @ApiParam({
-    name: 'course_id',
-    required: true,
-    description: 'course id',
-  })
-  @ApiQuery({
-    name: 'perPage',
-    required: true,
-    description: '한 번에 가져오는 개수',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: true,
-    description: '불러올 페이지',
-  })
-  @Get('courses/:course_id/avg/asc')
-  async getReviewsOfCourseOrderByAvgASC(
-    @Param('course_id', ParseIntPipe) course_id: number,
-    @Query('perPage', ParseIntPipe) perPage: number,
-    @Query('page', ParseIntPipe) page: number,
-  ) {
-    return this.reviewsService.getByCourseOrderByAvgASC(
-      course_id,
-      perPage,
-      page,
-    );
-  }
-
-  @ApiOperation({ summary: '해당 강의의 리뷰 별점 높은순으로 받아오기' })
-  @ApiParam({
-    name: 'course_id',
-    required: true,
-    description: 'course id',
-  })
-  @ApiQuery({
-    name: 'perPage',
-    required: true,
-    description: '한 번에 가져오는 개수',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: true,
-    description: '불러올 페이지',
-  })
-  @Get('courses/:course_id/avg/desc')
-  async getReviewsOfCourseOrderByAvgDESC(
-    @Param('course_id', ParseIntPipe) course_id: number,
-    @Query('perPage', ParseIntPipe) perPage: number,
-    @Query('page', ParseIntPipe) page: number,
-  ) {
-    return this.reviewsService.getByCourseOrderByAvgDESC(
-      course_id,
-      perPage,
-      page,
-    );
+    return this.reviewsService.getByCourseWithSort(course_id, query);
   }
 
   @ApiOperation({ summary: '해당 강의의 평점 보기' })
@@ -144,7 +75,7 @@ export class ReviewsController {
     @Query('perPage', ParseIntPipe) perPage: number,
     @Query('page', ParseIntPipe) page: number,
   ) {
-    return this.reviewsService.getByCourseOrderByDate(course_id, perPage, page);
+    return this.reviewsService.getByCourse(course_id, perPage, page);
   }
 
   @ApiOperation({ summary: '해당 강의에 리뷰 작성하기' })
@@ -206,43 +137,20 @@ export class ReviewsController {
     return this.reviewsService.deleteReview(course_id, id, user.id);
   }
 
-  @ApiOperation({ summary: '해당 강사의 모든 리뷰 추천순으로 받아오기' })
+  @ApiOperation({
+    summary: '해당 강사의 모든 리뷰 추천순, 평점 순으로 받아오기',
+  })
   @ApiParam({
     name: 'instructor_id',
     required: true,
     description: 'instructor id',
   })
-  @Get('/instructors/:instructor_id/help')
-  async getAllReviewsOfInstructurOrderByThumbsUp(
+  @Get('/instructors/:instructor_id/sort')
+  async getAllReviewsOfInstructorWithSort(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
+    @Query() query: GetReviewByInstructorSortDto,
   ) {
-    return this.reviewsService.getByInstructorOrderByThumbsUp(instructor_id);
-  }
-
-  @ApiOperation({ summary: '해당 강사의 모든 리뷰 평점 낮은순으로 받아오기' })
-  @ApiParam({
-    name: 'instructor_id',
-    required: true,
-    description: 'instructor id',
-  })
-  @Get('/instructors/:instructor_id/avg/asc')
-  async getAllReviewsOfInstructurOrderByAvgASC(
-    @Param('instructor_id', ParseIntPipe) instructor_id: number,
-  ) {
-    return this.reviewsService.getByInstructorOrderByAvgASC(instructor_id);
-  }
-
-  @ApiOperation({ summary: '해당 강사의 모든 리뷰 평점 높은순으로 받아오기' })
-  @ApiParam({
-    name: 'instructor_id',
-    required: true,
-    description: 'instructor id',
-  })
-  @Get('/instructors/:instructor_id/avg/desc')
-  async getAllReviewsOfInstructurOrderByAvgDESC(
-    @Param('instructor_id', ParseIntPipe) instructor_id: number,
-  ) {
-    return this.reviewsService.getByInstructorOrderByAvgDESC(instructor_id);
+    return this.reviewsService.getByInstructorWithSort(instructor_id, query);
   }
 
   @ApiOperation({ summary: '해당 강사의 평점 보기' })
@@ -268,7 +176,7 @@ export class ReviewsController {
   async getAllReviewsOfInstructurOrderByDate(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
   ) {
-    return this.reviewsService.getByInstructorOrderByDate(instructor_id);
+    return this.reviewsService.getByInstructor(instructor_id);
   }
 
   @ApiOperation({ summary: '해당 리뷰 내가 도움됨 눌렀는지 체크' })
