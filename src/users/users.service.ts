@@ -11,6 +11,7 @@ import { Users } from 'src/entities/Users';
 import { Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user-profile.dto';
 import bcrypt from 'bcrypt';
+import { ForbiddenError } from 'adminjs';
 
 @Injectable()
 export class UsersService {
@@ -34,7 +35,7 @@ export class UsersService {
   ) {
     const user = await this.usersRepository.findOne(id);
     if (!user) {
-      throw new NotFoundException('해당 하는 유저가 없습니다');
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
     const foundNick = await this.usersRepository.findOne({
       where: { nickname: data.nickname },
@@ -59,7 +60,7 @@ export class UsersService {
   ) {
     const user = await this.usersRepository.findOne(id);
     if (!user) {
-      throw new NotFoundException('해당 유저를 찾을 수 없습니다');
+      throw new NotFoundException('로그인을 먼저 해주세요');
     }
 
     if (user.nickname !== data.nickname) {
@@ -88,7 +89,7 @@ export class UsersService {
       throw new NotFoundException('해당 유저를 찾을 수 없습니다');
     }
     if (!(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
+      throw new ForbiddenError('비밀번호가 일치하지 않습니다');
     }
     return this.usersRepository.softDelete(user);
   }
@@ -98,10 +99,10 @@ export class UsersService {
       where: { id },
     });
     if (!user) {
-      throw new NotFoundException('해당 유저를 찾을 수 없습니다');
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
     if (user.password) {
-      throw new UnauthorizedException('비밀번호를 변경하기를 해주세요');
+      throw new ForbiddenError('비밀번호가 이미 설정되어 있습니다');
     }
     if (newPassword !== passwordConfirm) {
       throw new BadRequestException('비밀번호가 일치하지 않습니다');
@@ -128,16 +129,16 @@ export class UsersService {
       where: { id },
     });
     if (!user) {
-      throw new NotFoundException('해당 유저를 찾을 수 없습니다');
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
     if (await bcrypt.compare(password, user.password)) {
-      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
+      throw new ForbiddenError('비밀번호가 일치하지 않습니다');
     }
     if (password === newPassword) {
       throw new ConflictException('같은 비밀번호를 설정할 수 없습니다');
     }
     if (newPassword !== passwordConfirm) {
-      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
+      throw new BadRequestException('비밀번호가 일치하지 않습니다');
     }
     const hashedPassword = await bcrypt.hash(
       newPassword,
