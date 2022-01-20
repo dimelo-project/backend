@@ -63,9 +63,10 @@ export class CoursesService {
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.name',
-        'COUNT(review.id) AS course_num_reviews',
+        'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
-      ]);
+      ])
+      .groupBy('review.courseId');
 
     if (skill) {
       query
@@ -110,9 +111,10 @@ export class CoursesService {
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.name',
-        'COUNT(review.id) AS course_num_reviews',
+        'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
       ])
+      .groupBy('review.courseId')
       .take(perPage)
       .skip(perPage * (page - 1))
       .getRawMany();
@@ -162,9 +164,10 @@ export class CoursesService {
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.name',
-        'COUNT(review.id) AS course_num_reviews',
+        'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
       ])
+      .groupBy('review.courseId')
       .take(perPage)
       .skip(perPage * (page - 1))
       .getRawMany();
@@ -190,9 +193,10 @@ export class CoursesService {
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.name',
-        'COUNT(review.id) AS course_num_reviews',
+        'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
       ])
+      .groupBy('review.courseId')
       .getRawOne();
   }
 
@@ -248,9 +252,10 @@ export class CoursesService {
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.name',
-        'COUNT(review.id) AS course_num_reviews',
+        'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
       ])
+      .groupBy('review.courseId')
       .getRawMany();
   }
 
@@ -273,9 +278,10 @@ export class CoursesService {
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.name',
-        'COUNT(review.id) AS course_num_reviews',
+        'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
       ])
+      .groupBy('review.courseId')
       .take(perPage)
       .skip(perPage * (page - 1))
       .getRawMany();
