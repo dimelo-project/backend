@@ -86,15 +86,19 @@ export class ReviewsService {
     if (!review) {
       throw new NotFoundException('해당 리뷰가 존재하지 않습니다');
     }
-    review.q1 = q1;
-    review.q2 = q2;
-    review.q3 = q3;
-    review.q4 = q4;
-    review.avg = (q1 + q2 + q3 + q4) / 4;
-    review.pros = pros;
-    review.cons = cons;
+    const myReview = await this.reviewsRepository.findOne({where: {id, userId: user.id}})
+    if(!myReview) {
+      throw new ForbiddenException('수정 권한이 없습니다')
+    }
+    myReview.q1 = q1;
+    myReview.q2 = q2;
+    myReview.q3 = q3;
+    myReview.q4 = q4;
+    myReview.avg = (q1 + q2 + q3 + q4) / 4;
+    myReview.pros = pros;
+    myReview.cons = cons;
 
-    return this.reviewsRepository.save(review);
+    return this.reviewsRepository.save(myReview);
   }
 
   async deleteReview(courseId: number, id: number, userId: number) {
@@ -111,6 +115,10 @@ export class ReviewsService {
     const review = await this.reviewsRepository.findOne({ id });
     if (!review) {
       throw new NotFoundException('해당 리뷰가 존재하지 않습니다');
+    }
+    const myReview = await this.reviewsRepository.findOne({where: {id, userId: user.id}})
+    if(!myReview) {
+      throw new ForbiddenException('수정 권한이 없습니다')
     }
     await this.reviewsRepository.delete({ id });
     return true;

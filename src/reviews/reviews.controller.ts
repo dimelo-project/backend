@@ -154,6 +154,10 @@ export class ReviewsController {
     status: 401,
     description: '로그인을 하지 않았을 경우',
   })
+  @ApiResponse({
+    status: 403,
+    description: '수정 권한이 없는 경우',
+  })
   @ApiOperation({ summary: '해당 강의의 해당 리뷰 수정' })
   @ApiParam({
     name: 'course_id',
@@ -186,6 +190,10 @@ export class ReviewsController {
   @ApiResponse({
     status: 401,
     description: '로그인을 하지 않았을 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '삭제 권한이 없는 경우',
   })
   @ApiOperation({ summary: '해당 강의의 해당 리뷰 삭제' })
   @ApiParam({
