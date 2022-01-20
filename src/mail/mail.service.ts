@@ -1,4 +1,4 @@
-import { CreateReviewDto } from './../reviews/dto/create-review.dto';
+import { CreateReviewWithCourseDto } from './../reviews/dto/create-review-with-course.dto';
 import { MailerService } from '@nestjs-modules/mailer';
 import {
   ConflictException,
@@ -24,7 +24,7 @@ export class MailService {
 
   async sendReview(
     userId: number,
-    { siteUrl, q1, q2, q3, q4, pros, cons }: CreateReviewDto,
+    { siteUrl, q1, q2, q3, q4, pros, cons }: CreateReviewWithCourseDto,
   ) {
     const user = await this.usersRepository.findOne({ id: userId });
     if (!user) {

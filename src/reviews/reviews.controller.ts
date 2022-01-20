@@ -373,6 +373,10 @@ export class ReviewsController {
     status: 401,
     description: '로그인을 하지 않은 경우',
   })
+  @ApiResponse({
+    status: 409,
+    description: '이메일 전송 실패한 경우',
+  })
   @ApiOperation({ summary: '강의 신청하고 리뷰쓰기' })
   @UseGuards(new LoggedInGuard())
   @Post()
