@@ -116,35 +116,4 @@ export class AuthService {
     }
     return true;
   }
-
-  async sendMail(email: string) {
-    const user = await this.usersRepository.findOne({
-      where: { email },
-    });
-    if (!user) {
-      throw new NotFoundException('해당 유저를 찾을 수 없습니다');
-    }
-    const password = generator.generate({ length: 10, numbers: true });
-    const hashedPassword = await bcrypt.hash(
-      password,
-      parseInt(process.env.BCRYPT_SALT_ROUNDS),
-    );
-    try {
-      await this.mailerService.sendMail({
-        to: email,
-        from: 'Dimelo Team',
-        subject: '<Dimelo> 임시 비밀번호 발급',
-        html: `임시 비밀번호 입니다. 해당 비밀번호로 로그인 후 비밀번호를 변경해주세요 : ${password}`,
-      });
-
-      await this.usersRepository.save({
-        ...user,
-        password: hashedPassword,
-      });
-      return true;
-    } catch (err) {
-      console.log(err);
-      throw err;
-    }
-  }
 }

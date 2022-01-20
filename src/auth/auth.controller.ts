@@ -28,11 +28,15 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { Serialize } from '../common/interceptors/serialize.interceptor';
+import { MailService } from 'src/mail/mail.service';
 
 @ApiTags('AUTH')
 @Controller('api/auth')
 export class AuthController {
-  constructor(private readonly authSerivce: AuthService) {}
+  constructor(
+    private readonly authSerivce: AuthService,
+    private readonly maileService: MailService,
+  ) {}
 
   @ApiOkResponse({
     description: '회원가입 성공',
@@ -189,6 +193,6 @@ export class AuthController {
   @Serialize(ReturnUserDto)
   @Post('/find/password')
   findMyPassword(@Body() body: CheckEmailDto) {
-    return this.authSerivce.sendMail(body.email);
+    return this.maileService.sendPassword(body.email);
   }
 }

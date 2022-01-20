@@ -1,3 +1,4 @@
+import { MailModule } from './../mail/mail.module';
 import { GithubStrategy } from './passport/github.strategy';
 import { GoogleStrategy } from './passport/google.strategy';
 import { AuthController } from './auth.controller';
@@ -16,25 +17,7 @@ config();
   imports: [
     PassportModule.register({ session: true }),
     TypeOrmModule.forFeature([Users]),
-    MailerModule.forRoot({
-      transport: {
-        service: process.env.NODEMAILER_SERVICE,
-        host: process.env.NODEMAILER_HOST,
-        port: 587,
-        secure: false,
-        auth: {
-          user: process.env.NODEMAILER_USER,
-          pass: process.env.NODEMAILER_PASS,
-        },
-        template: {
-          dir: process.cwd() + '/template/',
-          adaptor: new HandlebarsAdapter(),
-          options: {
-            strict: true,
-          },
-        },
-      },
-    }),
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [

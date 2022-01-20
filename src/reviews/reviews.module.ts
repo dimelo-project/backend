@@ -1,3 +1,4 @@
+import { MailModule } from './../mail/mail.module';
 import { Courses } from './../entities/Courses';
 import { Instructors } from './../entities/Instructors';
 import { ReviewHelpes } from './../entities/ReviewHelpes';
@@ -17,6 +18,7 @@ import { Users } from '../entities/Users';
       Instructors,
       Courses,
     ]),
+    MailModule,
   ],
   controllers: [ReviewsController],
   providers: [ReviewsService],

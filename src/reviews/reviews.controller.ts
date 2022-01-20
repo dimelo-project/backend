@@ -19,11 +19,15 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { MailService } from '../mail/mail.service';
 
 @ApiTags('REVIEW')
 @Controller('api/reviews')
 export class ReviewsController {
-  constructor(private readonly reviewsService: ReviewsService) {}
+  constructor(
+    private readonly reviewsService: ReviewsService,
+    private readonly mailService: MailService,
+  ) {}
   @ApiOperation({
     summary: '해당 강의의 리뷰를 추천순, 퍙점순으로 받아오기',
   })
@@ -228,5 +232,15 @@ export class ReviewsController {
   @Get('/me')
   async getMyAllReviews(@CurrentUser() user: CurrentUserDto) {
     return this.reviewsService.getMyReviews(user.id);
+  }
+
+  @ApiOperation({ summary: '강의 신청하고 리뷰쓰기' })
+  @UseGuards(new LoggedInGuard())
+  @Post()
+  async createReviewWithCourse(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: CreateReviewDto,
+  ) {
+    return this.mailService.sendReview(user.id, body);
   }
 }
