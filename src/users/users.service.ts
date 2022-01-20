@@ -36,7 +36,7 @@ export class UsersService {
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
-    if (!user.nickname) {
+    if (user.nickname) {
       throw new ForbiddenException('이미 프로필을 생성하였습니다');
     }
     const foundNick = await this.usersRepository.findOne({
