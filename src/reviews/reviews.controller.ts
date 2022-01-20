@@ -307,6 +307,10 @@ export class ReviewsController {
     status: 401,
     description: '로그인을 하지 않은 경우',
   })
+  @ApiResponse({
+    status: 409,
+    description: '해당 강의를 이미 도움됨 누른 경우',
+  })
   @ApiOperation({ summary: '해당 리뷰 도움됨 누르기' })
   @ApiParam({
     name: 'id',
@@ -332,6 +336,10 @@ export class ReviewsController {
   @ApiResponse({
     status: 401,
     description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '해당 강의를 이전에 도움됨 누른적이 없는 경우',
   })
   @ApiOperation({ summary: '해당 리뷰 도움됨 취소' })
   @ApiParam({

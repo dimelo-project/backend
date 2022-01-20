@@ -139,6 +139,10 @@ export class CoursesController {
     status: 404,
     description: '해당 강의를 찾을 수 없는 경우',
   })
+  @ApiResponse({
+    status: 409,
+    description: '해당 강의를 이미 북마크 한 경우',
+  })
   @ApiOperation({ summary: '강의 북마크 하기' })
   @ApiParam({
     name: 'id',
@@ -168,6 +172,10 @@ export class CoursesController {
   @ApiResponse({
     status: 404,
     description: '해당 강의를 찾을 수 없는 경우',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '해당 강의를 이 전에 북마크 하지 않은 경우',
   })
   @ApiOperation({ summary: '강의 북마크 취소' })
   @ApiParam({
