@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/entities/Users';
@@ -29,6 +30,9 @@ export class MailService {
     const user = await this.usersRepository.findOne({ id: userId });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
+    }
+    if (!user.nickname) {
+      throw new ForbiddenException('프로필 설정을 먼저 해주세요');
     }
     try {
       await this.mailerService.sendMail({
