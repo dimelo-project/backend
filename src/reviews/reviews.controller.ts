@@ -111,7 +111,8 @@ export class ReviewsController {
     return this.reviewsService.getByCourse(course_id, perPage, page);
   }
 
-  @ApiOkResponse({
+  @ApiResponse({
+    status: 201,
     description: '리뷰 작성 성공',
   })
   @ApiResponse({
@@ -296,7 +297,8 @@ export class ReviewsController {
     return this.reviewsService.checkIgaveThumbsUp(id, user.id);
   }
 
-  @ApiOkResponse({
+  @ApiResponse({
+    status: 201,
     description: '해당 리뷰 도움됨 누름',
   })
   @ApiResponse({
@@ -370,7 +372,8 @@ export class ReviewsController {
     return this.reviewsService.getMyReviews(user.id);
   }
 
-  @ApiOkResponse({
+  @ApiResponse({
+    status: 201,
     description: '강의 신청 및 리뷰 작성 성공',
   })
   @ApiResponse({

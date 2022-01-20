@@ -43,7 +43,8 @@ export class CoursesController {
     return this.coursesService.findAll(query);
   }
 
-  @ApiOkResponse({
+  @ApiResponse({
+    status: 201,
     description: '강의 생성 성공',
   })
   @ApiResponse({
@@ -78,7 +79,8 @@ export class CoursesController {
     return this.coursesService.findById(id);
   }
 
-  @ApiOkResponse({
+  @ApiResponse({
+    status: 201,
     description: '검색 강의 받아오기 성공',
   })
   @ApiResponse({
@@ -94,7 +96,8 @@ export class CoursesController {
     return this.coursesService.searchFromAll(query, body.keyword);
   }
 
-  @ApiOkResponse({
+  @ApiResponse({
+    status: 201,
     description: '검색 강의 받아오기 성공',
   })
   @ApiResponse({
@@ -124,7 +127,8 @@ export class CoursesController {
     return this.coursesService.getLiked(user.id);
   }
 
-  @ApiOkResponse({
+  @ApiResponse({
+    status: 201,
     description: '강의 북마크 성공',
   })
   @ApiResponse({

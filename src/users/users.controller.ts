@@ -63,8 +63,8 @@ export class UsersController {
     return this.usersService.getMyInfo(user.id);
   }
 
-  @ApiOkResponse({
-    description: '프로필 생성 성공',
+  @ApiResponse({
+    status: 200,
     type: ReturnUserDto,
   })
   @ApiResponse({
@@ -75,6 +75,10 @@ export class UsersController {
   @ApiResponse({
     status: 401,
     description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '이미 프로필 생성을 한 적이 있는 경우',
   })
   @ApiResponse({
     status: 409,
@@ -148,7 +152,8 @@ export class UsersController {
     return this.usersService.updateProfile(user.id, body, file);
   }
 
-  @ApiOkResponse({
+  @ApiResponse({
+    status: 200,
     description: '회원가입 탈퇴 성공',
   })
   @ApiResponse({
