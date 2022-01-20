@@ -16,6 +16,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from '../entities/Users';
 import { Instructors } from '../entities/Instructors';
+import { ForbiddenError } from 'adminjs';
 @Injectable()
 export class ReviewsService {
   constructor(
@@ -43,7 +44,7 @@ export class ReviewsService {
       throw new UnauthorizedException('로그인을 해주세요');
     }
     if (!user.nickname) {
-      throw new UnauthorizedException('프로필을 설정 해주세요');
+      throw new ForbiddenError('프로필을 설정 해주세요');
     }
     const course = await this.coursesRepository.findOne({ id: courseId });
     if (!course) {
