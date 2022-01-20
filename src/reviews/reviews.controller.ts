@@ -1,3 +1,4 @@
+import { CreateReviewWithCourseDto } from './dto/create-review-with-course.dto';
 import { GetReviewByInstructorSortDto } from './dto/get-review-by-instructor-sort.dto';
 import { GetReviewByCourseSortDto } from './dto/get-review-by-course-sort.dto';
 import { LoggedInGuard } from './../common/guards/logged-in.guard';
@@ -239,7 +240,7 @@ export class ReviewsController {
   @Post()
   async createReviewWithCourse(
     @CurrentUser() user: CurrentUserDto,
-    @Body() body: CreateReviewDto,
+    @Body() body: CreateReviewWithCourseDto,
   ) {
     return this.mailService.sendReview(user.id, body);
   }
