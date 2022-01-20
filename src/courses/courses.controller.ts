@@ -60,6 +60,10 @@ export class CoursesController {
     description: '강의 받아오기 성공',
   })
   @ApiResponse({
+    status: 400,
+    description: 'course id를 제대로 보내지 않은 경우',
+  })
+  @ApiResponse({
     status: 404,
     description: '해당 강의를 찾을 수 없는 경우',
   })
@@ -110,7 +114,7 @@ export class CoursesController {
     description: '북마크 한 강의 받아오기 성공',
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: '로그인을 하지 않은 경우',
   })
   @ApiOperation({ summary: '내가 북마크한 강의 받아오기' })
@@ -125,11 +129,15 @@ export class CoursesController {
   })
   @ApiResponse({
     status: 400,
-    description: '해당 강의를 찾을 수 없는 경우',
+    description: 'course id를 제대로 보내지 않은 경우',
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '강의 북마크 하기' })
   @ApiParam({
@@ -151,11 +159,15 @@ export class CoursesController {
   })
   @ApiResponse({
     status: 400,
-    description: '해당 강의를 찾을 수 없는 경우',
+    description: 'course id를 제대로 보내지 않은 경우',
   })
   @ApiResponse({
-    status: 403,
+    status: 401,
     description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '강의 북마크 취소' })
   @ApiParam({
@@ -177,6 +189,10 @@ export class CoursesController {
   })
   @ApiResponse({
     status: 400,
+    description: 'instructor id, parameter를 제대로 보내지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
     description: '해당 강사를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 강사의 모든 강의 받아오기' })
