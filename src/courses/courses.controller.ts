@@ -1,5 +1,5 @@
 import { SearchCoursesDto } from './dto/search-course.dto';
-import { GetCoursesDto } from './dto/get-courses.dto';
+import { GetCoursesFromCategoryDto } from './dto/get-courses-from-category.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CoursesService } from './courses.service';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
@@ -24,6 +24,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { GetCoursesFromAllDto } from './dto/get-courses-from-all.dto';
 
 @ApiTags('COURSE')
 @Controller('api/courses')
@@ -38,8 +39,7 @@ export class CoursesController {
   })
   @ApiOperation({ summary: '해당 카테고리 내의 강의들 모두 받아오기' })
   @Get()
-  async getCourses(@Query() query: GetCoursesDto) {
-    console.log(query);
+  async getCourses(@Query() query: GetCoursesFromCategoryDto) {
     return this.coursesService.findAll(query);
   }
 
@@ -82,23 +82,12 @@ export class CoursesController {
     description: 'parameter와 keyword를 제공하지 않은 경우',
   })
   @ApiOperation({ summary: '전체 메뉴에서 제목, 강사로 강의 검색하기' })
-  @ApiQuery({
-    name: 'perPage',
-    required: true,
-    description: '한 번에 가져오는 개수',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: true,
-    description: '불러올 페이지',
-  })
   @Post('/search')
   async searchCoursesFromAll(
-    @Query('perPage', ParseIntPipe) perPage: number,
-    @Query('page', ParseIntPipe) page: number,
+    @Query() query: GetCoursesFromAllDto,
     @Body() body: SearchCoursesDto,
   ) {
-    return this.coursesService.searchFromAll(perPage, page, body.keyword);
+    return this.coursesService.searchFromAll(query, body.keyword);
   }
 
   @ApiOkResponse({
@@ -111,7 +100,7 @@ export class CoursesController {
   @ApiOperation({ summary: '카테고리 내에서 제목, 강사로 강의 검색하기' })
   @Post('/category/search')
   async searchCoursesFromCategory(
-    @Query() query: GetCoursesDto,
+    @Query() query: GetCoursesFromCategoryDto,
     @Body() body: SearchCoursesDto,
   ) {
     return this.coursesService.searchFromCategory(query, body.keyword);
@@ -192,26 +181,15 @@ export class CoursesController {
   })
   @ApiOperation({ summary: '해당 강사의 모든 강의 받아오기' })
   @ApiParam({
-    name: 'name',
+    name: 'instructor_id',
     required: true,
-    description: '해당 강사 이름',
+    description: '해당 강사 id',
   })
-  @ApiQuery({
-    name: 'perPage',
-    required: true,
-    description: '한 번에 가져오는 개수',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: true,
-    description: '불러올 페이지',
-  })
-  @Get('/instructors/:name')
+  @Get('/instructors/:instructor_id')
   async getCoursesByInstructor(
-    @Param('name') name: string,
-    @Query('perPage', ParseIntPipe) perPage: number,
-    @Query('page', ParseIntPipe) page: number,
+    @Param('instructor_id', ParseIntPipe) instructor_id: number,
+    @Query() query: GetCoursesFromAllDto,
   ) {
-    return this.coursesService.findByInstructor(name, perPage, page);
+    return this.coursesService.findByInstructor(instructor_id, query);
   }
 }

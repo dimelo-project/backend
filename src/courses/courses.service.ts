@@ -1,12 +1,14 @@
+import { GetCoursesFromAllDto } from './dto/get-courses-from-all.dto';
 import { CoursesCategories } from './../entities/CoursesCategories';
 import { Categories } from './../entities/Categories';
-import { GetCoursesDto } from './dto/get-courses.dto';
+import { GetCoursesFromCategoryDto } from './dto/get-courses-from-category.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CoursesSkillsTags } from '../entities/CoursesSkillsTags';
 import { CoursesSkills } from './../entities/CoursesSkills';
 import { Likes } from './../entities/Likes';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -38,7 +40,8 @@ export class CoursesService {
     perPage,
     page,
     skill,
-  }: GetCoursesDto) {
+    sort,
+  }: GetCoursesFromCategoryDto) {
     if (!categoryBig || !category) {
       throw new NotFoundException('카테고리를 선택해 주세요');
     }
@@ -62,6 +65,7 @@ export class CoursesService {
         'category.category AS course_category',
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
         'instructor.name',
         'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
@@ -78,10 +82,14 @@ export class CoursesService {
     return query
       .take(perPage)
       .skip(perPage * (page - 1))
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
       .getRawMany();
   }
 
-  async searchFromAll(perPage: number, page: number, keyword: string) {
+  async searchFromAll(
+    { perPage, page, sort }: GetCoursesFromAllDto,
+    keyword: string,
+  ) {
     if (!keyword) {
       throw new NotFoundException('키워드를 입력해주세요');
     }
@@ -110,6 +118,7 @@ export class CoursesService {
         'course.price',
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
         'instructor.name',
         'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
@@ -117,11 +126,12 @@ export class CoursesService {
       .groupBy('review.courseId')
       .take(perPage)
       .skip(perPage * (page - 1))
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
       .getRawMany();
   }
 
   async searchFromCategory(
-    { categoryBig, category, perPage, page }: GetCoursesDto,
+    { categoryBig, category, perPage, page, sort }: GetCoursesFromCategoryDto,
     keyword: string,
   ) {
     if (!categoryBig || !category) {
@@ -163,6 +173,7 @@ export class CoursesService {
         'category.category AS course_category',
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
         'instructor.name',
         'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
@@ -170,6 +181,7 @@ export class CoursesService {
       .groupBy('review.courseId')
       .take(perPage)
       .skip(perPage * (page - 1))
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
       .getRawMany();
   }
 
@@ -192,6 +204,7 @@ export class CoursesService {
         'course.price',
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
         'instructor.name',
         'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
@@ -208,6 +221,14 @@ export class CoursesService {
     const user = await this.usersRepository.findOne({ id: userId });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
+    }
+    const liked = await this.likesRepository.findOne({
+      courseId: course.id,
+      userId: user.id,
+    });
+
+    if (liked) {
+      throw new ConflictException('이미 북마크했습니다');
     }
     await this.likesRepository.save({
       courseId: course.id,
@@ -228,9 +249,10 @@ export class CoursesService {
     const liked = await this.likesRepository.findOne({
       where: { courseId: id, userId },
     });
-    if (liked) {
-      await this.likesRepository.remove(liked);
+    if (!liked) {
+      throw new ConflictException('북마크 한적이 없습니다');
     }
+    await this.likesRepository.remove(liked);
     return true;
   }
 
@@ -251,23 +273,29 @@ export class CoursesService {
         'course.price',
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
         'instructor.name',
         'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+        `DATE_FORMAT(likes.createdAt, '%Y-%m-%d at %h:%i') AS course_like_date`,
       ])
       .groupBy('review.courseId')
+      .orderBy('course_like_date', 'DESC')
       .getRawMany();
   }
 
-  async findByInstructor(name: string, perPage: number, page: number) {
-    const instructor = await this.instructorsRepository.findOne({ name });
+  async findByInstructor(
+    id: number,
+    { perPage, page, sort }: GetCoursesFromAllDto,
+  ) {
+    const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
       throw new NotFoundException('해당 강사를 찾을 수 없습니다');
     }
     return this.coursesRepository
       .createQueryBuilder('course')
-      .innerJoin('course.Instructor', 'instructor', 'instructor.name =:name', {
-        name,
+      .innerJoin('course.Instructor', 'instructor', 'instructor.id =:id', {
+        id,
       })
       .leftJoin('course.Reviews', 'review')
       .select([
@@ -277,6 +305,7 @@ export class CoursesService {
         'course.price',
         'course.siteUrl AS course_siteUrl',
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
         'instructor.name',
         'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
@@ -284,6 +313,7 @@ export class CoursesService {
       .groupBy('review.courseId')
       .take(perPage)
       .skip(perPage * (page - 1))
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
       .getRawMany();
   }
 
@@ -372,7 +402,7 @@ export class CoursesService {
         }),
       );
       await queryRunner.commitTransaction();
-      return true;
+      return returnedCourse;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;

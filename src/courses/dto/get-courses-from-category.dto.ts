@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class GetCoursesDto {
+export class GetCoursesFromCategoryDto {
   @ApiProperty({
     example: '개발',
     description: '강의 큰 카테고리: 개발, 데이터 과학, 디자인 중 하나',
@@ -55,4 +55,12 @@ export class GetCoursesDto {
   @IsNumber()
   @Transform(({ value }) => parseInt(value))
   page: number;
+
+  @ApiProperty({
+    example: 'avg',
+    description: '필터링하는 조건 (avg: 평점순, num_review: 리뷰순)',
+    required: true,
+  })
+  @IsString()
+  sort: 'avg' | 'num_review';
 }
