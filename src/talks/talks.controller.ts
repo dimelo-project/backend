@@ -1,3 +1,4 @@
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateTalkCommentDto } from './dto/update-talk-comment.dto';
 import { CreateTalkCommentDto } from './dto/create-talk-comment.dto';
 import { SearchTalkDto } from './dto/search-talk.dto';
@@ -19,9 +20,8 @@ import {
   UseGuards,
   Body,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiParam, ApiConsumes } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-
 @ApiTags('TALK')
 @Controller('api/talks')
 export class TalksController {
@@ -33,7 +33,7 @@ export class TalksController {
     description: 'talk id',
   })
   @Get('/:talk_id/comments')
-  getAllCommentsOfTalk(@Param('talk_id', ParseIntPipe) talk_id: number) {
+  async getAllCommentsOfTalk(@Param('talk_id', ParseIntPipe) talk_id: number) {
     return this.talksService.getAllTalkComments(talk_id);
   }
 
@@ -43,8 +43,9 @@ export class TalksController {
     required: true,
     description: 'talk id',
   })
+  @UseGuards(new LoggedInGuard())
   @Post('/:talk_id/comments')
-  createCommentOfTalk(
+  async createCommentOfTalk(
     @Param('talk_id', ParseIntPipe) talk_id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: CreateTalkCommentDto,
@@ -63,8 +64,9 @@ export class TalksController {
     required: true,
     description: 'talk comment id',
   })
+  @UseGuards(new LoggedInGuard())
   @Patch('/:talk_id/comments/:id')
-  updateCommentOfTalk(
+  async updateCommentOfTalk(
     @Param('talk_id', ParseIntPipe) talk_id: number,
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
@@ -85,7 +87,7 @@ export class TalksController {
     description: 'talk comment id',
   })
   @Delete('/:talk_id/comments/:id')
-  deleteCommentOfTalk(
+  async deleteCommentOfTalk(
     @Param('talk_id', ParseIntPipe) talk_id: number,
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
@@ -101,7 +103,7 @@ export class TalksController {
 
   @ApiOperation({ summary: '자유게시판 모든 글 자겨오기' })
   @Get()
-  getAllTalks(@Query() query: GetTalksByCategoryDto) {
+  async getAllTalks(@Query() query: GetTalksByCategoryDto) {
     return this.talksService.getAllTalks(query);
   }
 
@@ -119,7 +121,10 @@ export class TalksController {
   @ApiOperation({ summary: '자유게시판 글 작성하기' })
   @UseGuards(new LoggedInGuard())
   @Post()
-  createTalk(@Body() body: CreateTalkDto, @CurrentUser() user: CurrentUserDto) {
+  async createTalk(
+    @Body() body: CreateTalkDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
     return this.talksService.createTalk(body, user.id);
   }
 
@@ -129,8 +134,9 @@ export class TalksController {
     required: true,
     description: 'talk id',
   })
+  @UseGuards(new LoggedInGuard())
   @Patch('/:id')
-  updateTalk(
+  async updateTalk(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: UpdateTalkDto,
@@ -144,8 +150,9 @@ export class TalksController {
     required: true,
     description: 'talk id',
   })
+  @UseGuards(new LoggedInGuard())
   @Delete('/:id')
-  deleteTalk(
+  async deleteTalk(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {

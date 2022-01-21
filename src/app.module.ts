@@ -11,6 +11,7 @@ import { TalksModule } from './talks/talks.module';
 import { StudiesModule } from './studies/studies.module';
 import { ProjectsModule } from './projects/projects.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ImagesModule } from './images/images.module';
 import ormconfig from '../ormconfig';
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import ormconfig from '../ormconfig';
     StudiesModule,
     ProjectsModule,
     TypeOrmModule.forRoot(ormconfig),
+    ImagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
