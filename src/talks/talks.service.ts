@@ -44,12 +44,11 @@ export class TalksService {
         'talk.title',
         'talk.content',
         `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
-        `DATE_FORMAT(talk.updatedAt, '%Y-%m-%d at %h:%i') AS talk_updatedAt`,
         'user.nickname',
         'SUM(comment.id) AS count_comment',
       ])
       .groupBy('comment.talkId')
-      .orderBy('talk_updatedAt', 'DESC')
+      .orderBy('talk_createdAt', 'DESC')
       .getRawMany();
   }
 
@@ -69,7 +68,6 @@ export class TalksService {
         'talk.title',
         'talk.content',
         `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
-        `DATE_FORMAT(talk.updatedAt, '%Y-%m-%d at %h:%i') AS talk_updatedAt`,
         'user.nickname',
         'user.job',
         'user.career',
@@ -165,12 +163,11 @@ export class TalksService {
         'talk.title',
         'talk.content',
         `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
-        `DATE_FORMAT(talk.updatedAt, '%Y-%m-%d at %h:%i') AS talk_updatedAt`,
         'user.nickname',
         'SUM(comment.id) AS count_comment',
       ])
       .groupBy('comment.talkId')
-      .orderBy('talk_updatedAt', 'DESC')
+      .orderBy('talk_createdAt', 'DESC')
       .getRawMany();
   }
 
