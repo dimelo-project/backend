@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 export class GetReviewByCourseSortDto {
@@ -27,6 +27,7 @@ export class GetReviewByCourseSortDto {
     description: '필터링하는 조건 (help: 추천순, avg: 평점순)',
     required: true,
   })
+  @IsEnum(['help', 'avg'])
   @IsString()
   sort: 'help' | 'avg';
 
@@ -35,6 +36,7 @@ export class GetReviewByCourseSortDto {
     description: '데이터 정렬순서 (ASC: 오름차순, DESC: 내림차순)',
     required: true,
   })
+  @IsEnum(['ASC', 'DESC'])
   @IsString()
   order: 'ASC' | 'DESC';
 }

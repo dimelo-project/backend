@@ -61,6 +61,7 @@ export class GetCoursesFromCategoryDto {
     description: '필터링하는 조건 (avg: 평점순, num_review: 리뷰순)',
     required: true,
   })
+  @IsEnum(['avg', 'num_review'])
   @IsString()
   sort: 'avg' | 'num_review';
 }
