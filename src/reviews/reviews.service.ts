@@ -44,7 +44,7 @@ export class ReviewsService {
       throw new UnauthorizedException('로그인을 해주세요');
     }
     if (!user.nickname) {
-      throw new ForbiddenException('프로필 설정을 먼저 해주세요')
+      throw new ForbiddenException('프로필 설정을 먼저 해주세요');
     }
     const course = await this.coursesRepository.findOne({ id: courseId });
     if (!course) {
@@ -86,9 +86,11 @@ export class ReviewsService {
     if (!review) {
       throw new NotFoundException('해당 리뷰가 존재하지 않습니다');
     }
-    const myReview = await this.reviewsRepository.findOne({where: {id, userId: user.id}})
-    if(!myReview) {
-      throw new ForbiddenException('수정 권한이 없습니다')
+    const myReview = await this.reviewsRepository.findOne({
+      where: { id, userId: user.id },
+    });
+    if (!myReview) {
+      throw new ForbiddenException('수정 권한이 없습니다');
     }
     myReview.q1 = q1;
     myReview.q2 = q2;
@@ -116,9 +118,11 @@ export class ReviewsService {
     if (!review) {
       throw new NotFoundException('해당 리뷰가 존재하지 않습니다');
     }
-    const myReview = await this.reviewsRepository.findOne({where: {id, userId: user.id}})
-    if(!myReview) {
-      throw new ForbiddenException('수정 권한이 없습니다')
+    const myReview = await this.reviewsRepository.findOne({
+      where: { id, userId: user.id },
+    });
+    if (!myReview) {
+      throw new ForbiddenException('수정 권한이 없습니다');
     }
     await this.reviewsRepository.delete({ id });
     return true;
@@ -204,7 +208,7 @@ export class ReviewsService {
       .getRawOne();
   }
 
-  async getByInstructor(id: number) {
+  async getByInstructor(id: number, perPage: number, page: number) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
       throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
@@ -230,12 +234,14 @@ export class ReviewsService {
       .addSelect('COUNT(help.reviewId) AS review_help')
       .groupBy('help.reviewId')
       .orderBy('review_createdAt', 'DESC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
       .getRawMany();
   }
 
   async getByInstructorWithSort(
     id: number,
-    { sort, order }: GetReviewByInstructorSortDto,
+    { perPage, page, sort, order }: GetReviewByInstructorSortDto,
   ) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
@@ -262,6 +268,8 @@ export class ReviewsService {
       .addSelect('COUNT(help.reviewId) AS review_help')
       .groupBy('help.reviewId')
       .orderBy(sort === 'avg' ? 'review.avg' : 'review_help', order)
+      .take(perPage)
+      .skip(perPage * (page - 1))
       .getRawMany();
   }
 

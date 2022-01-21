@@ -264,7 +264,7 @@ export class ReviewsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'instructor id를 제대로 전달 하지 않은 경우',
+    description: 'instructor id, parameter를 제대로 전달 하지 않은 경우',
   })
   @ApiOperation({ summary: '해당 강사의 모든 리뷰 최신순으로 받아오기' })
   @ApiParam({
@@ -272,11 +272,23 @@ export class ReviewsController {
     required: true,
     description: 'instructor id',
   })
+  @ApiQuery({
+    name: 'perPage',
+    required: true,
+    description: '한 번에 가져오는 개수',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: true,
+    description: '불러올 페이지',
+  })
   @Get('/instructors/:instructor_id')
   async getAllReviewsOfInstructurOrderByDate(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
+    @Query('perPage', ParseIntPipe) perPage: number,
+    @Query('page', ParseIntPipe) page: number,
   ) {
-    return this.reviewsService.getByInstructor(instructor_id);
+    return this.reviewsService.getByInstructor(instructor_id, perPage, page);
   }
 
   @ApiOkResponse({
