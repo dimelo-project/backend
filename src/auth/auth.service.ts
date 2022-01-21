@@ -58,41 +58,61 @@ export class AuthService {
   async googleSignUp(user: GoogleLoginUserDto) {
     const foundGoogle = await this.usersRepository.findOne({
       where: { email: user.email, googleId: user.googleId },
+      select: ['id', 'email', 'nickname'],
     });
     if (foundGoogle) {
       return foundGoogle;
     }
     const found = await this.usersRepository.findOne({
       where: { email: user.email },
+      select: ['id', 'email', 'nickname'],
     });
     if (found) {
       const googleConnected = {
         ...found,
         googleId: user.googleId,
       };
-      return this.usersRepository.save(googleConnected);
+      const { id, email, nickname } = await this.usersRepository.save(
+        googleConnected,
+      );
+      return {
+        id,
+        email,
+        nickname,
+      };
     }
-    return this.usersRepository.save(user);
+    const { id, email, nickname } = await this.usersRepository.save(user);
+    return { id, email, nickname };
   }
 
   async githubSignUp(user: GithubLoginUserDto) {
     const foundGithub = await this.usersRepository.findOne({
       where: { email: user.email, githubId: user.githubId },
+      select: ['id', 'email', 'nickname'],
     });
     if (foundGithub) {
       return foundGithub;
     }
     const found = await this.usersRepository.findOne({
       where: { email: user.email },
+      select: ['id', 'email', 'nickname'],
     });
     if (found) {
       const githubConnected = {
         ...found,
         githubId: user.githubId,
       };
-      return this.usersRepository.save(githubConnected);
+      const { id, email, nickname } = await this.usersRepository.save(
+        githubConnected,
+      );
+      return {
+        id,
+        email,
+        nickname,
+      };
     }
-    return this.usersRepository.save(user);
+    const { id, email, nickname } = await this.usersRepository.save(user);
+    return { id, email, nickname };
   }
 
   async checkEmail(email: string) {
