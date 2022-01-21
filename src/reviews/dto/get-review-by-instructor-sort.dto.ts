@@ -3,5 +3,5 @@ import { PickType } from '@nestjs/swagger';
 
 export class GetReviewByInstructorSortDto extends PickType(
   GetReviewByCourseSortDto,
-  ['sort', 'order'],
+  ['perPage', 'page', 'sort', 'order'],
 ) {}

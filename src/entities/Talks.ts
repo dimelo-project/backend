@@ -19,10 +19,6 @@ import { TalksComments } from './TalksComments';
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('talks', { schema: 'dimelo' })
 export class Talks extends BaseEntity {
-  @ApiProperty({
-    example: 1,
-    description: 'talk id',
-  })
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 

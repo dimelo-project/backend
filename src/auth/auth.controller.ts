@@ -114,7 +114,6 @@ export class AuthController {
     type: ReturnUserDto,
   })
   @ApiOperation({ summary: '구글 로그인 성공시 프로필 설정 페이지로 이동' })
-  @Redirect('http://localhost:3000', 301)
   @UseGuards(AuthGuard('google'))
   @Get('/google/redirect')
   googleAuthRedirect(@CurrentUser() user: CurrentUserDto) {
@@ -136,7 +135,6 @@ export class AuthController {
     type: ReturnUserDto,
   })
   @ApiOperation({ summary: '깃허브 로그인 성공시 프로필 설정 페이지로 이동' })
-  @Redirect('http://localhost:3000', 301)
   @UseGuards(AuthGuard('github'))
   @Get('/github/callback')
   githubAuthCallback(@CurrentUser() user: CurrentUserDto) {

@@ -35,7 +35,21 @@ export class TalksService {
       query.where('talk.category =:category', { category });
     }
 
-    return query.getMany();
+    return query
+      .innerJoin('talk.User', 'user')
+      .innerJoin('talk.TalksComments', 'comment')
+      .select([
+        'talk.id',
+        'talk.category',
+        'talk.title',
+        'talk.content',
+        `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
+        'user.nickname',
+        'SUM(comment.id) AS count_comment',
+      ])
+      .groupBy('comment.talkId')
+      .orderBy('talk_createdAt', 'DESC')
+      .getRawMany();
   }
 
   async getTalk(id: number) {
@@ -43,7 +57,25 @@ export class TalksService {
     if (!talk) {
       throw new NotFoundException('해당 게시글을 찾을 수 없습니다');
     }
-    return talk;
+    return this.talksRepository
+      .createQueryBuilder('talk')
+      .where('talk.id =:id', { id })
+      .innerJoin('talk.User', 'user')
+      .innerJoin('talk.TalksComments', 'comment')
+      .select([
+        'talk.id',
+        'talk.category',
+        'talk.title',
+        'talk.content',
+        `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl AS user_imageUrl',
+        'SUM(comment.id) AS count_comment',
+      ])
+      .groupBy('comment.talkId')
+      .getRawOne();
   }
 
   async createTalk(
@@ -111,16 +143,55 @@ export class TalksService {
   }
 
   async searchTalk({ keyword }: SearchTalkDto) {
-    return this.talksRepository
+    const query = this.talksRepository
       .createQueryBuilder('talk')
       .where('(talk.title LIKE :keyword OR talk.content LIKE :keyword)', {
         keyword: `%${keyword}%`,
-      })
-      .getMany();
+      });
+
+    const result = await query.getMany();
+
+    if (result.length === 0) {
+      throw new NotFoundException('해당 키워드의 글을 찾을 수 없습니다');
+    }
+    return query
+      .innerJoin('talk.User', 'user')
+      .innerJoin('talk.TalksComments', 'comment')
+      .select([
+        'talk.id',
+        'talk.category',
+        'talk.title',
+        'talk.content',
+        `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
+        'user.nickname',
+        'SUM(comment.id) AS count_comment',
+      ])
+      .groupBy('comment.talkId')
+      .orderBy('talk_createdAt', 'DESC')
+      .getRawMany();
   }
 
   async getAllTalkComments(talkId: number) {
-    return this.talksCommentsRepository.find({ talkId });
+    const talk = await this.talksRepository.findOne({ id: talkId });
+    if (!talk) {
+      throw new NotFoundException('해당 게시글을 찾을 수 없습니다');
+    }
+    return this.talksCommentsRepository
+      .createQueryBuilder('comment')
+      .where('comment.talkId =:talkId', { talkId })
+      .innerJoin('comment.User', 'user')
+      .select([
+        'comment.id',
+        'comment.commentText AS comment_commentText',
+        `DATE_FORMAT(comment.createdAt, '%Y-%m-%d at %h:%i') AS comment_createdAt`,
+        `DATE_FORMAT(comment.updatedAt, '%Y-%m-%d at %h:%i') AS comment_updatedAt`,
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl AS user_imageUrl',
+      ])
+      .orderBy('comment_createdAt', 'ASC')
+      .getRawMany();
   }
 
   async createTalkComment(
