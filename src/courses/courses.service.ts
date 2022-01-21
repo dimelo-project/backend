@@ -131,7 +131,14 @@ export class CoursesService {
   }
 
   async searchFromCategory(
-    { categoryBig, category, perPage, page, sort }: GetCoursesFromCategoryDto,
+    {
+      categoryBig,
+      category,
+      skill,
+      perPage,
+      page,
+      sort,
+    }: GetCoursesFromCategoryDto,
     keyword: string,
   ) {
     if (!categoryBig || !category) {
@@ -156,13 +163,27 @@ export class CoursesService {
           keyword: `%${keyword}%`,
         },
       );
+
+    if (skill) {
+      query
+        .innerJoin('course.CoursesSkills', 'skills', 'skills.skill =:skill', {
+          skill,
+        })
+        .andWhere(
+          '(course.title LIKE :keyword OR instructor.name LIKE :keyword)',
+          {
+            keyword: `%${keyword}%`,
+          },
+        );
+    }
+
     const result = await query.getMany();
 
     if (result.length === 0) {
       throw new NotFoundException('해당 하는 강의를 찾을 수 없습니다');
     }
 
-    return query
+    query
       .leftJoin('course.Reviews', 'review')
       .select([
         'course.id',
@@ -178,7 +199,13 @@ export class CoursesService {
         'COUNT(review.id) AS course_num_review',
         'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
       ])
-      .groupBy('review.courseId')
+      .groupBy('review.courseId');
+
+    if (skill) {
+      query.addSelect('skills.skill AS course_skill');
+    }
+
+    return query
       .take(perPage)
       .skip(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
