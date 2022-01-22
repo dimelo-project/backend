@@ -1,3 +1,4 @@
+import { GetSkillsFromCategory } from './dto/get-skills-from-category.dto';
 import { SearchCoursesDto } from './dto/search-course.dto';
 import { GetCoursesFromCategoryDto } from './dto/get-courses-from-category.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -30,54 +31,6 @@ import { GetCoursesFromAllDto } from './dto/get-courses-from-all.dto';
 @Controller('api/courses')
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
-  @ApiOkResponse({
-    description: '강의 받아오기 성공',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'parameter를 제대로 전달 하지 않은 경우',
-  })
-  @ApiOperation({ summary: '해당 카테고리 내의 강의들 모두 받아오기' })
-  @Get()
-  async getCourses(@Query() query: GetCoursesFromCategoryDto) {
-    return this.coursesService.findAll(query);
-  }
-
-  @ApiResponse({
-    status: 201,
-    description: '강의 생성 성공',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'body를 제대로 전달 하지 않은 경우',
-  })
-  @ApiOperation({ summary: '강의 생성하기 (for Admin)' })
-  @Post()
-  async createCourseForAdmin(@Body() body: CreateCourseDto) {
-    return this.coursesService.createCourse(body);
-  }
-
-  @ApiOkResponse({
-    description: '강의 받아오기 성공',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'course id를 제대로 보내지 않은 경우',
-  })
-  @ApiResponse({
-    status: 404,
-    description: '해당 강의를 찾을 수 없는 경우',
-  })
-  @ApiOperation({ summary: '해당 강의 정보 받아오기' })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'course id',
-  })
-  @Get('/:id')
-  async getCourse(@Param('id', ParseIntPipe) id: number) {
-    return this.coursesService.findById(id);
-  }
 
   @ApiResponse({
     status: 201,
@@ -111,6 +64,20 @@ export class CoursesController {
     @Body() body: SearchCoursesDto,
   ) {
     return this.coursesService.searchFromCategory(query, body.keyword);
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: '기술들 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'parameter를 제공하지 않은 경우',
+  })
+  @ApiOperation({ summary: '해당 카테고리의 기술들 받아오기' })
+  @Get('category/skills')
+  async getSkillsFromCategory(@Query() query: GetSkillsFromCategory) {
+    return this.coursesService.getSkillsFromCategory(query);
   }
 
   @ApiOkResponse({
@@ -219,5 +186,54 @@ export class CoursesController {
     @Query() query: GetCoursesFromAllDto,
   ) {
     return this.coursesService.findByInstructor(instructor_id, query);
+  }
+
+  @ApiOkResponse({
+    description: '강의 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'parameter를 제대로 전달 하지 않은 경우',
+  })
+  @ApiOperation({ summary: '해당 카테고리 내의 강의들 모두 받아오기' })
+  @Get()
+  async getCourses(@Query() query: GetCoursesFromCategoryDto) {
+    return this.coursesService.findAll(query);
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: '강의 생성 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'body를 제대로 전달 하지 않은 경우',
+  })
+  @ApiOperation({ summary: '강의 생성하기 (for Admin)' })
+  @Post()
+  async createCourseForAdmin(@Body() body: CreateCourseDto) {
+    return this.coursesService.createCourse(body);
+  }
+
+  @ApiOkResponse({
+    description: '강의 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'course id를 제대로 보내지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
+  })
+  @ApiOperation({ summary: '해당 강의 정보 받아오기' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'course id',
+  })
+  @Get('/:id')
+  async getCourse(@Param('id', ParseIntPipe) id: number) {
+    return this.coursesService.findById(id);
   }
 }

@@ -1,3 +1,4 @@
+import { GetSkillsFromCategory } from './dto/get-skills-from-category.dto';
 import { GetCoursesFromAllDto } from './dto/get-courses-from-all.dto';
 import { CoursesCategories } from './../entities/CoursesCategories';
 import { Categories } from './../entities/Categories';
@@ -83,6 +84,28 @@ export class CoursesService {
       .take(perPage)
       .skip(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .getRawMany();
+  }
+
+  async getSkillsFromCategory({
+    categoryBig,
+    category,
+  }: GetSkillsFromCategory) {
+    if (!categoryBig || !category) {
+      throw new NotFoundException('카테고리를 선택해 주세요');
+    }
+    return this.coursesSkillsRepository
+      .createQueryBuilder('skill')
+      .innerJoin('skill.Courses', 'course')
+      .where('course.categoryBig =:categoryBig', { categoryBig })
+      .innerJoin(
+        'course.Categories',
+        'category',
+        'category.category =:category',
+        { category },
+      )
+      .select('skill.skill AS skill')
+      .groupBy('skill.id')
       .getRawMany();
   }
 
