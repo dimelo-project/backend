@@ -1,3 +1,4 @@
+import { GetCountCoursesFromCategory } from './dto/get-count-courses-from-category.dto';
 import { GetSkillsFromCategory } from './dto/get-skills-from-category.dto';
 import { GetCoursesFromAllDto } from './dto/get-courses-from-all.dto';
 import { CoursesCategories } from './../entities/CoursesCategories';
@@ -35,7 +36,7 @@ export class CoursesService {
     private connection: Connection,
   ) {}
 
-  async findAll({
+  async getFromCategory({
     categoryBig,
     category,
     perPage,
@@ -85,6 +86,33 @@ export class CoursesService {
       .skip(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
       .getRawMany();
+  }
+
+  async getCountFromCategory({ categoryBig, category, skill }) {
+    if (!categoryBig || !category) {
+      throw new NotFoundException('카테고리를 선택해 주세요');
+    }
+    const query = this.coursesRepository.createQueryBuilder('course');
+    query
+      .where('course.categoryBig =:categoryBig', { categoryBig })
+      .innerJoin(
+        'course.Categories',
+        'category',
+        'category.category =:category',
+        { category },
+      );
+
+    if (skill) {
+      query.innerJoin(
+        'course.CoursesSkills',
+        'skills',
+        'skills.skill =:skill',
+        {
+          skill,
+        },
+      );
+    }
+    return query.select('COUNT(course.id) AS num_course').getRawOne();
   }
 
   async getSkillsFromCategory({
@@ -151,6 +179,23 @@ export class CoursesService {
       .skip(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
       .getRawMany();
+  }
+
+  async getCountForSearchFromAll(keyword: string) {
+    if (!keyword) {
+      throw new NotFoundException('키워드를 입력해주세요');
+    }
+    return this.coursesRepository
+      .createQueryBuilder('course')
+      .innerJoin('course.Instructor', 'instructor')
+      .andWhere(
+        '(course.title LIKE :keyword OR instructor.name LIKE :keyword)',
+        {
+          keyword: `%${keyword}%`,
+        },
+      )
+      .select('COUNT(course.id) AS num_course')
+      .getRawOne();
   }
 
   async searchFromCategory(
@@ -235,6 +280,49 @@ export class CoursesService {
       .getRawMany();
   }
 
+  async getCountForSearchFromCategory(
+    { categoryBig, category, skill }: GetCountCoursesFromCategory,
+    keyword: string,
+  ) {
+    if (!categoryBig || !category) {
+      throw new NotFoundException('카테고리를 선택해 주세요');
+    }
+    if (!keyword) {
+      throw new NotFoundException('키워드를 입력해주세요');
+    }
+    const query = this.coursesRepository
+      .createQueryBuilder('course')
+      .where('course.categoryBig =:categoryBig', { categoryBig })
+      .innerJoin(
+        'course.Categories',
+        'category',
+        'category.category =:category',
+        { category },
+      )
+      .innerJoin('course.Instructor', 'instructor')
+      .andWhere(
+        '(course.title LIKE :keyword OR instructor.name LIKE :keyword)',
+        {
+          keyword: `%${keyword}%`,
+        },
+      );
+
+    if (skill) {
+      query
+        .innerJoin('course.CoursesSkills', 'skills', 'skills.skill =:skill', {
+          skill,
+        })
+        .andWhere(
+          '(course.title LIKE :keyword OR instructor.name LIKE :keyword)',
+          {
+            keyword: `%${keyword}%`,
+          },
+        );
+    }
+
+    return query.select('COUNT(course.id) AS num_course').getRawOne();
+  }
+
   async findById(id: number) {
     const course = await this.coursesRepository.findOne({
       where: { id },
@@ -306,6 +394,24 @@ export class CoursesService {
     return true;
   }
 
+  async checkIfIliked(id: number, myId: number) {
+    const course = await this.coursesRepository.findOne({ id });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+    const user = await this.usersRepository.findOne({ id: myId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 해주세요');
+    }
+    const liked = await this.likesRepository.findOne({
+      where: { courseId: id, userId: user.id },
+    });
+    if (!liked) {
+      return false;
+    }
+    return true;
+  }
+
   async getLiked(myId: number) {
     const user = await this.usersRepository.findOne({ id: myId });
     if (!user) {
@@ -332,6 +438,20 @@ export class CoursesService {
       .groupBy('review.courseId')
       .orderBy('course_like_date', 'DESC')
       .getRawMany();
+  }
+
+  async getCountByInstructor(id: number) {
+    const instructor = await this.instructorsRepository.findOne({ id });
+    if (!instructor) {
+      throw new NotFoundException('해당 강사를 찾을 수 없습니다');
+    }
+    return this.coursesRepository
+      .createQueryBuilder('course')
+      .innerJoin('course.Instructor', 'instructor', 'instructor.id =:id', {
+        id,
+      })
+      .select('COUNT(course.id) AS num_course')
+      .getRawOne();
   }
 
   async findByInstructor(
@@ -364,6 +484,62 @@ export class CoursesService {
       .take(perPage)
       .skip(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .getRawMany();
+  }
+
+  async getCountBySkill(id: number) {
+    const foundSkill = await this.coursesSkillsRepository.findOne({ id });
+    if (!foundSkill) {
+      throw new NotFoundException('해당하는 기술을 찾을 수 없습니다');
+    }
+    return this.coursesRepository
+      .createQueryBuilder('course')
+      .innerJoin('course.CoursesSkills', 'skill', 'skill.id =:id', {
+        id,
+      })
+      .select('COUNT(course.id) AS num_course')
+      .getRawOne();
+  }
+
+  async findBySkill(id: number, { perPage, page, sort }: GetCoursesFromAllDto) {
+    const foundSkill = await this.coursesSkillsRepository.findOne({ id });
+    if (!foundSkill) {
+      throw new NotFoundException('해당하는 기술을 찾을 수 없습니다');
+    }
+    return this.coursesRepository
+      .createQueryBuilder('course')
+      .innerJoin('course.CoursesSkills', 'skill', 'skill.id =:id', {
+        id,
+      })
+      .innerJoin('course.Instructor', 'instructor')
+      .leftJoin('course.Reviews', 'review')
+      .select([
+        'course.id',
+        'course.title',
+        'course.platform',
+        'course.price',
+        'course.siteUrl AS course_siteUrl',
+        `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
+        'instructor.id',
+        'instructor.name',
+        'COUNT(review.id) AS course_num_review',
+        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+      ])
+      .groupBy('review.courseId')
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .getRawMany();
+  }
+
+  async getCourseSkills() {
+    return this.coursesSkillsRepository
+      .createQueryBuilder('skill')
+      .innerJoin('skill.CoursesSkillsTgas', 'tag')
+      .select(['skill.id', 'skill.skill', 'COUNT(tag.course_id) AS num_course'])
+      .groupBy('tag.skill_id')
+      .orderBy('num_course', 'DESC')
+      .take(7)
       .getRawMany();
   }
 

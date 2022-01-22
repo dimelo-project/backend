@@ -6,7 +6,6 @@ import { Courses } from './../entities/Courses';
 import { ReviewHelpes } from './../entities/ReviewHelpes';
 import { Reviews } from './../entities/Reviews';
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -32,7 +31,7 @@ export class ReviewsService {
     private readonly coursesRepository: Repository<Courses>,
   ) {}
 
-  async writeReview(
+  async createReview(
     courseId: number,
     { q1, q2, q3, q4, pros, cons }: CreateReviewDto,
     userId: number,

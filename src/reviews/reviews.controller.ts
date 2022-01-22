@@ -140,7 +140,7 @@ export class ReviewsController {
     @Body() body: CreateReviewDto,
     @CurrentUser() user: CurrentUserDto,
   ) {
-    return this.reviewsService.writeReview(course_id, body, user.id);
+    return this.reviewsService.createReview(course_id, body, user.id);
   }
 
   @ApiOkResponse({
