@@ -136,11 +136,19 @@ export class ReviewsService {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
 
+    const Help = this.reviewHelpesRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
+      .from(ReviewHelpes, 'help')
+      .groupBy('help.reviewId')
+      .getQuery();
+
     return this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Course', 'course', 'course.id =:id', { id })
       .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
+      .leftJoin(Help, 'help', 'help.reviewId = review.id')
       .select([
         'review.id',
         'review.pros',
@@ -151,10 +159,9 @@ export class ReviewsService {
         'user.job',
         'user.career',
         'user.imageUrl AS user_imageUrl',
+        'IFNULL(help.num_help,0) AS num_help',
       ])
-      .addSelect('COUNT(help.reviewId) AS review_help')
-      .groupBy('help.reviewId')
-      .orderBy(sort === 'avg' ? 'review.avg' : 'review_help', order)
+      .orderBy(sort === 'avg' ? 'review.avg' : 'num_help', order)
       .take(perPage)
       .skip(perPage * (page - 1))
       .getRawMany();
@@ -165,11 +172,20 @@ export class ReviewsService {
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
+
+    const Help = this.reviewHelpesRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
+      .from(ReviewHelpes, 'help')
+      .groupBy('help.reviewId')
+      .getQuery();
+
     return this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Course', 'course', 'course.id =:id', { id })
       .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
+      .leftJoin(Help, 'help', 'help.reviewId = review.id')
       .select([
         'review.id',
         'review.pros',
@@ -180,9 +196,8 @@ export class ReviewsService {
         'user.job',
         'user.career',
         'user.imageUrl AS user_imageUrl',
+        'IFNULL(help.num_help,0) AS num_help',
       ])
-      .addSelect('COUNT(help.reviewId) AS review_help')
-      .groupBy('help.reviewId')
       .orderBy('review_createdAt', 'DESC')
       .take(perPage)
       .skip(perPage * (page - 1))
@@ -212,13 +227,22 @@ export class ReviewsService {
     if (!instructor) {
       throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
     }
+
+    const Help = this.reviewHelpesRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
+      .from(ReviewHelpes, 'help')
+      .groupBy('help.reviewId')
+      .getQuery();
+
     return this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
         id,
       })
       .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
+      .leftJoin(Help, 'help', 'help.reviewId = review.id')
       .select([
         'review.id',
         'review.pros',
@@ -229,9 +253,8 @@ export class ReviewsService {
         'user.job',
         'user.career',
         'user.imageUrl AS user_imageUrl',
+        'IFNULL(help.num_help,0) AS num_help',
       ])
-      .addSelect('COUNT(help.reviewId) AS review_help')
-      .groupBy('help.reviewId')
       .orderBy('review_createdAt', 'DESC')
       .take(perPage)
       .skip(perPage * (page - 1))
@@ -246,13 +269,22 @@ export class ReviewsService {
     if (!instructor) {
       throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
     }
+
+    const Help = this.reviewHelpesRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
+      .from(ReviewHelpes, 'help')
+      .groupBy('help.reviewId')
+      .getQuery();
+
     return this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
         id,
       })
       .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
+      .leftJoin(Help, 'help', 'help.reviewId = review.id')
       .select([
         'review.id',
         'review.pros',
@@ -263,10 +295,9 @@ export class ReviewsService {
         'user.job',
         'user.career',
         'user.imageUrl AS user_imageUrl',
+        'IFNULL(help.num_help,0) AS num_help',
       ])
-      .addSelect('COUNT(help.reviewId) AS review_help')
-      .groupBy('help.reviewId')
-      .orderBy(sort === 'avg' ? 'review.avg' : 'review_help', order)
+      .orderBy(sort === 'avg' ? 'review.avg' : 'num_help', order)
       .take(perPage)
       .skip(perPage * (page - 1))
       .getRawMany();
