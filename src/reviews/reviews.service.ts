@@ -49,6 +49,13 @@ export class ReviewsService {
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
+    const myReview = await this.reviewsRepository.findOne({
+      id: courseId,
+      userId: user.id,
+    });
+    if (myReview) {
+      throw new ForbiddenException('이미 해당 강의에 리뷰를 작성했습니다');
+    }
 
     const review = new Reviews();
     review.userId = user.id;
@@ -369,7 +376,7 @@ export class ReviewsService {
       },
     });
     if (helped) {
-      throw new ConflictException('이미 도움됨을 눌렀습니다');
+      throw new ForbiddenException('이미 도움됨을 눌렀습니다');
     }
     await this.reviewHelpesRepository.save({
       reviewId: review.id,
@@ -395,7 +402,7 @@ export class ReviewsService {
       where: { reviewId: id, userId },
     });
     if (!helped) {
-      throw new ConflictException('도움됨을 누른적이 없습니다');
+      throw new ForbiddenException('도움됨을 누른적이 없습니다');
     }
     await this.reviewHelpesRepository.remove(helped);
     return true;

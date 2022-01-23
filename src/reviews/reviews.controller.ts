@@ -125,7 +125,8 @@ export class ReviewsController {
   })
   @ApiResponse({
     status: 403,
-    description: '프로필을 작성하지 않았을 경우',
+    description:
+      '프로필을 작성하지 않았을 경우 / 이미 해당 강의에 리뷰를 작성했을 경우',
   })
   @ApiOperation({ summary: '해당 강의에 리뷰 작성하기' })
   @ApiParam({
