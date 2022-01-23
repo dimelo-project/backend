@@ -27,7 +27,6 @@ import {
 } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { GetCoursesFromAllDto } from './dto/get-courses-from-all.dto';
-import { query } from 'express';
 
 @ApiTags('COURSE')
 @Controller('api/courses')

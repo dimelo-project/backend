@@ -1,3 +1,4 @@
+import { Reviews } from './../entities/Reviews';
 import { CoursesSkills } from './../entities/CoursesSkills';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { Users } from '../entities/Users';
       Likes,
       Users,
       CoursesSkills,
+      Reviews,
     ]),
   ],
   controllers: [CoursesController],
