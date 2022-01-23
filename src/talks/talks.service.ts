@@ -35,9 +35,17 @@ export class TalksService {
       query.where('talk.category =:category', { category });
     }
 
+    const Comment = this.talksCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['comment.talkId AS talkId', 'SUM(comment.id) AS num_comment'])
+      .from(TalksComments, 'comment')
+      .groupBy('comment.talkId')
+      .getQuery();
+
     return query
+      .leftJoin(Comment, 'comment', 'comment.talkId = talk.id')
       .innerJoin('talk.User', 'user')
-      .innerJoin('talk.TalksComments', 'comment')
       .select([
         'talk.id',
         'talk.category',
@@ -45,9 +53,8 @@ export class TalksService {
         'talk.content',
         `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
         'user.nickname',
-        'SUM(comment.id) AS count_comment',
+        'comment.num_comment AS num_comment',
       ])
-      .groupBy('comment.talkId')
       .orderBy('talk_createdAt', 'DESC')
       .getRawMany();
   }
@@ -57,11 +64,20 @@ export class TalksService {
     if (!talk) {
       throw new NotFoundException('해당 게시글을 찾을 수 없습니다');
     }
+
+    const Comment = this.talksCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['comment.talkId AS talkId', 'SUM(comment.id) AS num_comment'])
+      .from(TalksComments, 'comment')
+      .groupBy('comment.talkId')
+      .getQuery();
+
     return this.talksRepository
       .createQueryBuilder('talk')
       .where('talk.id =:id', { id })
       .innerJoin('talk.User', 'user')
-      .innerJoin('talk.TalksComments', 'comment')
+      .leftJoin(Comment, 'comment', 'comment.talkId = talk.id')
       .select([
         'talk.id',
         'talk.category',
@@ -72,9 +88,8 @@ export class TalksService {
         'user.job',
         'user.career',
         'user.imageUrl AS user_imageUrl',
-        'SUM(comment.id) AS count_comment',
+        'comment.num_comment AS num_comment',
       ])
-      .groupBy('comment.talkId')
       .getRawOne();
   }
 
