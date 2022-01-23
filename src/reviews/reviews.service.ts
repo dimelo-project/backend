@@ -49,6 +49,13 @@ export class ReviewsService {
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
+    const myReview = await this.reviewsRepository.findOne({
+      id: courseId,
+      userId: user.id,
+    });
+    if (myReview) {
+      throw new ForbiddenException('이미 해당 강의에 리뷰를 작성했습니다');
+    }
 
     const review = new Reviews();
     review.userId = user.id;
@@ -136,11 +143,19 @@ export class ReviewsService {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
 
+    const Help = this.reviewHelpesRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
+      .from(ReviewHelpes, 'help')
+      .groupBy('help.reviewId')
+      .getQuery();
+
     return this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Course', 'course', 'course.id =:id', { id })
       .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
+      .leftJoin(Help, 'help', 'help.reviewId = review.id')
       .select([
         'review.id',
         'review.pros',
@@ -151,10 +166,9 @@ export class ReviewsService {
         'user.job',
         'user.career',
         'user.imageUrl AS user_imageUrl',
+        'IFNULL(help.num_help,0) AS num_help',
       ])
-      .addSelect('COUNT(help.reviewId) AS review_help')
-      .groupBy('help.reviewId')
-      .orderBy(sort === 'avg' ? 'review.avg' : 'review_help', order)
+      .orderBy(sort === 'avg' ? 'review.avg' : 'num_help', order)
       .take(perPage)
       .skip(perPage * (page - 1))
       .getRawMany();
@@ -165,11 +179,20 @@ export class ReviewsService {
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
+
+    const Help = this.reviewHelpesRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
+      .from(ReviewHelpes, 'help')
+      .groupBy('help.reviewId')
+      .getQuery();
+
     return this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Course', 'course', 'course.id =:id', { id })
       .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
+      .leftJoin(Help, 'help', 'help.reviewId = review.id')
       .select([
         'review.id',
         'review.pros',
@@ -180,9 +203,8 @@ export class ReviewsService {
         'user.job',
         'user.career',
         'user.imageUrl AS user_imageUrl',
+        'IFNULL(help.num_help,0) AS num_help',
       ])
-      .addSelect('COUNT(help.reviewId) AS review_help')
-      .groupBy('help.reviewId')
       .orderBy('review_createdAt', 'DESC')
       .take(perPage)
       .skip(perPage * (page - 1))
@@ -212,13 +234,22 @@ export class ReviewsService {
     if (!instructor) {
       throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
     }
+
+    const Help = this.reviewHelpesRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
+      .from(ReviewHelpes, 'help')
+      .groupBy('help.reviewId')
+      .getQuery();
+
     return this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
         id,
       })
       .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
+      .leftJoin(Help, 'help', 'help.reviewId = review.id')
       .select([
         'review.id',
         'review.pros',
@@ -229,9 +260,8 @@ export class ReviewsService {
         'user.job',
         'user.career',
         'user.imageUrl AS user_imageUrl',
+        'IFNULL(help.num_help,0) AS num_help',
       ])
-      .addSelect('COUNT(help.reviewId) AS review_help')
-      .groupBy('help.reviewId')
       .orderBy('review_createdAt', 'DESC')
       .take(perPage)
       .skip(perPage * (page - 1))
@@ -246,13 +276,22 @@ export class ReviewsService {
     if (!instructor) {
       throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
     }
+
+    const Help = this.reviewHelpesRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
+      .from(ReviewHelpes, 'help')
+      .groupBy('help.reviewId')
+      .getQuery();
+
     return this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
         id,
       })
       .innerJoin('review.User', 'user')
-      .leftJoin('review.ReviewHelpes', 'help')
+      .leftJoin(Help, 'help', 'help.reviewId = review.id')
       .select([
         'review.id',
         'review.pros',
@@ -263,10 +302,9 @@ export class ReviewsService {
         'user.job',
         'user.career',
         'user.imageUrl AS user_imageUrl',
+        'IFNULL(help.num_help,0) AS num_help',
       ])
-      .addSelect('COUNT(help.reviewId) AS review_help')
-      .groupBy('help.reviewId')
-      .orderBy(sort === 'avg' ? 'review.avg' : 'review_help', order)
+      .orderBy(sort === 'avg' ? 'review.avg' : 'num_help', order)
       .take(perPage)
       .skip(perPage * (page - 1))
       .getRawMany();
@@ -338,7 +376,7 @@ export class ReviewsService {
       },
     });
     if (helped) {
-      throw new ConflictException('이미 도움됨을 눌렀습니다');
+      throw new ForbiddenException('이미 도움됨을 눌렀습니다');
     }
     await this.reviewHelpesRepository.save({
       reviewId: review.id,
@@ -364,7 +402,7 @@ export class ReviewsService {
       where: { reviewId: id, userId },
     });
     if (!helped) {
-      throw new ConflictException('도움됨을 누른적이 없습니다');
+      throw new ForbiddenException('도움됨을 누른적이 없습니다');
     }
     await this.reviewHelpesRepository.remove(helped);
     return true;

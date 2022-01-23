@@ -1,3 +1,4 @@
+import { Reviews } from './../entities/Reviews';
 import { GetCountCoursesFromCategory } from './dto/get-count-courses-from-category.dto';
 import { GetSkillsFromCategory } from './dto/get-skills-from-category.dto';
 import { GetCoursesFromAllDto } from './dto/get-courses-from-all.dto';
@@ -33,6 +34,8 @@ export class CoursesService {
     private readonly likesRepository: Repository<Likes>,
     @InjectRepository(CoursesSkills)
     private readonly coursesSkillsRepository: Repository<CoursesSkills>,
+    @InjectRepository(Reviews)
+    private readonly reviewsRepository: Repository<Reviews>,
     private connection: Connection,
   ) {}
 
@@ -48,6 +51,19 @@ export class CoursesService {
       throw new NotFoundException('카테고리를 선택해 주세요');
     }
     const query = this.coursesRepository.createQueryBuilder('course');
+
+    const Review = this.reviewsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'review.courseId AS courseId',
+        'COUNT(review.id) AS num_review',
+        'ROUND(AVG(review.avg),1) AS avg',
+      ])
+      .from(Reviews, 'review')
+      .groupBy('review.courseId')
+      .getQuery();
+
     query
       .where('course.categoryBig =:categoryBig', { categoryBig })
       .innerJoin('course.Instructor', 'instructor')
@@ -57,7 +73,7 @@ export class CoursesService {
         'category.category =:category',
         { category },
       )
-      .leftJoin('course.Reviews', 'review')
+      .leftJoin(Review, 'review', 'review.courseId = course.id')
       .select([
         'course.id',
         'course.title',
@@ -69,10 +85,9 @@ export class CoursesService {
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.id',
         'instructor.name',
-        'COUNT(review.id) AS course_num_review',
-        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
-      ])
-      .groupBy('review.courseId');
+        'IFNULL(review.num_review,0) AS num_review',
+        'IFNULL(review.avg,0) AS course_avg',
+      ]);
 
     if (skill) {
       query
@@ -84,7 +99,7 @@ export class CoursesService {
     return query
       .take(perPage)
       .skip(perPage * (page - 1))
-      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
       .getRawMany();
   }
 
@@ -132,8 +147,9 @@ export class CoursesService {
         'category.category =:category',
         { category },
       )
-      .select('skill.skill AS skill')
+      .select(['skill.id', 'skill.skill', 'COUNT(course.id) AS num_course'])
       .groupBy('skill.id')
+      .orderBy('num_course', 'DESC')
       .getRawMany();
   }
 
@@ -160,8 +176,20 @@ export class CoursesService {
       throw new NotFoundException('해당 하는 강의를 찾을 수 없습니다');
     }
 
+    const Review = this.reviewsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'review.courseId AS courseId',
+        'COUNT(review.id) AS num_review',
+        'IFNULL(ROUND(AVG(review.avg),1),0) AS avg',
+      ])
+      .from(Reviews, 'review')
+      .groupBy('review.courseId')
+      .getQuery();
+
     return query
-      .leftJoin('course.Reviews', 'review')
+      .leftJoin(Review, 'review', 'review.courseId = course.id')
       .select([
         'course.id',
         'course.title',
@@ -171,13 +199,12 @@ export class CoursesService {
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.id',
         'instructor.name',
-        'COUNT(review.id) AS course_num_review',
-        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+        'IFNULL(review.num_review,0) AS num_review',
+        'IFNULL(review.avg,0) AS course_avg',
       ])
-      .groupBy('review.courseId')
       .take(perPage)
       .skip(perPage * (page - 1))
-      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
       .getRawMany();
   }
 
@@ -251,8 +278,20 @@ export class CoursesService {
       throw new NotFoundException('해당 하는 강의를 찾을 수 없습니다');
     }
 
+    const Review = this.reviewsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'review.courseId AS courseId',
+        'COUNT(review.id) AS num_review',
+        'ROUND(AVG(review.avg),1) AS avg',
+      ])
+      .from(Reviews, 'review')
+      .groupBy('review.courseId')
+      .getQuery();
+
     query
-      .leftJoin('course.Reviews', 'review')
+      .leftJoin(Review, 'review', 'review.courseId = course.id')
       .select([
         'course.id',
         'course.title',
@@ -264,10 +303,9 @@ export class CoursesService {
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.id',
         'instructor.name',
-        'COUNT(review.id) AS course_num_review',
-        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
-      ])
-      .groupBy('review.courseId');
+        'IFNULL(review.num_review,0) AS num_review',
+        'IFNULL(review.avg,0) AS course_avg',
+      ]);
 
     if (skill) {
       query.addSelect('skills.skill AS course_skill');
@@ -276,7 +314,7 @@ export class CoursesService {
     return query
       .take(perPage)
       .skip(perPage * (page - 1))
-      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
       .getRawMany();
   }
 
@@ -330,11 +368,24 @@ export class CoursesService {
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
+
+    const Review = this.reviewsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'review.courseId AS courseId',
+        'COUNT(review.id) AS num_review',
+        'ROUND(AVG(review.avg),1) AS avg',
+      ])
+      .from(Reviews, 'review')
+      .groupBy('review.courseId')
+      .getQuery();
+
     return this.coursesRepository
       .createQueryBuilder('course')
       .where('course.id =:id', { id })
       .innerJoin('course.Instructor', 'instructor')
-      .leftJoin('course.Reviews', 'review')
+      .leftJoin(Review, 'review', 'review.courseId = course.id')
       .select([
         'course.id',
         'course.title',
@@ -344,10 +395,9 @@ export class CoursesService {
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.id',
         'instructor.name',
-        'COUNT(review.id) AS course_num_review',
-        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+        'IFNULL(review.num_review,0) AS num_review',
+        'IFNULL(review.avg,0) AS course_avg',
       ])
-      .groupBy('review.courseId')
       .getRawOne();
   }
 
@@ -417,11 +467,23 @@ export class CoursesService {
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
     }
+    const Review = this.reviewsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'review.courseId AS courseId',
+        'COUNT(review.id) AS num_review',
+        'ROUND(AVG(review.avg),1) AS avg',
+      ])
+      .from(Reviews, 'review')
+      .groupBy('review.courseId')
+      .getQuery();
+
     return this.coursesRepository
       .createQueryBuilder('course')
       .innerJoin('course.Likes', 'likes', 'likes.userId =:myId', { myId })
       .innerJoin('course.Instructor', 'instructor')
-      .leftJoin('course.Reviews', 'review')
+      .leftJoin(Review, 'review', 'review.courseId = course.id')
       .select([
         'course.id',
         'course.title',
@@ -431,11 +493,10 @@ export class CoursesService {
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.id',
         'instructor.name',
-        'COUNT(review.id) AS course_num_review',
-        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+        'IFNULL(review.num_review,0) AS num_review',
+        'IFNULL(review.avg,0) AS course_avg',
         `DATE_FORMAT(likes.createdAt, '%Y-%m-%d at %h:%i') AS course_like_date`,
       ])
-      .groupBy('review.courseId')
       .orderBy('course_like_date', 'DESC')
       .getRawMany();
   }
@@ -462,12 +523,24 @@ export class CoursesService {
     if (!instructor) {
       throw new NotFoundException('해당 강사를 찾을 수 없습니다');
     }
+    const Review = this.reviewsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'review.courseId AS courseId',
+        'COUNT(review.id) AS num_review',
+        'ROUND(AVG(review.avg),1) AS avg',
+      ])
+      .from(Reviews, 'review')
+      .groupBy('review.courseId')
+      .getQuery();
+
     return this.coursesRepository
       .createQueryBuilder('course')
       .innerJoin('course.Instructor', 'instructor', 'instructor.id =:id', {
         id,
       })
-      .leftJoin('course.Reviews', 'review')
+      .leftJoin(Review, 'review', 'review.courseId = course.id')
       .select([
         'course.id',
         'course.title',
@@ -477,13 +550,12 @@ export class CoursesService {
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.id',
         'instructor.name',
-        'COUNT(review.id) AS course_num_review',
-        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+        'IFNULL(review.num_review,0) AS num_review',
+        'IFNULL(review.avg,0) AS course_avg',
       ])
-      .groupBy('review.courseId')
       .take(perPage)
       .skip(perPage * (page - 1))
-      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
       .getRawMany();
   }
 
@@ -506,13 +578,25 @@ export class CoursesService {
     if (!foundSkill) {
       throw new NotFoundException('해당하는 기술을 찾을 수 없습니다');
     }
+    const Review = this.reviewsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'review.courseId AS courseId',
+        'COUNT(review.id) AS num_review',
+        'ROUND(AVG(review.avg),1) AS avg',
+      ])
+      .from(Reviews, 'review')
+      .groupBy('review.courseId')
+      .getQuery();
+
     return this.coursesRepository
       .createQueryBuilder('course')
       .innerJoin('course.CoursesSkills', 'skill', 'skill.id =:id', {
         id,
       })
       .innerJoin('course.Instructor', 'instructor')
-      .leftJoin('course.Reviews', 'review')
+      .leftJoin(Review, 'review', 'review.courseId = course.id')
       .select([
         'course.id',
         'course.title',
@@ -522,13 +606,12 @@ export class CoursesService {
         `DATE_FORMAT(course.createdAt, '%Y-%m-%d at %h:%i') AS course_createdAt`,
         'instructor.id',
         'instructor.name',
-        'COUNT(review.id) AS course_num_review',
-        'IFNULL(ROUND(AVG(review.avg),1),0) AS course_avg',
+        'IFNULL(review.num_review,0) AS num_review',
+        'IFNULL(review.avg,0) AS course_avg',
       ])
-      .groupBy('review.courseId')
       .take(perPage)
       .skip(perPage * (page - 1))
-      .orderBy(`${sort === 'avg' ? 'course_avg' : 'course_num_review'}`, 'DESC')
+      .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
       .getRawMany();
   }
 
