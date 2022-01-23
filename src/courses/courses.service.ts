@@ -132,8 +132,9 @@ export class CoursesService {
         'category.category =:category',
         { category },
       )
-      .select('skill.skill AS skill')
+      .select(['skill.id', 'skill.skill', 'COUNT(course.id) AS num_course'])
       .groupBy('skill.id')
+      .orderBy('num_course', 'DESC')
       .getRawMany();
   }
 

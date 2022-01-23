@@ -114,9 +114,9 @@ export class CoursesController {
     status: 400,
     description: 'parameter를 제공하지 않은 경우',
   })
-  @ApiOperation({ summary: '해당 카테고리의 기술들 받아오기' })
+  @ApiOperation({ summary: '해당 카테고리 내 인기 기술들 받아오기' })
   @Get('category/skills')
-  async getSkillsFromCategory(@Query() query: GetSkillsFromCategory) {
+  async getPopularSkillsFromCategory(@Query() query: GetSkillsFromCategory) {
     return this.coursesService.getSkillsFromCategory(query);
   }
 
@@ -163,9 +163,9 @@ export class CoursesController {
     status: 200,
     description: '강의들 받아오기 성공',
   })
-  @ApiOperation({ summary: '인기 기술 키워드 가져오기' })
+  @ApiOperation({ summary: '전체 카테고리에서 인기 기술 키워드 가져오기' })
   @Get('/skills')
-  async getPopularCourseSkills() {
+  async getPopularSkillsFromAll() {
     return this.coursesService.getCourseSkills();
   }
 
