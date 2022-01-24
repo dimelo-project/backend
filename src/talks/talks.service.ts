@@ -4,7 +4,7 @@ import { CreateTalkCommentDto } from './dto/create-talk-comment.dto';
 import { SearchTalkDto } from './dto/search-talk.dto';
 import { UpdateTalkDto } from './dto/update-talk.dto';
 import { ForbiddenError } from 'adminjs';
-import { GetTalksByCategoryDto } from './dto/get-talks-by-category.dto';
+import { GetTalksDto } from './dto/get-talks.dto';
 import { CreateTalkDto } from './dto/create-talk.dto';
 import { Talks } from './../entities/Talks';
 import {
@@ -28,7 +28,7 @@ export class TalksService {
     private readonly talksCommentsRepository: Repository<TalksComments>,
   ) {}
 
-  async getAllTalks({ category }: GetTalksByCategoryDto) {
+  async getAllTalks({ category, perPage, page }: GetTalksDto) {
     const query = this.talksRepository.createQueryBuilder('talk');
 
     if (category) {
@@ -56,6 +56,8 @@ export class TalksService {
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .orderBy('talk_createdAt', 'DESC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
       .getRawMany();
   }
 
@@ -157,7 +159,7 @@ export class TalksService {
     return true;
   }
 
-  async searchTalk({ keyword }: SearchTalkDto) {
+  async searchTalk({ keyword, perPage, page }: SearchTalkDto) {
     const query = this.talksRepository
       .createQueryBuilder('talk')
       .where('(talk.title LIKE :keyword OR talk.content LIKE :keyword)', {
@@ -190,6 +192,8 @@ export class TalksService {
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .orderBy('talk_createdAt', 'DESC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
       .getRawMany();
   }
 

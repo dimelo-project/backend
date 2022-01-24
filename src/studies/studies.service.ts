@@ -29,7 +29,7 @@ export class StudiesService {
     private readonly connection: Connection,
   ) {}
 
-  async getAllStudies({ ongoing, skills }: GetStudiesDto) {
+  async getAllStudies({ ongoing, skills, perPage, page }: GetStudiesDto) {
     const query = this.studiesRepository
       .createQueryBuilder('study')
       .innerJoin('study.StudiesSkills', 'skill');
@@ -78,6 +78,8 @@ export class StudiesService {
       ])
       .groupBy('study.id')
       .orderBy('study_createdAt', 'DESC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
       .getRawMany();
   }
 
