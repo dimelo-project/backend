@@ -50,9 +50,20 @@ export class StudiesService {
       .groupBy('comment.studyId')
       .getQuery();
 
-    const result: any[] = await query
+    const Skill = this.studiesSkillsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['study.id AS studyId', 'GROUP_CONCAT(skill.skill) AS skills'])
+      .from(StudiesSkills, 'skill')
+      .innerJoin(StudiesSkillsTags, 'tag', 'tag.skillId = skill.id')
+      .innerJoin(Studies, 'study', 'study.id = tag.studyId')
+      .groupBy('study.id')
+      .getQuery();
+
+    return query
       .innerJoin('study.User', 'user')
       .leftJoin(Comment, 'comment', 'comment.studyId = study.id')
+      .innerJoin(Skill, 'skill', 'skill.studyId = study.id')
       .select([
         'study.id',
         'study.title',
@@ -63,23 +74,11 @@ export class StudiesService {
         `DATE_FORMAT(study.createdAt, '%Y-%m-%d at %h:%i') AS study_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) num_comment',
+        'skill.skills AS study_skill',
       ])
       .groupBy('study.id')
       .orderBy('study_createdAt', 'DESC')
       .getRawMany();
-
-    return await Promise.all(
-      result.map(async (obj: any) => {
-        const skills = await this.studiesSkillsRepository
-          .createQueryBuilder('skill')
-          .innerJoin('skill.Studies', 'study', 'study.id =:id', {
-            id: obj.study_id,
-          })
-          .select('skill.skill AS skill')
-          .getRawMany();
-        return { ...obj, study_skill: skills };
-      }),
-    );
   }
 
   async getStudy(id: number) {
@@ -98,9 +97,20 @@ export class StudiesService {
       .groupBy('comment.studyId')
       .getQuery();
 
-    const result: any[] = await query
+    const Skill = this.studiesSkillsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['study.id AS studyId', 'GROUP_CONCAT(skill.skill) AS skills'])
+      .from(StudiesSkills, 'skill')
+      .innerJoin(StudiesSkillsTags, 'tag', 'tag.skillId = skill.id')
+      .innerJoin(Studies, 'study', 'study.id = tag.studyId')
+      .groupBy('study.id')
+      .getQuery();
+
+    return query
       .innerJoin('study.User', 'user')
       .leftJoin(Comment, 'comment', 'comment.studyId =:id', { id })
+      .innerJoin(Skill, 'skill', 'skill.studyId = study.id')
       .select([
         'study.id',
         'study.title',
@@ -111,21 +121,9 @@ export class StudiesService {
         `DATE_FORMAT(study.createdAt, '%Y-%m-%d at %h:%i') AS study_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) num_comment',
+        'skill.skills AS study_skill',
       ])
       .getRawOne();
-
-    const skills = await this.studiesSkillsRepository
-      .createQueryBuilder('skill')
-      .innerJoin('skill.Studies', 'study', 'study.id =:id', {
-        id,
-      })
-      .select('skill.skill AS skill')
-      .getRawMany();
-
-    return {
-      ...result,
-      study_skill: skills,
-    };
   }
 
   async createStudy(
