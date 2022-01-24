@@ -24,8 +24,6 @@ export class StudiesService {
     private readonly usersRepository: Repository<Users>,
     @InjectRepository(StudiesSkills)
     private readonly studiesSkillsRepository: Repository<StudiesSkills>,
-    @InjectRepository(StudiesSkillsTags)
-    private readonly studiesSkillsTagsRepository: Repository<StudiesSkillsTags>,
     @InjectRepository(StudiesComments)
     private readonly studiesCommentsRepository: Repository<StudiesComments>,
     private readonly connection: Connection,
@@ -52,7 +50,7 @@ export class StudiesService {
       .groupBy('comment.studyId')
       .getQuery();
 
-    const result = await query
+    const result: any[] = await query
       .innerJoin('study.User', 'user')
       .leftJoin(Comment, 'comment', 'comment.studyId = study.id')
       .select([
@@ -71,7 +69,7 @@ export class StudiesService {
       .getRawMany();
 
     return await Promise.all(
-      result.map(async (obj) => {
+      result.map(async (obj: any) => {
         const skills = await this.studiesSkillsRepository
           .createQueryBuilder('skill')
           .innerJoin('skill.Studies', 'study', 'study.id =:id', {
@@ -82,6 +80,52 @@ export class StudiesService {
         return { ...obj, study_skill: skills };
       }),
     );
+  }
+
+  async getStudy(id: number) {
+    const study = await this.studiesRepository.findOne({ id });
+    if (!study) {
+      throw new NotFoundException('해당 스터디를 찾을 수 없습니다');
+    }
+
+    const query = this.studiesRepository.createQueryBuilder('study');
+
+    const Comment = this.studiesCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['comment.studyId AS studyId', 'SUM(comment.id) AS num_comment'])
+      .from(StudiesComments, 'comment')
+      .groupBy('comment.studyId')
+      .getQuery();
+
+    const result: any[] = await query
+      .innerJoin('study.User', 'user')
+      .leftJoin(Comment, 'comment', 'comment.studyId =:id', { id })
+      .select([
+        'study.id',
+        'study.title',
+        'study.content',
+        'study.ongoing',
+        'study.duedate',
+        'study.participant',
+        `DATE_FORMAT(study.createdAt, '%Y-%m-%d at %h:%i') AS study_createdAt`,
+        'user.nickname',
+        'IFNULL(comment.num_comment, 0) num_comment',
+      ])
+      .getRawOne();
+
+    const skills = await this.studiesSkillsRepository
+      .createQueryBuilder('skill')
+      .innerJoin('skill.Studies', 'study', 'study.id =:id', {
+        id,
+      })
+      .select('skill.skill AS skill')
+      .getRawMany();
+
+    return {
+      ...result,
+      study_skill: skills,
+    };
   }
 
   async createStudy(

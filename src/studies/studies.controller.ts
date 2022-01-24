@@ -36,7 +36,9 @@ export class StudiesController {
     description: 'study id',
   })
   @Get('/:id')
-  getStudy(@Param('id', ParseIntPipe) id: number) {}
+  getStudy(@Param('id', ParseIntPipe) id: number) {
+    return this.studiesService.getStudy(id);
+  }
 
   @ApiOperation({ summary: '스터디 글 작성하기' })
   @UseGuards(new LoggedInGuard())
