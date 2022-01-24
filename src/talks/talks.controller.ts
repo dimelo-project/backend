@@ -62,6 +62,14 @@ export class TalksController {
     status: 401,
     description: '로그인 하지 않은 경우',
   })
+  @ApiResponse({
+    status: 403,
+    description: '프로필을 작성하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 게시글을 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 게시글에 댓글 작성하기' })
   @ApiParam({
     name: 'talk_id',
@@ -89,6 +97,14 @@ export class TalksController {
   @ApiResponse({
     status: 401,
     description: '로그인 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '수정 권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 게시글이나 해당 댓글을 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 게시글의 해당 댓글 수정하기' })
   @ApiParam({
@@ -123,6 +139,14 @@ export class TalksController {
   @ApiResponse({
     status: 401,
     description: '로그인 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '삭제 권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 스터디나 해당 댓글을 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 게시글의 해당 댓글 삭제하기' })
   @ApiParam({
