@@ -1,6 +1,6 @@
 import { GetCountStudiesFromCategoryDto } from './dto/get-count-studies-from-category.dto';
 import { UpdateStudyCommentDto } from './dto/update-study-comment.dto';
-import { CreateStudyComment } from './dto/create-study-comment.dto';
+import { CreateStudyCommentDto } from './dto/create-study-comment.dto';
 import { GetStudiesDto } from './dto/get-studies.dto';
 import { UpdateStudyDto } from './dto/update-study.dto';
 import { StudiesService } from './studies.service';
@@ -83,7 +83,7 @@ export class StudiesController {
   createCommentOfStudy(
     @Param('study_id', ParseIntPipe) study_id: number,
     @CurrentUser() user: CurrentUserDto,
-    @Body() body: CreateStudyComment,
+    @Body() body: CreateStudyCommentDto,
   ) {
     return this.studiesService.createStudyComment(
       study_id,

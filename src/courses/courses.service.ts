@@ -1,6 +1,6 @@
 import { Reviews } from './../entities/Reviews';
-import { GetCountCoursesFromCategory } from './dto/get-count-courses-from-category.dto';
-import { GetSkillsFromCategory } from './dto/get-skills-from-category.dto';
+import { GetCountCoursesFromCategoryDto } from './dto/get-count-courses-from-category.dto';
+import { GetSkillsFromCategoryDto } from './dto/get-skills-from-category.dto';
 import { GetCoursesFromAllDto } from './dto/get-courses-from-all.dto';
 import { CoursesCategories } from './../entities/CoursesCategories';
 import { Categories } from './../entities/Categories';
@@ -107,7 +107,7 @@ export class CoursesService {
     categoryBig,
     category,
     skill,
-  }: GetCountCoursesFromCategory) {
+  }: GetCountCoursesFromCategoryDto) {
     if (!categoryBig || !category) {
       throw new NotFoundException('카테고리를 선택해 주세요');
     }
@@ -137,7 +137,7 @@ export class CoursesService {
   async getSkillsFromCategory({
     categoryBig,
     category,
-  }: GetSkillsFromCategory) {
+  }: GetSkillsFromCategoryDto) {
     if (!categoryBig || !category) {
       throw new NotFoundException('카테고리를 선택해 주세요');
     }
@@ -323,7 +323,7 @@ export class CoursesService {
   }
 
   async getCountForSearchFromCategory(
-    { categoryBig, category, skill }: GetCountCoursesFromCategory,
+    { categoryBig, category, skill }: GetCountCoursesFromCategoryDto,
     keyword: string,
   ) {
     if (!categoryBig || !category) {

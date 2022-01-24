@@ -1,5 +1,5 @@
-import { GetCountCoursesFromCategory } from './dto/get-count-courses-from-category.dto';
-import { GetSkillsFromCategory } from './dto/get-skills-from-category.dto';
+import { GetCountCoursesFromCategoryDto } from './dto/get-count-courses-from-category.dto';
+import { GetSkillsFromCategoryDto } from './dto/get-skills-from-category.dto';
 import { SearchCoursesDto } from './dto/search-course.dto';
 import { GetCoursesFromCategoryDto } from './dto/get-courses-from-category.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -79,7 +79,7 @@ export class CoursesController {
   })
   @Post('/category/search/count')
   async getCountOfCourseBySearchFromCategory(
-    @Query() query: GetCountCoursesFromCategory,
+    @Query() query: GetCountCoursesFromCategoryDto,
     @Body() body: SearchCoursesDto,
   ) {
     return this.coursesService.getCountForSearchFromCategory(
@@ -115,7 +115,7 @@ export class CoursesController {
   })
   @ApiOperation({ summary: '해당 카테고리 내 인기 기술들 받아오기' })
   @Get('category/skills')
-  async getPopularSkillsFromCategory(@Query() query: GetSkillsFromCategory) {
+  async getPopularSkillsFromCategory(@Query() query: GetSkillsFromCategoryDto) {
     return this.coursesService.getSkillsFromCategory(query);
   }
 
@@ -336,7 +336,7 @@ export class CoursesController {
   @ApiOperation({ summary: '해당 카테고리 내의 강의들 개수 받아오기' })
   @Get('/count')
   async getCountOfCourseFromCategory(
-    @Query() query: GetCountCoursesFromCategory,
+    @Query() query: GetCountCoursesFromCategoryDto,
   ) {
     return this.coursesService.getCountFromCategory(query);
   }

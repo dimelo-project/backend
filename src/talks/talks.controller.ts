@@ -1,4 +1,4 @@
-import { GetCountTalksFromCategory } from './dto/get-count-talks-from-category.dto';
+import { GetCountTalksFromCategoryDto } from './dto/get-count-talks-from-category.dto';
 import { UpdateTalkCommentDto } from './dto/update-talk-comment.dto';
 import { CreateTalkCommentDto } from './dto/create-talk-comment.dto';
 import { SearchTalkDto } from './dto/search-talk.dto';
@@ -180,7 +180,7 @@ export class TalksController {
   @ApiOperation({ summary: '해당 키워드의 글 개수 받아오기' })
   @Post('/search/count')
   async getCountOfTalksBySearch(
-    @Query() query: GetCountTalksFromCategory,
+    @Query() query: GetCountTalksFromCategoryDto,
     @Body() body: SearchTalkDto,
   ) {
     return this.talksService.getCountBySearch(query, body.keyword);
@@ -210,7 +210,7 @@ export class TalksController {
   })
   @ApiOperation({ summary: '자유게시판 글 개수 가져오기' })
   @Get('/count')
-  async getCountOfTalks(@Query() query: GetCountTalksFromCategory) {
+  async getCountOfTalks(@Query() query: GetCountTalksFromCategoryDto) {
     return this.talksService.getCount(query);
   }
 
