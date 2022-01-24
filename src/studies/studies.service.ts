@@ -1,3 +1,4 @@
+import { GetCountStudiesFromCategoryDto } from './dto/get-count-studies-from-category.dto';
 import { StudiesComments } from './../entities/StudiesComments';
 import { GetStudiesDto } from './dto/get-studies.dto';
 import { StudiesSkillsTags } from './../entities/StudiesSkillsTags';
@@ -29,6 +30,22 @@ export class StudiesService {
     private readonly connection: Connection,
   ) {}
 
+  async getCount({ ongoing, skills }: GetCountStudiesFromCategoryDto) {
+    const query = this.studiesRepository
+      .createQueryBuilder('study')
+      .innerJoin('study.StudiesSkills', 'skill');
+
+    if (ongoing) {
+      query.where('study.ongoing =:ongoing', { ongoing });
+    }
+
+    if (skills) {
+      query.andWhere('skill.skill IN (:...skills)', { skills });
+    }
+
+    return query.select(['COUNT(study.id) AS num_study']).getRawOne();
+  }
+
   async getAllStudies({ ongoing, skills, perPage, page }: GetStudiesDto) {
     const query = this.studiesRepository
       .createQueryBuilder('study')
@@ -39,7 +56,7 @@ export class StudiesService {
     }
 
     if (skills) {
-      query.where('skill.skill IN (:...skills)', { skills });
+      query.andWhere('skill.skill IN (:...skills)', { skills });
     }
 
     const Comment = this.studiesCommentsRepository

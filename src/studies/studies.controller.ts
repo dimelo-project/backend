@@ -1,3 +1,4 @@
+import { GetCountStudiesFromCategoryDto } from './dto/get-count-studies-from-category.dto';
 import { UpdateStudyCommentDto } from './dto/update-study-comment.dto';
 import { CreateStudyComment } from './dto/create-study-comment.dto';
 import { GetStudiesDto } from './dto/get-studies.dto';
@@ -177,6 +178,16 @@ export class StudiesController {
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.studiesService.deleteStudyComment(study_id, id, user.id);
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: '스터디 개수 받아오기 성공',
+  })
+  @ApiOperation({ summary: '스터디 개수 받아오기' })
+  @Get('/count')
+  getCountOfStudies(@Query() query: GetCountStudiesFromCategoryDto) {
+    return this.studiesService.getCount(query);
   }
 
   @ApiResponse({
