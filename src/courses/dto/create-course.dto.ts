@@ -25,6 +25,8 @@ export class CreateCourseDto {
     example: '개발',
     description: '강의 큰 카테고리: 개발, 데이터 과학, 디자인 중 하나',
     required: true,
+    type: 'string',
+    enum: ['개발', '데이터 과학', '디자인'],
   })
   @IsEnum(['개발', '데이터 과학', '디자인'])
   @IsNotEmpty()
@@ -35,6 +37,7 @@ export class CreateCourseDto {
     description:
       '강의 카테고리 (복수 가능: 복수 데이터 보낼때 ","로 나눠 보냄)',
     required: true,
+    type: 'string',
   })
   @IsArray()
   @Transform(({ value }) => value.split(','))
@@ -65,6 +68,7 @@ export class CreateCourseDto {
     description:
       '강의에서 가르치는 기술 (복수 가능: 복수 데이터 보낼 때 ","로 나눠서 보냄)',
     required: true,
+    type: 'string',
   })
   @IsArray()
   @Transform(({ value }) => value.split(','))

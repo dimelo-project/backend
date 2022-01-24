@@ -2,7 +2,7 @@ import { UpdateTalkCommentDto } from './dto/update-talk-comment.dto';
 import { CreateTalkCommentDto } from './dto/create-talk-comment.dto';
 import { SearchTalkDto } from './dto/search-talk.dto';
 import { UpdateTalkDto } from './dto/update-talk.dto';
-import { GetTalksByCategoryDto } from './dto/get-talks-by-category.dto';
+import { GetTalksDto } from './dto/get-talks.dto';
 import { TalksService } from './talks.service';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { CreateTalkDto } from './dto/create-talk.dto';
@@ -192,7 +192,7 @@ export class TalksController {
   })
   @ApiOperation({ summary: '자유게시판 모든 글 자겨오기' })
   @Get()
-  async getAllTalks(@Query() query: GetTalksByCategoryDto) {
+  async getAllTalks(@Query() query: GetTalksDto) {
     return this.talksService.getAllTalks(query);
   }
 
