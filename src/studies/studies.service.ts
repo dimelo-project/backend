@@ -65,7 +65,7 @@ export class StudiesService {
         'IFNULL(comment.num_comment, 0) num_comment',
       ])
       .groupBy('study.id')
-      .orderBy('study_createdAt')
+      .orderBy('study_createdAt', 'DESC')
       .getRawMany();
 
     return await Promise.all(
@@ -299,5 +299,105 @@ export class StudiesService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async getAllStudyComments(studyId: number) {
+    const study = await this.studiesRepository.findOne({ id: studyId });
+    if (!study) {
+      throw new NotFoundException('해당하는 스터디를 찾을 수 없습니다');
+    }
+    return this.studiesCommentsRepository
+      .createQueryBuilder('comment')
+      .where('comment.studyId =:studyId', { studyId })
+      .innerJoin('comment.User', 'user')
+      .select([
+        'comment.id',
+        'comment.commentText AS comment_commentText',
+        `DATE_FORMAT(comment.createdAt, '%Y-%m-%d at %h:%i') AS comment_createdAt`,
+        `DATE_FORMAT(comment.updatedAt, '%Y-%m-%d at %h:%i') AS comment_updatedAt`,
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl AS user_imageUrl',
+      ])
+      .orderBy('comment_createdAt', 'ASC')
+      .getRawMany();
+  }
+
+  async createStudyComment(
+    studyId: number,
+    userId: number,
+    commentText: string,
+  ) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    if (!user.nickname) {
+      throw new ForbiddenException('프로필을 먼저 설정해주세요');
+    }
+    const study = await this.studiesRepository.findOne({ id: studyId });
+    if (!study) {
+      throw new NotFoundException('해당하는 스터디를 찾을 수 없습니다');
+    }
+    return this.studiesCommentsRepository.save({
+      userId: user.id,
+      studyId: study.id,
+      commentText,
+    });
+  }
+
+  async updateStudyComment(
+    studyId: number,
+    id: number,
+    userId: number,
+    commentText: string,
+  ) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    const study = await this.studiesRepository.findOne({ id: studyId });
+    if (!study) {
+      throw new NotFoundException('해당하는 스터디를 찾을 수 없습니다');
+    }
+    const comment = await this.studiesCommentsRepository.findOne({ id });
+    if (!comment) {
+      throw new NotFoundException('해당 하는 댓글을 찾을 수 없습니다');
+    }
+    const myComment = await this.studiesCommentsRepository.findOne({
+      id,
+      userId: user.id,
+    });
+    if (!myComment) {
+      throw new ForbiddenException('수정 권한이 없습니다');
+    }
+    myComment.commentText = commentText;
+
+    return this.studiesCommentsRepository.save(myComment);
+  }
+
+  async deleteStudyComment(studyId: number, id: number, userId: number) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    const study = await this.studiesRepository.findOne({ id: studyId });
+    if (!study) {
+      throw new NotFoundException('해당하는 스터디를 찾을 수 없습니다');
+    }
+    const comment = await this.studiesCommentsRepository.findOne({ id });
+    if (!comment) {
+      throw new NotFoundException('해당 하는 댓글을 찾을 수 없습니다');
+    }
+    const myComment = await this.studiesCommentsRepository.findOne({
+      id,
+      userId: user.id,
+    });
+    if (!myComment) {
+      throw new ForbiddenException('삭제 권한이 없습니다');
+    }
+    await this.studiesCommentsRepository.remove(myComment);
+    return true;
   }
 }

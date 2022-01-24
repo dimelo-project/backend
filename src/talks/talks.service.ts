@@ -225,6 +225,9 @@ export class TalksService {
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
+    if (!user.nickname) {
+      throw new ForbiddenException('프로필을 먼저 설정해주세요');
+    }
     const talk = await this.talksRepository.findOne({ id });
     if (!talk) {
       throw new NotFoundException('해당 게시글을 찾을 수 없습니다');
@@ -284,7 +287,7 @@ export class TalksService {
       userId: user.id,
     });
     if (!myComment) {
-      throw new ForbiddenException('수정 권한이 없습니다');
+      throw new ForbiddenException('삭제 권한이 없습니다');
     }
     await this.talksCommentsRepository.remove(myComment);
     return true;
