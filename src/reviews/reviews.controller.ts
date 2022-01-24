@@ -36,8 +36,27 @@ export class ReviewsController {
     private readonly reviewsService: ReviewsService,
     private readonly mailService: MailService,
   ) {}
-  @Get('courses/:course_id/sort/count')
-  async getCountOfReviewOfCourseWithSort() {}
+  @ApiOkResponse({
+    description: '리뷰 개수 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'course id, parameter를 제대로 전달 하지 않은 경우',
+  })
+  @ApiOperation({
+    summary: '해당 강의의 리뷰 전체 개수 가져오기',
+  })
+  @ApiParam({
+    name: 'course_id',
+    required: true,
+    description: 'course id',
+  })
+  @Get('courses/:course_id/count')
+  async getCountOfReviewsOfCourse(
+    @Param('course_id', ParseIntPipe) course_id: number,
+  ) {
+    return this.reviewsService.getCountByCourse(course_id);
+  }
 
   @ApiOkResponse({
     description: '리뷰 받아오기 성공',
@@ -218,6 +237,28 @@ export class ReviewsController {
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.reviewsService.deleteReview(course_id, id, user.id);
+  }
+
+  @ApiOkResponse({
+    description: '해당 강사의 리뷰 개수 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'instructor id, parameter를 제대로 전달 하지 않은 경우',
+  })
+  @ApiOperation({
+    summary: '해당 강사의 모든 리뷰 개수 받아오기',
+  })
+  @ApiParam({
+    name: 'instructor_id',
+    required: true,
+    description: 'instructor id',
+  })
+  @Get('/instructors/:instructor_id/count')
+  async getCountOfReviewsOfInstructor(
+    @Param('instructor_id', ParseIntPipe) instructor_id: number,
+  ) {
+    return this.reviewsService.getCountByInstructor(instructor_id);
   }
 
   @ApiOkResponse({

@@ -133,6 +133,18 @@ export class ReviewsService {
     return true;
   }
 
+  async getCountByCourse(id: number) {
+    const course = await this.coursesRepository.findOne({ id });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
+      .select('COUNT(review.id) AS num_review')
+      .getRawOne();
+  }
+
   async getByCourseWithSort(
     id: number,
     { perPage, page, sort, order }: GetReviewsByCourseSortDto,
@@ -225,6 +237,20 @@ export class ReviewsService {
         'ROUND(AVG(review.q4),1) AS q4',
         'ROUND(AVG(review.avg),1) AS avg',
       ])
+      .getRawOne();
+  }
+
+  async getCountByInstructor(id: number) {
+    const instructor = await this.instructorsRepository.findOne({ id });
+    if (!instructor) {
+      throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
+        id,
+      })
+      .select('COUNT(review.id) AS num_review')
       .getRawOne();
   }
 

@@ -121,7 +121,7 @@ export class CoursesController {
 
   @ApiResponse({
     status: 200,
-    description: '해당 기술 강의 갯수 받아오기 성공',
+    description: '해당 기술 강의 개수 받아오기 성공',
   })
   @ApiResponse({
     status: 400,
@@ -131,7 +131,7 @@ export class CoursesController {
     status: 404,
     description: '해당 기술을 찾을 수 없는 경우',
   })
-  @ApiOperation({ summary: '해당 기술의 강의 갯수 받아 오기' })
+  @ApiOperation({ summary: '해당 기술의 강의 개수 받아 오기' })
   @Get('/skills/:skill_id/count')
   async getCountOfCourseBySkill(@Param('skill_id') skill_id: number) {
     return this.coursesService.getCountBySkill(skill_id);
@@ -288,7 +288,7 @@ export class CoursesController {
     status: 404,
     description: '해당 강사를 찾을 수 없는 경우',
   })
-  @ApiOperation({ summary: '해당 강사의 모든 강의 갯수 받아오기' })
+  @ApiOperation({ summary: '해당 강사의 모든 강의 개수 받아오기' })
   @ApiParam({
     name: 'instructor_id',
     required: true,
@@ -333,7 +333,7 @@ export class CoursesController {
     status: 400,
     description: 'parameter를 제대로 전달 하지 않은 경우',
   })
-  @ApiOperation({ summary: '해당 카테고리 내의 강의들 갯수 받아오기' })
+  @ApiOperation({ summary: '해당 카테고리 내의 강의들 개수 받아오기' })
   @Get('/count')
   async getCountOfCourseFromCategory(
     @Query() query: GetCountCoursesFromCategory,
