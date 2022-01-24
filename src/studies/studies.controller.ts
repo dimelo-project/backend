@@ -1,3 +1,6 @@
+import { UpdateStudyCommentDto } from './dto/update-study-comment.dto';
+import { CreateStudyComment } from './dto/create-study-comment.dto';
+import { GetStudiesDto } from './dto/get-studies.dto';
 import { UpdateStudyDto } from './dto/update-study.dto';
 import { StudiesService } from './studies.service';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
@@ -23,21 +26,10 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 export class StudiesController {
   constructor(private readonly studiesService: StudiesService) {}
   @ApiOperation({ summary: '모든 스터디 받아오기' })
-  @ApiQuery({
-    name: 'skill',
-    required: false,
-    description: '필터링할 스킬',
-  })
-  @ApiQuery({
-    name: 'ongoing',
-    required: false,
-    description: '모집중/모집완료',
-  })
   @Get()
-  getAllStudies(
-    @Query('skill') skill: string,
-    @Query('ongoing') ongoing: string,
-  ) {}
+  getAllStudies(@Query() query: GetStudiesDto) {
+    return this.studiesService.getAllStudies(query);
+  }
 
   @ApiOperation({ summary: '해당 스터디 받아오기' })
   @ApiParam({
@@ -46,7 +38,9 @@ export class StudiesController {
     description: 'study id',
   })
   @Get('/:id')
-  getStudy(@Param('id', ParseIntPipe) id: number) {}
+  getStudy(@Param('id', ParseIntPipe) id: number) {
+    return this.studiesService.getStudy(id);
+  }
 
   @ApiOperation({ summary: '스터디 글 작성하기' })
   @UseGuards(new LoggedInGuard())
@@ -96,7 +90,9 @@ export class StudiesController {
     description: 'study id',
   })
   @Get('/:study_id/comments')
-  getAllCommentsOfStudy(@Param('study_id', ParseIntPipe) study_id: number) {}
+  getAllCommentsOfStudy(@Param('study_id', ParseIntPipe) study_id: number) {
+    return this.studiesService.getAllStudyComments(study_id);
+  }
 
   @ApiOperation({ summary: '해당 스터디 글에 댓글 작성하기' })
   @ApiParam({
@@ -104,8 +100,19 @@ export class StudiesController {
     required: true,
     description: 'study id',
   })
+  @UseGuards(new LoggedInGuard())
   @Post('/:study_id/comments')
-  createCommentOfStudy(@Param('study_id', ParseIntPipe) study_id: number) {}
+  createCommentOfStudy(
+    @Param('study_id', ParseIntPipe) study_id: number,
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: CreateStudyComment,
+  ) {
+    return this.studiesService.createStudyComment(
+      study_id,
+      user.id,
+      body.commentText,
+    );
+  }
 
   @ApiOperation({ summary: '해당 스터디 글의 댓글 수정하기' })
   @ApiParam({
@@ -118,11 +125,21 @@ export class StudiesController {
     required: true,
     description: 'study comment id',
   })
+  @UseGuards(new LoggedInGuard())
   @Patch('/:study_id/comments/:id')
   updateCommentOfStudy(
     @Param('study_id', ParseIntPipe) study_id: number,
     @Param('id', ParseIntPipe) id: number,
-  ) {}
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: UpdateStudyCommentDto,
+  ) {
+    return this.studiesService.updateStudyComment(
+      study_id,
+      id,
+      user.id,
+      body.commentText,
+    );
+  }
 
   @ApiOperation({ summary: '해당 스터디 글의 댓글 삭제하기' })
   @ApiParam({
@@ -135,9 +152,13 @@ export class StudiesController {
     required: true,
     description: 'study comment id',
   })
+  @UseGuards(new LoggedInGuard())
   @Delete('/:study_id/comments/:id')
   deleteCommentOfStudy(
     @Param('study_id', ParseIntPipe) study_id: number,
     @Param('id', ParseIntPipe) id: number,
-  ) {}
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.studiesService.deleteStudyComment(study_id, id, user.id);
+  }
 }

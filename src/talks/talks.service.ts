@@ -53,7 +53,7 @@ export class TalksService {
         'talk.content',
         `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
         'user.nickname',
-        'comment.num_comment AS num_comment',
+        'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .orderBy('talk_createdAt', 'DESC')
       .getRawMany();
@@ -88,7 +88,7 @@ export class TalksService {
         'user.job',
         'user.career',
         'user.imageUrl AS user_imageUrl',
-        'comment.num_comment AS num_comment',
+        'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .getRawOne();
   }
@@ -169,9 +169,17 @@ export class TalksService {
     if (result.length === 0) {
       throw new NotFoundException('해당 키워드의 글을 찾을 수 없습니다');
     }
+    const Comment = this.talksCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['comment.talkId AS talkId', 'SUM(comment.id) AS num_comment'])
+      .from(TalksComments, 'comment')
+      .groupBy('comment.talkId')
+      .getQuery();
+
     return query
       .innerJoin('talk.User', 'user')
-      .innerJoin('talk.TalksComments', 'comment')
+      .leftJoin(Comment, 'comment', 'comment.talkId = talk.id')
       .select([
         'talk.id',
         'talk.category',
@@ -179,9 +187,8 @@ export class TalksService {
         'talk.content',
         `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
         'user.nickname',
-        'SUM(comment.id) AS count_comment',
+        'IFNULL(comment.num_comment,0) AS num_comment',
       ])
-      .groupBy('comment.talkId')
       .orderBy('talk_createdAt', 'DESC')
       .getRawMany();
   }
@@ -217,6 +224,9 @@ export class TalksService {
     const user = await this.usersRepository.findOne({ id: userId });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    if (!user.nickname) {
+      throw new ForbiddenException('프로필을 먼저 설정해주세요');
     }
     const talk = await this.talksRepository.findOne({ id });
     if (!talk) {
@@ -277,7 +287,7 @@ export class TalksService {
       userId: user.id,
     });
     if (!myComment) {
-      throw new ForbiddenException('수정 권한이 없습니다');
+      throw new ForbiddenException('삭제 권한이 없습니다');
     }
     await this.talksCommentsRepository.remove(myComment);
     return true;
