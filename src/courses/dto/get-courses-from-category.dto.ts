@@ -34,7 +34,7 @@ export class GetCoursesFromCategoryDto {
   })
   @IsOptional()
   @IsString()
-  skill: string;
+  skill?: string;
 
   @ApiProperty({
     example: 10,
@@ -60,6 +60,8 @@ export class GetCoursesFromCategoryDto {
     example: 'avg',
     description: '필터링하는 조건 (avg: 평점순, num_review: 리뷰순)',
     required: true,
+    type: 'string',
+    enum: ['avg', 'num_review'],
   })
   @IsEnum(['avg', 'num_review'])
   @IsString()

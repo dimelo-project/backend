@@ -1,6 +1,6 @@
 import { CreateReviewWithCourseDto } from './dto/create-review-with-course.dto';
-import { GetReviewByInstructorSortDto } from './dto/get-review-by-instructor-sort.dto';
-import { GetReviewByCourseSortDto } from './dto/get-review-by-course-sort.dto';
+import { GetReviewsByInstructorSortDto } from './dto/get-reviews-by-instructor-sort.dto';
+import { GetReviewsByCourseSortDto } from './dto/get-reviews-by-course-sort.dto';
 import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -37,6 +37,28 @@ export class ReviewsController {
     private readonly mailService: MailService,
   ) {}
   @ApiOkResponse({
+    description: '리뷰 개수 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'course id, parameter를 제대로 전달 하지 않은 경우',
+  })
+  @ApiOperation({
+    summary: '해당 강의의 리뷰 전체 개수 가져오기',
+  })
+  @ApiParam({
+    name: 'course_id',
+    required: true,
+    description: 'course id',
+  })
+  @Get('courses/:course_id/count')
+  async getCountOfReviewsOfCourse(
+    @Param('course_id', ParseIntPipe) course_id: number,
+  ) {
+    return this.reviewsService.getCountByCourse(course_id);
+  }
+
+  @ApiOkResponse({
     description: '리뷰 받아오기 성공',
   })
   @ApiResponse({
@@ -54,7 +76,7 @@ export class ReviewsController {
   @Get('courses/:course_id/sort')
   async getReviewsOfCourseWithSort(
     @Param('course_id', ParseIntPipe) course_id: number,
-    @Query() query: GetReviewByCourseSortDto,
+    @Query() query: GetReviewsByCourseSortDto,
   ) {
     return this.reviewsService.getByCourseWithSort(course_id, query);
   }
@@ -218,6 +240,28 @@ export class ReviewsController {
   }
 
   @ApiOkResponse({
+    description: '해당 강사의 리뷰 개수 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'instructor id, parameter를 제대로 전달 하지 않은 경우',
+  })
+  @ApiOperation({
+    summary: '해당 강사의 모든 리뷰 개수 받아오기',
+  })
+  @ApiParam({
+    name: 'instructor_id',
+    required: true,
+    description: 'instructor id',
+  })
+  @Get('/instructors/:instructor_id/count')
+  async getCountOfReviewsOfInstructor(
+    @Param('instructor_id', ParseIntPipe) instructor_id: number,
+  ) {
+    return this.reviewsService.getCountByInstructor(instructor_id);
+  }
+
+  @ApiOkResponse({
     description: '리뷰 받아오기 성공',
   })
   @ApiResponse({
@@ -235,7 +279,7 @@ export class ReviewsController {
   @Get('/instructors/:instructor_id/sort')
   async getAllReviewsOfInstructorWithSort(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
-    @Query() query: GetReviewByInstructorSortDto,
+    @Query() query: GetReviewsByInstructorSortDto,
   ) {
     return this.reviewsService.getByInstructorWithSort(instructor_id, query);
   }

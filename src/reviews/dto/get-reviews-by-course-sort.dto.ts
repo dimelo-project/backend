@@ -1,7 +1,7 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-export class GetReviewByCourseSortDto {
+export class GetReviewsByCourseSortDto {
   @ApiProperty({
     example: 10,
     description: '한 번에 가져오는 개수',
@@ -26,6 +26,8 @@ export class GetReviewByCourseSortDto {
     example: 'avg',
     description: '필터링하는 조건 (help: 추천순, avg: 평점순)',
     required: true,
+    type: 'string',
+    enum: ['help', 'avg'],
   })
   @IsEnum(['help', 'avg'])
   @IsString()
@@ -35,6 +37,8 @@ export class GetReviewByCourseSortDto {
     example: 'DESC',
     description: '데이터 정렬순서 (ASC: 오름차순, DESC: 내림차순)',
     required: true,
+    type: 'string',
+    enum: ['ASC', 'DESC'],
   })
   @IsEnum(['ASC', 'DESC'])
   @IsString()

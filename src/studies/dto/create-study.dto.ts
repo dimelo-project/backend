@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsDate,
@@ -33,6 +33,8 @@ export class CreateStudyDto {
     example: '모집중',
     description: '모집중/모집완료',
     required: true,
+    type: 'string',
+    enum: ['모집중', '모집완료']
   })
   @IsNotEmpty()
   @IsString()
@@ -59,6 +61,7 @@ export class CreateStudyDto {
 
   @ApiProperty({
     example: 'JavaScript',
+    type: 'string',
     description:
       '스터디 할 기술 (복수 가능: 복수 데이터 보낼 때 ","로 나눠서 보냄)',
     required: true,
@@ -66,5 +69,7 @@ export class CreateStudyDto {
   @IsArray()
   @Transform(({ value }) => value.split(','))
   @IsNotEmpty()
+  @IsString({ each: true })
+  @Type(() => String)
   skills: string[];
 }

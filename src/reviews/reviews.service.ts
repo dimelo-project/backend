@@ -1,12 +1,11 @@
-import { GetReviewByInstructorSortDto } from './dto/get-review-by-instructor-sort.dto';
-import { GetReviewByCourseSortDto } from './dto/get-review-by-course-sort.dto';
+import { GetReviewsByInstructorSortDto } from './dto/get-reviews-by-instructor-sort.dto';
+import { GetReviewsByCourseSortDto } from './dto/get-reviews-by-course-sort.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { Courses } from './../entities/Courses';
 import { ReviewHelpes } from './../entities/ReviewHelpes';
 import { Reviews } from './../entities/Reviews';
 import {
-  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -134,9 +133,21 @@ export class ReviewsService {
     return true;
   }
 
+  async getCountByCourse(id: number) {
+    const course = await this.coursesRepository.findOne({ id });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
+      .select('COUNT(review.id) AS num_review')
+      .getRawOne();
+  }
+
   async getByCourseWithSort(
     id: number,
-    { perPage, page, sort, order }: GetReviewByCourseSortDto,
+    { perPage, page, sort, order }: GetReviewsByCourseSortDto,
   ) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
@@ -229,6 +240,20 @@ export class ReviewsService {
       .getRawOne();
   }
 
+  async getCountByInstructor(id: number) {
+    const instructor = await this.instructorsRepository.findOne({ id });
+    if (!instructor) {
+      throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
+    }
+    return this.reviewsRepository
+      .createQueryBuilder('review')
+      .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
+        id,
+      })
+      .select('COUNT(review.id) AS num_review')
+      .getRawOne();
+  }
+
   async getByInstructor(id: number, perPage: number, page: number) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
@@ -270,7 +295,7 @@ export class ReviewsService {
 
   async getByInstructorWithSort(
     id: number,
-    { perPage, page, sort, order }: GetReviewByInstructorSortDto,
+    { perPage, page, sort, order }: GetReviewsByInstructorSortDto,
   ) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {

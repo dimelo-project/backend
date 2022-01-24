@@ -1,10 +1,10 @@
+import { GetCountTalksFromCategoryDto } from './dto/get-count-talks-from-category.dto';
 import { UpdateTalkCommentDto } from './dto/update-talk-comment.dto';
 import { TalksComments } from './../entities/TalksComments';
 import { CreateTalkCommentDto } from './dto/create-talk-comment.dto';
-import { SearchTalkDto } from './dto/search-talk.dto';
 import { UpdateTalkDto } from './dto/update-talk.dto';
 import { ForbiddenError } from 'adminjs';
-import { GetTalksByCategoryDto } from './dto/get-talks-by-category.dto';
+import { GetTalksDto } from './dto/get-talks.dto';
 import { CreateTalkDto } from './dto/create-talk.dto';
 import { Talks } from './../entities/Talks';
 import {
@@ -28,7 +28,16 @@ export class TalksService {
     private readonly talksCommentsRepository: Repository<TalksComments>,
   ) {}
 
-  async getAllTalks({ category }: GetTalksByCategoryDto) {
+  async getCount({ category }: GetCountTalksFromCategoryDto) {
+    const query = this.talksRepository.createQueryBuilder('talk');
+
+    if (category) {
+      query.where('talk.category =:category', { category });
+    }
+    return query.select('COUNT(talk.id) AS num_talk').getRawOne();
+  }
+
+  async getAllTalks({ category, perPage, page }: GetTalksDto) {
     const query = this.talksRepository.createQueryBuilder('talk');
 
     if (category) {
@@ -56,6 +65,8 @@ export class TalksService {
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .orderBy('talk_createdAt', 'DESC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
       .getRawMany();
   }
 
@@ -157,12 +168,34 @@ export class TalksService {
     return true;
   }
 
-  async searchTalk({ keyword }: SearchTalkDto) {
-    const query = this.talksRepository
-      .createQueryBuilder('talk')
-      .where('(talk.title LIKE :keyword OR talk.content LIKE :keyword)', {
+  async getCountBySearch(
+    { category }: GetCountTalksFromCategoryDto,
+    keyword: string,
+  ) {
+    const query = this.talksRepository.createQueryBuilder('talk');
+
+    if (category) {
+      query.where('talk.category =:category', { category });
+    }
+
+    return query
+      .andWhere('(talk.title LIKE :keyword OR talk.content LIKE :keyword)', {
         keyword: `%${keyword}%`,
-      });
+      })
+      .select(['COUNT(talk.id) AS num_talk'])
+      .getRawOne();
+  }
+
+  async searchTalk({ category, perPage, page }: GetTalksDto, keyword: string) {
+    const query = this.talksRepository.createQueryBuilder('talk');
+
+    if (category) {
+      query.where('talk.category =:category', { category });
+    }
+
+    query.andWhere('(talk.title LIKE :keyword OR talk.content LIKE :keyword)', {
+      keyword: `%${keyword}%`,
+    });
 
     const result = await query.getMany();
 
@@ -190,6 +223,8 @@ export class TalksService {
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .orderBy('talk_createdAt', 'DESC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
       .getRawMany();
   }
 

@@ -1,5 +1,5 @@
-import { GetCountCoursesFromCategory } from './dto/get-count-courses-from-category.dto';
-import { GetSkillsFromCategory } from './dto/get-skills-from-category.dto';
+import { GetCountCoursesFromCategoryDto } from './dto/get-count-courses-from-category.dto';
+import { GetSkillsFromCategoryDto } from './dto/get-skills-from-category.dto';
 import { SearchCoursesDto } from './dto/search-course.dto';
 import { GetCoursesFromCategoryDto } from './dto/get-courses-from-category.dto';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -78,8 +78,8 @@ export class CoursesController {
     summary: '전체 메뉴에서 제목, 강사로 강의 검색한 강의 개수 받아오기',
   })
   @Post('/category/search/count')
-  async getCountOfCourseForSearchFromCategory(
-    @Query() query: GetCountCoursesFromCategory,
+  async getCountOfCourseBySearchFromCategory(
+    @Query() query: GetCountCoursesFromCategoryDto,
     @Body() body: SearchCoursesDto,
   ) {
     return this.coursesService.getCountForSearchFromCategory(
@@ -115,13 +115,13 @@ export class CoursesController {
   })
   @ApiOperation({ summary: '해당 카테고리 내 인기 기술들 받아오기' })
   @Get('category/skills')
-  async getPopularSkillsFromCategory(@Query() query: GetSkillsFromCategory) {
+  async getPopularSkillsFromCategory(@Query() query: GetSkillsFromCategoryDto) {
     return this.coursesService.getSkillsFromCategory(query);
   }
 
   @ApiResponse({
     status: 200,
-    description: '해당 기술 강의 갯수 받아오기 성공',
+    description: '해당 기술 강의 개수 받아오기 성공',
   })
   @ApiResponse({
     status: 400,
@@ -131,7 +131,7 @@ export class CoursesController {
     status: 404,
     description: '해당 기술을 찾을 수 없는 경우',
   })
-  @ApiOperation({ summary: '해당 기술의 강의 갯수 받아 오기' })
+  @ApiOperation({ summary: '해당 기술의 강의 개수 받아 오기' })
   @Get('/skills/:skill_id/count')
   async getCountOfCourseBySkill(@Param('skill_id') skill_id: number) {
     return this.coursesService.getCountBySkill(skill_id);
@@ -288,7 +288,7 @@ export class CoursesController {
     status: 404,
     description: '해당 강사를 찾을 수 없는 경우',
   })
-  @ApiOperation({ summary: '해당 강사의 모든 강의 갯수 받아오기' })
+  @ApiOperation({ summary: '해당 강사의 모든 강의 개수 받아오기' })
   @ApiParam({
     name: 'instructor_id',
     required: true,
@@ -333,10 +333,10 @@ export class CoursesController {
     status: 400,
     description: 'parameter를 제대로 전달 하지 않은 경우',
   })
-  @ApiOperation({ summary: '해당 카테고리 내의 강의들 갯수 받아오기' })
+  @ApiOperation({ summary: '해당 카테고리 내의 강의들 개수 받아오기' })
   @Get('/count')
   async getCountOfCourseFromCategory(
-    @Query() query: GetCountCoursesFromCategory,
+    @Query() query: GetCountCoursesFromCategoryDto,
   ) {
     return this.coursesService.getCountFromCategory(query);
   }

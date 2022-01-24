@@ -6,6 +6,8 @@ export class CreateTalkDto {
     example: '개발',
     description: '자유게시판 카테고리',
     required: true,
+    type: 'string',
+    enum: ['개발', '데이터', '디자인', '기타'],
   })
   @IsEnum(['개발', '데이터', '디자인', '기타'])
   @IsString()

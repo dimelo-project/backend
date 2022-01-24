@@ -1,8 +1,9 @@
+import { GetCountTalksFromCategoryDto } from './dto/get-count-talks-from-category.dto';
 import { UpdateTalkCommentDto } from './dto/update-talk-comment.dto';
 import { CreateTalkCommentDto } from './dto/create-talk-comment.dto';
 import { SearchTalkDto } from './dto/search-talk.dto';
 import { UpdateTalkDto } from './dto/update-talk.dto';
-import { GetTalksByCategoryDto } from './dto/get-talks-by-category.dto';
+import { GetTalksDto } from './dto/get-talks.dto';
 import { TalksService } from './talks.service';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { CreateTalkDto } from './dto/create-talk.dto';
@@ -62,6 +63,14 @@ export class TalksController {
     status: 401,
     description: '로그인 하지 않은 경우',
   })
+  @ApiResponse({
+    status: 403,
+    description: '프로필을 작성하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 게시글을 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 게시글에 댓글 작성하기' })
   @ApiParam({
     name: 'talk_id',
@@ -89,6 +98,14 @@ export class TalksController {
   @ApiResponse({
     status: 401,
     description: '로그인 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '수정 권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 게시글이나 해당 댓글을 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 게시글의 해당 댓글 수정하기' })
   @ApiParam({
@@ -124,6 +141,14 @@ export class TalksController {
     status: 401,
     description: '로그인 하지 않은 경우',
   })
+  @ApiResponse({
+    status: 403,
+    description: '삭제 권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 스터디나 해당 댓글을 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 게시글의 해당 댓글 삭제하기' })
   @ApiParam({
     name: 'talk_id',
@@ -152,23 +177,50 @@ export class TalksController {
     status: 400,
     description: 'keyword를 전달하지 않았을 경우',
   })
+  @ApiOperation({ summary: '해당 키워드의 글 개수 받아오기' })
+  @Post('/search/count')
+  async getCountOfTalksBySearch(
+    @Query() query: GetCountTalksFromCategoryDto,
+    @Body() body: SearchTalkDto,
+  ) {
+    return this.talksService.getCountBySearch(query, body.keyword);
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: '키워드에 맞는 게시글 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'keyword를 전달하지 않았을 경우',
+  })
   @ApiResponse({
     status: 404,
     description: '키워드에 해당하는 게시글이 없을 경우',
   })
-  @ApiOperation({ summary: '자유게시판 글 검색하기' })
+  @ApiOperation({ summary: '해당 키워드의 글 검색하기' })
   @Post('/search')
-  searchTalk(@Body() body: SearchTalkDto) {
-    return this.talksService.searchTalk(body);
+  async searchTalk(@Query() query: GetTalksDto, @Body() body: SearchTalkDto) {
+    return this.talksService.searchTalk(query, body.keyword);
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: '게시글 개수 받아오기 성공',
+  })
+  @ApiOperation({ summary: '자유게시판 글 개수 가져오기' })
+  @Get('/count')
+  async getCountOfTalks(@Query() query: GetCountTalksFromCategoryDto) {
+    return this.talksService.getCount(query);
   }
 
   @ApiResponse({
     status: 200,
     description: '게시글 모두 받아오기 성공',
   })
-  @ApiOperation({ summary: '자유게시판 모든 글 자겨오기' })
+  @ApiOperation({ summary: '자유게시판 모든 글 가져오기' })
   @Get()
-  async getAllTalks(@Query() query: GetTalksByCategoryDto) {
+  async getAllTalks(@Query() query: GetTalksDto) {
     return this.talksService.getAllTalks(query);
   }
 
