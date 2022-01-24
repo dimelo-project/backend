@@ -1,12 +1,11 @@
-import { GetReviewByInstructorSortDto } from './dto/get-review-by-instructor-sort.dto';
-import { GetReviewByCourseSortDto } from './dto/get-review-by-course-sort.dto';
+import { GetReviewsByInstructorSortDto } from './dto/get-reviews-by-instructor-sort.dto';
+import { GetReviewsByCourseSortDto } from './dto/get-reviews-by-course-sort.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { Courses } from './../entities/Courses';
 import { ReviewHelpes } from './../entities/ReviewHelpes';
 import { Reviews } from './../entities/Reviews';
 import {
-  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -136,7 +135,7 @@ export class ReviewsService {
 
   async getByCourseWithSort(
     id: number,
-    { perPage, page, sort, order }: GetReviewByCourseSortDto,
+    { perPage, page, sort, order }: GetReviewsByCourseSortDto,
   ) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
@@ -270,7 +269,7 @@ export class ReviewsService {
 
   async getByInstructorWithSort(
     id: number,
-    { perPage, page, sort, order }: GetReviewByInstructorSortDto,
+    { perPage, page, sort, order }: GetReviewsByInstructorSortDto,
   ) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {

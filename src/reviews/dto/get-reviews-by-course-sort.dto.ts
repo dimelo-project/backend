@@ -1,7 +1,7 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-export class GetReviewByCourseSortDto {
+export class GetReviewsByCourseSortDto {
   @ApiProperty({
     example: 10,
     description: '한 번에 가져오는 개수',

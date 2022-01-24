@@ -1,6 +1,6 @@
 import { CreateReviewWithCourseDto } from './dto/create-review-with-course.dto';
-import { GetReviewByInstructorSortDto } from './dto/get-review-by-instructor-sort.dto';
-import { GetReviewByCourseSortDto } from './dto/get-review-by-course-sort.dto';
+import { GetReviewsByInstructorSortDto } from './dto/get-reviews-by-instructor-sort.dto';
+import { GetReviewsByCourseSortDto } from './dto/get-reviews-by-course-sort.dto';
 import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -36,6 +36,9 @@ export class ReviewsController {
     private readonly reviewsService: ReviewsService,
     private readonly mailService: MailService,
   ) {}
+  @Get('courses/:course_id/sort/count')
+  async getCountOfReviewOfCourseWithSort() {}
+
   @ApiOkResponse({
     description: '리뷰 받아오기 성공',
   })
@@ -54,7 +57,7 @@ export class ReviewsController {
   @Get('courses/:course_id/sort')
   async getReviewsOfCourseWithSort(
     @Param('course_id', ParseIntPipe) course_id: number,
-    @Query() query: GetReviewByCourseSortDto,
+    @Query() query: GetReviewsByCourseSortDto,
   ) {
     return this.reviewsService.getByCourseWithSort(course_id, query);
   }
@@ -235,7 +238,7 @@ export class ReviewsController {
   @Get('/instructors/:instructor_id/sort')
   async getAllReviewsOfInstructorWithSort(
     @Param('instructor_id', ParseIntPipe) instructor_id: number,
-    @Query() query: GetReviewByInstructorSortDto,
+    @Query() query: GetReviewsByInstructorSortDto,
   ) {
     return this.reviewsService.getByInstructorWithSort(instructor_id, query);
   }
