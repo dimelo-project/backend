@@ -1,3 +1,5 @@
+import { StudiesComments } from './../entities/StudiesComments';
+import { GetStudiesDto } from './dto/get-studies.dto';
 import { StudiesSkillsTags } from './../entities/StudiesSkillsTags';
 import { StudiesSkills } from './../entities/StudiesSkills';
 import { UpdateStudyDto } from './dto/update-study.dto';
@@ -20,10 +22,67 @@ export class StudiesService {
     private readonly studiesRepository: Repository<Studies>,
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
+    @InjectRepository(StudiesSkills)
+    private readonly studiesSkillsRepository: Repository<StudiesSkills>,
+    @InjectRepository(StudiesSkillsTags)
+    private readonly studiesSkillsTagsRepository: Repository<StudiesSkillsTags>,
+    @InjectRepository(StudiesComments)
+    private readonly studiesCommentsRepository: Repository<StudiesComments>,
     private readonly connection: Connection,
   ) {}
 
-  async getAllStudies() {}
+  async getAllStudies({ ongoing, skills }: GetStudiesDto) {
+    const query = this.studiesRepository
+      .createQueryBuilder('study')
+      .innerJoin('study.StudiesSkills', 'skill');
+
+    if (ongoing) {
+      query.where('study.ongoing =:ongoing', { ongoing });
+    }
+
+    if (skills) {
+      query.where('skill.skill IN (:...skills)', { skills });
+    }
+
+    const Comment = this.studiesCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['comment.studyId AS studyId', 'SUM(comment.id) AS num_comment'])
+      .from(StudiesComments, 'comment')
+      .groupBy('comment.studyId')
+      .getQuery();
+
+    const result = await query
+      .innerJoin('study.User', 'user')
+      .leftJoin(Comment, 'comment', 'comment.studyId = study.id')
+      .select([
+        'study.id',
+        'study.title',
+        'study.content',
+        'study.ongoing',
+        'study.duedate',
+        'study.participant',
+        `DATE_FORMAT(study.createdAt, '%Y-%m-%d at %h:%i') AS study_createdAt`,
+        'user.nickname',
+        'IFNULL(comment.num_comment, 0) num_comment',
+      ])
+      .groupBy('study.id')
+      .orderBy('study_createdAt')
+      .getRawMany();
+
+    return await Promise.all(
+      result.map(async (obj) => {
+        const skills = await this.studiesSkillsRepository
+          .createQueryBuilder('skill')
+          .innerJoin('skill.Studies', 'study', 'study.id =:id', {
+            id: obj.study_id,
+          })
+          .select('skill.skill AS skill')
+          .getRawMany();
+        return { ...obj, study_skill: skills };
+      }),
+    );
+  }
 
   async createStudy(
     { title, content, ongoing, duedate, participant, skills }: CreateStudyDto,
@@ -144,7 +203,7 @@ export class StudiesService {
 
       await Promise.all(
         skillsId.map(async (skillId: number): Promise<void> => {
-          const tag = await queryRunner.manager
+          await queryRunner.manager
             .getRepository(StudiesSkillsTags)
             .save({ studyId: returnedStudy.id, skillId });
         }),

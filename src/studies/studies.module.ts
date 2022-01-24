@@ -1,3 +1,5 @@
+import { StudiesComments } from './../entities/StudiesComments';
+import { StudiesSkillsTags } from './../entities/StudiesSkillsTags';
 import { Studies } from './../entities/Studies';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
@@ -7,7 +9,15 @@ import { Users } from 'src/entities/Users';
 import { StudiesSkills } from 'src/entities/StudiesSkills';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Users, Studies, StudiesSkills])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Users,
+      Studies,
+      StudiesSkills,
+      StudiesSkillsTags,
+      StudiesComments,
+    ]),
+  ],
   controllers: [StudiesController],
   providers: [StudiesService],
 })

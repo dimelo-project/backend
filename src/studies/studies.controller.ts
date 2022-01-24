@@ -1,3 +1,4 @@
+import { GetStudiesDto } from './dto/get-studies.dto';
 import { UpdateStudyDto } from './dto/update-study.dto';
 import { StudiesService } from './studies.service';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
@@ -23,21 +24,10 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 export class StudiesController {
   constructor(private readonly studiesService: StudiesService) {}
   @ApiOperation({ summary: '모든 스터디 받아오기' })
-  @ApiQuery({
-    name: 'skill',
-    required: false,
-    description: '필터링할 스킬',
-  })
-  @ApiQuery({
-    name: 'ongoing',
-    required: false,
-    description: '모집중/모집완료',
-  })
   @Get()
-  getAllStudies(
-    @Query('skill') skill: string,
-    @Query('ongoing') ongoing: string,
-  ) {}
+  getAllStudies(@Query() query: GetStudiesDto) {
+    return this.studiesService.getAllStudies(query);
+  }
 
   @ApiOperation({ summary: '해당 스터디 받아오기' })
   @ApiParam({
