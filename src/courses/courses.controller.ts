@@ -78,7 +78,7 @@ export class CoursesController {
     summary: '전체 메뉴에서 제목, 강사로 강의 검색한 강의 개수 받아오기',
   })
   @Post('/category/search/count')
-  async getCountOfCourseForSearchFromCategory(
+  async getCountOfCourseBySearchFromCategory(
     @Query() query: GetCountCoursesFromCategory,
     @Body() body: SearchCoursesDto,
   ) {

@@ -34,7 +34,7 @@ export class GetCoursesFromCategoryDto {
   })
   @IsOptional()
   @IsString()
-  skill: string;
+  skill?: string;
 
   @ApiProperty({
     example: 10,

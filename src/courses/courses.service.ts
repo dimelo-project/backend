@@ -103,7 +103,11 @@ export class CoursesService {
       .getRawMany();
   }
 
-  async getCountFromCategory({ categoryBig, category, skill }) {
+  async getCountFromCategory({
+    categoryBig,
+    category,
+    skill,
+  }: GetCountCoursesFromCategory) {
     if (!categoryBig || !category) {
       throw new NotFoundException('카테고리를 선택해 주세요');
     }

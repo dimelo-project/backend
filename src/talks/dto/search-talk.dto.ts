@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty } from 'class-validator';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
-export class SearchTalkDto extends PickType(GetTalksDto, ['perPage', 'page']) {
+export class SearchTalkDto {
   @ApiProperty({
     example: '문과생',
     description: '검색할 키워드',
