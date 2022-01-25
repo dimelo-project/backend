@@ -200,7 +200,7 @@ export class CoursesController {
     required: true,
     description: 'course id',
   })
-  @Get('/likes/check/:id')
+  @Get('/likes/me/:id')
   async CheckIfIliked(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
