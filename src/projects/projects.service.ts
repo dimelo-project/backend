@@ -128,7 +128,7 @@ export class ProjectsService {
         'project.participant',
         `DATE_FORMAT(project.createdAt, '%Y-%m-%d at %h:%i') AS project_createdAt`,
         'user.nickname',
-        'IFNULL(comment.num_comment, 0) num_comment',
+        'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS project_skill',
         'position.positions AS project_position',
       ])
@@ -197,7 +197,7 @@ export class ProjectsService {
         'project.participant',
         `DATE_FORMAT(project.createdAt, '%Y-%m-%d at %h:%i') AS project_createdAt`,
         'user.nickname',
-        'IFNULL(comment.num_comment, 0) num_comment',
+        'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS project_skill',
         'position.positions AS project_position',
       ])

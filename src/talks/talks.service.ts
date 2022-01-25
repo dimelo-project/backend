@@ -47,7 +47,7 @@ export class TalksService {
     const Comment = this.talksCommentsRepository
       .createQueryBuilder()
       .subQuery()
-      .select(['comment.talkId AS talkId', 'SUM(comment.id) AS num_comment'])
+      .select(['comment.talkId AS talkId', 'COUNT(comment.id) AS num_comment'])
       .from(TalksComments, 'comment')
       .groupBy('comment.talkId')
       .getQuery();
@@ -79,7 +79,7 @@ export class TalksService {
     const Comment = this.talksCommentsRepository
       .createQueryBuilder()
       .subQuery()
-      .select(['comment.talkId AS talkId', 'SUM(comment.id) AS num_comment'])
+      .select(['comment.talkId AS talkId', 'COUNT(comment.id) AS num_comment'])
       .from(TalksComments, 'comment')
       .groupBy('comment.talkId')
       .getQuery();
@@ -202,7 +202,7 @@ export class TalksService {
     const Comment = this.talksCommentsRepository
       .createQueryBuilder()
       .subQuery()
-      .select(['comment.talkId AS talkId', 'SUM(comment.id) AS num_comment'])
+      .select(['comment.talkId AS talkId', 'COUNT(comment.id) AS num_comment'])
       .from(TalksComments, 'comment')
       .groupBy('comment.talkId')
       .getQuery();

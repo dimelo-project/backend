@@ -62,7 +62,10 @@ export class StudiesService {
     const Comment = this.studiesCommentsRepository
       .createQueryBuilder()
       .subQuery()
-      .select(['comment.studyId AS studyId', 'SUM(comment.id) AS num_comment'])
+      .select([
+        'comment.studyId AS studyId',
+        'COUNT(comment.id) AS num_comment',
+      ])
       .from(StudiesComments, 'comment')
       .groupBy('comment.studyId')
       .getQuery();
@@ -89,7 +92,7 @@ export class StudiesService {
         'study.participant',
         `DATE_FORMAT(study.createdAt, '%Y-%m-%d at %h:%i') AS study_createdAt`,
         'user.nickname',
-        'IFNULL(comment.num_comment, 0) num_comment',
+        'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS study_skill',
       ])
       .groupBy('study.id')
@@ -110,7 +113,10 @@ export class StudiesService {
     const Comment = this.studiesCommentsRepository
       .createQueryBuilder()
       .subQuery()
-      .select(['comment.studyId AS studyId', 'SUM(comment.id) AS num_comment'])
+      .select([
+        'comment.studyId AS studyId',
+        'COUNT(comment.id) AS num_comment',
+      ])
       .from(StudiesComments, 'comment')
       .groupBy('comment.studyId')
       .getQuery();
@@ -126,8 +132,9 @@ export class StudiesService {
       .getQuery();
 
     return query
+      .where('study.id =:id', { id })
       .innerJoin('study.User', 'user')
-      .leftJoin(Comment, 'comment', 'comment.studyId =:id', { id })
+      .leftJoin(Comment, 'comment', 'comment.studyId = study.id')
       .innerJoin(Skill, 'skill', 'skill.studyId = study.id')
       .select([
         'study.id',
@@ -137,7 +144,7 @@ export class StudiesService {
         'study.participant',
         `DATE_FORMAT(study.createdAt, '%Y-%m-%d at %h:%i') AS study_createdAt`,
         'user.nickname',
-        'IFNULL(comment.num_comment, 0) num_comment',
+        'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS study_skill',
       ])
       .getRawOne();
