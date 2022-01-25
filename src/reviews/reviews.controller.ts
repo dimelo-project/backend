@@ -385,7 +385,7 @@ export class ReviewsController {
     description: 'review id',
   })
   @UseGuards(new LoggedInGuard())
-  @Post('/help/me/:id')
+  @Post('/help/:id')
   async giveThumbsUpOnReview(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
@@ -415,7 +415,7 @@ export class ReviewsController {
     description: 'review id',
   })
   @UseGuards(new LoggedInGuard())
-  @Delete('/help/me/:id')
+  @Delete('/help/:id')
   async revokeThumbsUpOnReview(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
