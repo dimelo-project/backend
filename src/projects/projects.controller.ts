@@ -1,3 +1,4 @@
+import { UpdateProjectDto } from './dto/update-project.dto';
 import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { ProjectsService } from './projects.service';
@@ -69,8 +70,15 @@ export class ProjectsController {
     required: true,
     description: 'project id',
   })
+  @UseGuards(new LoggedInGuard())
   @Patch('/:id')
-  updateProject(@Param('id', ParseIntPipe) id: number) {}
+  updateProject(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateProjectDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.projectsService.updateProject(id, body, user.id);
+  }
 
   @ApiOperation({ summary: '해당 프로젝트 글 삭제하기' })
   @ApiParam({
