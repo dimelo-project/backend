@@ -17,7 +17,13 @@ import {
   Body,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags, ApiQuery, ApiParam } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiTags,
+  ApiParam,
+  ApiResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { CreateProjectCommentDto } from './dto/create-project-comment.dto';
 
@@ -26,6 +32,13 @@ import { CreateProjectCommentDto } from './dto/create-project-comment.dto';
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
+  @ApiOkResponse({
+    description: '댓글 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'project id를 제대로 전달 하지 않은 경우',
+  })
   @ApiOperation({ summary: '해당 프로젝트의 모든 댓글 받아오기' })
   @ApiParam({
     name: 'project_id',
@@ -39,6 +52,26 @@ export class ProjectsController {
     return this.projectsService.getAllProjectComments(project_id);
   }
 
+  @ApiResponse({
+    status: 201,
+    description: '댓글 생성 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'project id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '프로필을 작성하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 프로젝트를 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 프로젝트에 댓글 작성하기' })
   @ApiParam({
     name: 'project_id',
@@ -59,6 +92,26 @@ export class ProjectsController {
     );
   }
 
+  @ApiResponse({
+    status: 200,
+    description: '댓글 수정 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'project id, comment id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '수정 권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 프로젝트나 해당 댓글을 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 프로젝트의 해당 댓글 수정하기' })
   @ApiParam({
     name: 'project_id',
@@ -86,6 +139,26 @@ export class ProjectsController {
     );
   }
 
+  @ApiResponse({
+    status: 200,
+    description: '댓글 삭제 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'project id, comment id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '삭제 권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 프로젝트나 해당 댓글을 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 프로젝트의 해당 댓글 삭제하기' })
   @ApiParam({
     name: 'project_id',
@@ -107,27 +180,66 @@ export class ProjectsController {
     return this.projectsService.deleteProjectComment(project_id, id, user.id);
   }
 
+  @ApiResponse({
+    status: 200,
+    description: '프로젝트 개수 받아오기 성공',
+  })
   @ApiOperation({ summary: '모든 프로젝트 개수 받아오기' })
   @Get('/count')
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'project id',
+  })
   getCountOfProjects(@Query() query: GetCountProjectsDto) {
     return this.projectsService.getCount(query);
   }
 
+  @ApiResponse({
+    status: 200,
+    description: '프로젝트 모두 받아오기 성공',
+  })
   @ApiOperation({ summary: '모든 프로젝트 받아오기' })
   @Get()
   getAllProjects(@Query() query: GetProjectsDto) {
     return this.projectsService.getProjects(query);
   }
 
+  @ApiResponse({
+    status: 200,
+    description: '해당 프로젝트 글 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'project id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 프로젝트글을 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 프로젝트 받아오기' })
   @ApiParam({
     name: 'id',
-    required: false,
+    required: true,
     description: 'project id',
   })
   @Get('/:id')
-  getProject(@Param('id', ParseIntPipe) id: number) {}
+  getProject(@Param('id', ParseIntPipe) id: number) {
+    return this.projectsService.getProject(id);
+  }
 
+  @ApiResponse({
+    status: 201,
+    description: '프로젝트 모집 글 생성 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '프로필을 설정하지 않은 경우',
+  })
   @ApiOperation({ summary: '프로젝트 글 작성하기' })
   @UseGuards(new LoggedInGuard())
   @Post()
@@ -138,6 +250,26 @@ export class ProjectsController {
     return this.projectsService.createProject(body, user.id);
   }
 
+  @ApiResponse({
+    status: 200,
+    description: '프로젝트 모집 글 수정 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'project id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '수정권한이 없을 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 게시글을 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 프로젝트 글 수정하기' })
   @ApiParam({
     name: 'id',
@@ -154,6 +286,26 @@ export class ProjectsController {
     return this.projectsService.updateProject(id, body, user.id);
   }
 
+  @ApiResponse({
+    status: 200,
+    description: '게시글 삭제 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'project id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '삭제권한이 없을 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 게시글을 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 프로젝트 글 삭제하기' })
   @ApiParam({
     name: 'id',

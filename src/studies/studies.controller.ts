@@ -22,7 +22,6 @@ import {
 import {
   ApiOperation,
   ApiTags,
-  ApiQuery,
   ApiParam,
   ApiOkResponse,
   ApiResponse,
