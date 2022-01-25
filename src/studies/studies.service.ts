@@ -1,4 +1,4 @@
-import { GetCountStudiesFromCategoryDto } from './dto/get-count-studies-from-category.dto';
+import { GetCountStudiesDto } from './dto/get-count-studies.dto';
 import { StudiesComments } from './../entities/StudiesComments';
 import { GetStudiesDto } from './dto/get-studies.dto';
 import { StudiesSkillsTags } from './../entities/StudiesSkillsTags';
@@ -30,7 +30,7 @@ export class StudiesService {
     private readonly connection: Connection,
   ) {}
 
-  async getCount({ ongoing, skills }: GetCountStudiesFromCategoryDto) {
+  async getCount({ ongoing, skills }: GetCountStudiesDto) {
     const query = this.studiesRepository
       .createQueryBuilder('study')
       .innerJoin('study.StudiesSkills', 'skill');
@@ -86,7 +86,6 @@ export class StudiesService {
         'study.title',
         'study.content',
         'study.ongoing',
-        'study.duedate',
         'study.participant',
         `DATE_FORMAT(study.createdAt, '%Y-%m-%d at %h:%i') AS study_createdAt`,
         'user.nickname',
@@ -135,7 +134,6 @@ export class StudiesService {
         'study.title',
         'study.content',
         'study.ongoing',
-        'study.duedate',
         'study.participant',
         `DATE_FORMAT(study.createdAt, '%Y-%m-%d at %h:%i') AS study_createdAt`,
         'user.nickname',
@@ -146,7 +144,7 @@ export class StudiesService {
   }
 
   async createStudy(
-    { title, content, ongoing, duedate, participant, skills }: CreateStudyDto,
+    { title, content, ongoing, participant, skills }: CreateStudyDto,
     userId: number,
   ) {
     const user = await this.usersRepository.findOne({ id: userId });
@@ -179,7 +177,6 @@ export class StudiesService {
       newStudy.title = title;
       newStudy.content = content;
       newStudy.ongoing = ongoing;
-      newStudy.duedate = duedate;
       newStudy.participant = participant;
       newStudy.userId = user.id;
 
@@ -210,7 +207,7 @@ export class StudiesService {
   async updateStudy(
     id: number,
     userId: number,
-    { title, content, ongoing, duedate, participant, skills }: UpdateStudyDto,
+    { title, content, ongoing, participant, skills }: UpdateStudyDto,
   ) {
     const user = await this.usersRepository.findOne({ id: userId });
     if (!user) {
@@ -251,7 +248,6 @@ export class StudiesService {
       myStudy.title = title;
       myStudy.content = content;
       myStudy.ongoing = ongoing;
-      myStudy.duedate = duedate;
       myStudy.participant = participant;
 
       const returnedStudy = await queryRunner.manager

@@ -1,4 +1,4 @@
-import { GetCountStudiesFromCategoryDto } from './dto/get-count-studies-from-category.dto';
+import { GetCountStudiesDto } from './dto/get-count-studies.dto';
 import { UpdateStudyCommentDto } from './dto/update-study-comment.dto';
 import { CreateStudyCommentDto } from './dto/create-study-comment.dto';
 import { GetStudiesDto } from './dto/get-studies.dto';
@@ -186,7 +186,7 @@ export class StudiesController {
   })
   @ApiOperation({ summary: '스터디 개수 받아오기' })
   @Get('/count')
-  getCountOfStudies(@Query() query: GetCountStudiesFromCategoryDto) {
+  getCountOfStudies(@Query() query: GetCountStudiesDto) {
     return this.studiesService.getCount(query);
   }
 

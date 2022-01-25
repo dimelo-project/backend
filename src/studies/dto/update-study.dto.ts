@@ -4,7 +4,6 @@ export class UpdateStudyDto extends PickType(CreateStudyDto, [
   'title',
   'content',
   'ongoing',
-  'duedate',
   'participant',
   'skills',
 ]) {}

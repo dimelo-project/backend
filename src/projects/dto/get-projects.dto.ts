@@ -9,21 +9,7 @@ import {
   IsNumber,
 } from 'class-validator';
 
-export class GetStudiesDto {
-  @ApiProperty({
-    example: 'JavaScript',
-    type: 'string',
-    description:
-      '필터링 할 기술 (복수 가능: 복수 데이터 보낼 때 ","로 나눠서 보냄)',
-    required: false,
-  })
-  @IsArray()
-  @IsString({ each: true })
-  @Type(() => String)
-  @Transform(({ value }) => (value ? value.split(',') : value))
-  @IsOptional()
-  skills?: string;
-
+export class GetProjectsDto {
   @ApiProperty({
     example: '모집중',
     description: '모집중/모집완료',
@@ -34,7 +20,33 @@ export class GetStudiesDto {
   @IsOptional()
   @IsString()
   @IsEnum(['모집중', '모집완료'])
-  ongoing?: '모집중' | '모집완료';
+  ongoing: '모집중' | '모집완료';
+
+  @ApiProperty({
+    example: '프론트엔드 개발자',
+    description: '프로젝트 포지션',
+    required: false,
+  })
+  @Transform(({ value }) => (value ? value.split(',') : value))
+  @IsString({ each: true })
+  @Type(() => String)
+  @IsArray()
+  @IsOptional()
+  positions?: string[] | null;
+
+  @ApiProperty({
+    example: 'JavaScript,CSS',
+    type: 'string',
+    description:
+      '프로젝트에 필요한 기술 (복수 가능: 복수 데이터 보낼 때 ","로 나눠서 보냄)',
+    required: false,
+  })
+  @IsArray()
+  @Transform(({ value }) => (value ? value.split(',') : value))
+  @IsOptional()
+  @IsString({ each: true })
+  @Type(() => String)
+  skills: string[] | null;
 
   @ApiProperty({
     example: 10,
