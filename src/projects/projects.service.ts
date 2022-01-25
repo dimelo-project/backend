@@ -373,4 +373,104 @@ export class ProjectsService {
       await queryRunner.release();
     }
   }
+
+  async getAllProjectComments(projectId: number) {
+    const project = await this.projectsRepository.findOne({ id: projectId });
+    if (!project) {
+      throw new NotFoundException('해당하는 프로젝트를 찾을 수 없습니다');
+    }
+    return this.projectsCommentsRepository
+      .createQueryBuilder('comment')
+      .where('comment.projectId =:projectId', { projectId })
+      .innerJoin('comment.User', 'user')
+      .select([
+        'comment.id',
+        'comment.commentText AS comment_commentText',
+        `DATE_FORMAT(comment.createdAt, '%Y-%m-%d at %h:%i') AS comment_createdAt`,
+        `DATE_FORMAT(comment.updatedAt, '%Y-%m-%d at %h:%i') AS comment_updatedAt`,
+        'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl AS user_imageUrl',
+      ])
+      .orderBy('comment_createdAt', 'ASC')
+      .getRawMany();
+  }
+
+  async createProjectComment(
+    projectId: number,
+    commentText: string,
+    userId: number,
+  ) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    if (!user.nickname) {
+      throw new ForbiddenException('프로필을 먼저 설정해주세요');
+    }
+    const project = await this.projectsRepository.findOne({ id: projectId });
+    if (!project) {
+      throw new NotFoundException('해당하는 프로젝트를 찾을 수 없습니다');
+    }
+    return this.projectsCommentsRepository.save({
+      userId: user.id,
+      projectId: project.id,
+      commentText,
+    });
+  }
+
+  async updateProjectComment(
+    projectId: number,
+    id: number,
+    commentText: string,
+    userId: number,
+  ) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    const project = await this.projectsRepository.findOne({ id: projectId });
+    if (!project) {
+      throw new NotFoundException('해당하는 프로젝트를 찾을 수 없습니다');
+    }
+    const comment = await this.projectsCommentsRepository.findOne({ id });
+    if (!comment) {
+      throw new NotFoundException('해당 하는 댓글을 찾을 수 없습니다');
+    }
+    const myComment = await this.projectsCommentsRepository.findOne({
+      id,
+      userId: user.id,
+    });
+    if (!myComment) {
+      throw new ForbiddenException('수정 권한이 없습니다');
+    }
+    myComment.commentText = commentText;
+
+    return this.projectsCommentsRepository.save(myComment);
+  }
+
+  async deleteProjectComment(projectId: number, id: number, userId: number) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    const project = await this.projectsRepository.findOne({ id: projectId });
+    if (!project) {
+      throw new NotFoundException('해당하는 프로젝트를 찾을 수 없습니다');
+    }
+    const comment = await this.projectsCommentsRepository.findOne({ id });
+    if (!comment) {
+      throw new NotFoundException('해당 하는 댓글을 찾을 수 없습니다');
+    }
+    const myComment = await this.projectsCommentsRepository.findOne({
+      id,
+      userId: user.id,
+    });
+    if (!myComment) {
+      throw new ForbiddenException('삭제 권한이 없습니다');
+    }
+    await this.projectsCommentsRepository.remove(myComment);
+    return true;
+  }
 }

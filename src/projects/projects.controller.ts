@@ -19,11 +19,93 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiQuery, ApiParam } from '@nestjs/swagger';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { CreateProjectCommentDto } from './dto/create-project-comment.dto';
 
 @ApiTags('PROJECT')
 @Controller('api/projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
+
+  @ApiOperation({ summary: '해당 프로젝트의 모든 댓글 받아오기' })
+  @ApiParam({
+    name: 'project_id',
+    required: true,
+    description: 'project id',
+  })
+  @Get('/:project_id/comments')
+  getAllCommentsOfProject(
+    @Param('project_id', ParseIntPipe) project_id: number,
+  ) {
+    return this.projectsService.getAllProjectComments(project_id);
+  }
+
+  @ApiOperation({ summary: '해당 프로젝트에 댓글 작성하기' })
+  @ApiParam({
+    name: 'project_id',
+    required: true,
+    description: 'project id',
+  })
+  @UseGuards(new LoggedInGuard())
+  @Post('/:project_id/comments')
+  createCommentOfProject(
+    @Param('project_id', ParseIntPipe) project_id: number,
+    @Body() body: CreateProjectCommentDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.projectsService.createProjectComment(
+      project_id,
+      body.commentText,
+      user.id,
+    );
+  }
+
+  @ApiOperation({ summary: '해당 프로젝트의 해당 댓글 수정하기' })
+  @ApiParam({
+    name: 'project_id',
+    required: true,
+    description: 'project id',
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'project comment id',
+  })
+  @UseGuards(new LoggedInGuard())
+  @Patch('/:project_id/comments/:id')
+  updateCommentOfProject(
+    @Param('project_id', ParseIntPipe) project_id: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: CreateProjectCommentDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.projectsService.updateProjectComment(
+      project_id,
+      id,
+      body.commentText,
+      user.id,
+    );
+  }
+
+  @ApiOperation({ summary: '해당 프로젝트의 해당 댓글 삭제하기' })
+  @ApiParam({
+    name: 'project_id',
+    required: true,
+    description: 'project id',
+  })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'project comment id',
+  })
+  @UseGuards(new LoggedInGuard())
+  @Delete('/:project_id/comments/:id')
+  deleteCommentOfProject(
+    @Param('project_id', ParseIntPipe) project_id: number,
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.projectsService.deleteProjectComment(project_id, id, user.id);
+  }
 
   @ApiOperation({ summary: '모든 프로젝트 개수 받아오기' })
   @Get('/count')
@@ -86,60 +168,4 @@ export class ProjectsController {
   ) {
     return this.projectsService.deleteProject(id, user.id);
   }
-
-  @ApiOperation({ summary: '해당 프로젝트의 모든 댓글 받아오기' })
-  @ApiParam({
-    name: 'project_id',
-    required: true,
-    description: 'project id',
-  })
-  @Get('/:project_id/comments')
-  getAllCommentsOfProject(
-    @Param('project_id', ParseIntPipe) project_id: number,
-  ) {}
-
-  @ApiOperation({ summary: '해당 프로젝트에 댓글 작성하기' })
-  @ApiParam({
-    name: 'project_id',
-    required: true,
-    description: 'project id',
-  })
-  @Post('/:project_id/comments')
-  createCommentOfProject(
-    @Param('project_id', ParseIntPipe) project_id: number,
-  ) {}
-
-  @ApiOperation({ summary: '해당 프로젝트의 해당 댓글 수정하기' })
-  @ApiParam({
-    name: 'project_id',
-    required: true,
-    description: 'project id',
-  })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'project comment id',
-  })
-  @Patch('/:project_id/comments/:id')
-  updateCommentOfProject(
-    @Param('project_id', ParseIntPipe) project_id: number,
-    @Param('id', ParseIntPipe) id: number,
-  ) {}
-
-  @ApiOperation({ summary: '해당 프로젝트의 해당 댓글 삭제하기' })
-  @ApiParam({
-    name: 'project_id',
-    required: true,
-    description: 'project id',
-  })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'project comment id',
-  })
-  @Delete('/:project_id/comments/:id')
-  deleteCommentOfProject(
-    @Param('project_id', ParseIntPipe) project_id: number,
-    @Param('id', ParseIntPipe) id: number,
-  ) {}
 }
