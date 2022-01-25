@@ -1,4 +1,4 @@
-import { GetCountStudiesFromCategoryDto } from './dto/get-count-studies-from-category.dto';
+import { GetCountStudiesDto } from './dto/get-count-studies.dto';
 import { StudiesComments } from './../entities/StudiesComments';
 import { GetStudiesDto } from './dto/get-studies.dto';
 import { StudiesSkillsTags } from './../entities/StudiesSkillsTags';
@@ -30,7 +30,7 @@ export class StudiesService {
     private readonly connection: Connection,
   ) {}
 
-  async getCount({ ongoing, skills }: GetCountStudiesFromCategoryDto) {
+  async getCount({ ongoing, skills }: GetCountStudiesDto) {
     const query = this.studiesRepository
       .createQueryBuilder('study')
       .innerJoin('study.StudiesSkills', 'skill');
