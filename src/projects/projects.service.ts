@@ -30,7 +30,6 @@ export class ProjectsService {
       title,
       content,
       ongoing,
-      duedate,
       participant,
       positions,
       skills,
@@ -52,7 +51,6 @@ export class ProjectsService {
       newProject.title = title;
       newProject.content = content;
       newProject.ongoing = ongoing;
-      newProject.duedate = duedate;
       newProject.participant = participant;
       newProject.userId = user.id;
 
@@ -126,7 +124,6 @@ export class ProjectsService {
       title,
       content,
       ongoing,
-      duedate,
       participant,
       positions,
       skills,
@@ -156,7 +153,6 @@ export class ProjectsService {
       myProject.title = title;
       myProject.content = content;
       myProject.ongoing = ongoing;
-      myProject.duedate = duedate;
       myProject.participant = participant;
 
       const returnedProject = await queryRunner.manager

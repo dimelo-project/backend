@@ -41,15 +41,6 @@ export class CreateProjectDto {
   ongoing: '모집중' | '모집완료';
 
   @ApiProperty({
-    example: '2022-01-01',
-    description: '모집을 진행하는 날짜',
-    required: false,
-  })
-  @IsDate()
-  @IsOptional()
-  duedate?: Date | null;
-
-  @ApiProperty({
     example: 2,
     description: '모집하는 참여자 수',
     required: false,
