@@ -86,8 +86,14 @@ export class ProjectsController {
     required: true,
     description: 'project id',
   })
+  @UseGuards(new LoggedInGuard())
   @Delete('/:id')
-  deleteProject(@Param('id', ParseIntPipe) id: number) {}
+  deleteProject(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.projectsService.deleteProject(id, user.id);
+  }
 
   @ApiOperation({ summary: '해당 프로젝트의 모든 댓글 받아오기' })
   @ApiParam({

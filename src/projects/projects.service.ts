@@ -223,4 +223,44 @@ export class ProjectsService {
       await queryRunner.release();
     }
   }
+
+  async deleteProject(id: number, userId: number) {
+    const user = await this.usersRepository.findOne({ id: userId });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    const project = await this.projectsRepository.findOne({ id });
+    if (!project) {
+      throw new NotFoundException('해당 프로젝트를 찾을 수 없습니다');
+    }
+    const myProject = await this.projectsRepository.findOne({
+      id,
+      userId: user.id,
+    });
+    if (!myProject) {
+      throw new ForbiddenException('삭제 권한이 없습니다');
+    }
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager
+        .getRepository(ProjectsSkillsTags)
+        .delete({ projectId: myProject.id });
+
+      await queryRunner.manager
+        .getRepository(ProjectsPositionsTags)
+        .delete({ projectId: myProject.id });
+
+      await queryRunner.manager.getRepository(Projects).remove(myProject);
+
+      await queryRunner.commitTransaction();
+      return true;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
 }
