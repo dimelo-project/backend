@@ -1,3 +1,7 @@
+import { LoggedInGuard } from './../common/guards/logged-in.guard';
+import { CurrentUserDto } from './../common/dto/current-user.dto';
+import { ProjectsService } from './projects.service';
+import { CreateProjectDto } from './dto/create-project.dto';
 import {
   Controller,
   Get,
@@ -7,12 +11,16 @@ import {
   Post,
   Patch,
   Delete,
+  Body,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiQuery, ApiParam } from '@nestjs/swagger';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @ApiTags('PROJECT')
 @Controller('api/projects')
 export class ProjectsController {
+  constructor(private readonly projectsService: ProjectsService) {}
   @ApiOperation({ summary: '모든 프로젝트 받아오기' })
   @ApiQuery({
     name: 'position',
@@ -46,8 +54,14 @@ export class ProjectsController {
   getProject(@Param('id', ParseIntPipe) id: number) {}
 
   @ApiOperation({ summary: '프로젝트 글 작성하기' })
+  @UseGuards(new LoggedInGuard())
   @Post()
-  createProject() {}
+  async createProject(
+    @Body() body: CreateProjectDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.projectsService.createProject(body, user.id);
+  }
 
   @ApiOperation({ summary: '해당 프로젝트 글 수정하기' })
   @ApiParam({
