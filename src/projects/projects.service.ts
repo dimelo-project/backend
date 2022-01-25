@@ -1,3 +1,6 @@
+import { GetCountProjectsDto } from './dto/get-count-projects.dto';
+import { ProjectsComments } from './../entities/ProjectsComments';
+import { GetProjectsDto } from './dto/get-projects.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectsPositionsTags } from './../entities/ProjectsPositionsTags';
 import { ProjectsSkillsTags } from './../entities/ProjectsSkillsTags';
@@ -22,8 +25,119 @@ export class ProjectsService {
     private readonly projectsRepository: Repository<Projects>,
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
+    @InjectRepository(ProjectsSkills)
+    private readonly projectsSkillsRepository: Repository<ProjectsSkills>,
+    @InjectRepository(ProjectsPositions)
+    private readonly projectsPositionsRepository: Repository<ProjectsPositions>,
+    @InjectRepository(ProjectsComments)
+    private readonly projectsCommentsRepository: Repository<ProjectsComments>,
     private readonly connection: Connection,
   ) {}
+
+  async getCount({ ongoing, positions, skills }: GetCountProjectsDto) {
+    const query = this.projectsRepository
+      .createQueryBuilder('project')
+      .innerJoin('project.ProjectsSkills', 'skill')
+      .leftJoin('project.ProjectsPositions', 'position');
+
+    if (ongoing) {
+      query.where('project.ongoing =:ongoing', { ongoing });
+    }
+
+    if (positions) {
+      query.andWhere('position.position IN (:...positions)', { positions });
+    }
+
+    if (skills) {
+      query.andWhere('skill.skill IN (:...skills)', { skills });
+    }
+    return query.select(['COUNT(project.id) AS num_project']).getRawOne();
+  }
+
+  async getProjects({
+    ongoing,
+    positions,
+    skills,
+    perPage,
+    page,
+  }: GetProjectsDto) {
+    const query = this.projectsRepository
+      .createQueryBuilder('project')
+      .innerJoin('project.ProjectsSkills', 'skill')
+      .leftJoin('project.ProjectsPositions', 'position');
+
+    if (ongoing) {
+      query.where('project.ongoing =:ongoing', { ongoing });
+    }
+
+    if (positions) {
+      query.andWhere('position.position IN (:...positions)', { positions });
+    }
+
+    if (skills) {
+      query.andWhere('skill.skill IN (:...skills)', { skills });
+    }
+
+    const Skill = this.projectsSkillsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'project.id AS projectId',
+        'GROUP_CONCAT(skill.skill) AS skills',
+      ])
+      .from(ProjectsSkills, 'skill')
+      .innerJoin(ProjectsSkillsTags, 'tag', 'tag.skillId = skill.id')
+      .innerJoin(Projects, 'project', 'project.id = tag.projectId')
+      .groupBy('project.id')
+      .getQuery();
+
+    const Position = this.projectsPositionsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'project.id AS projectId',
+        'GROUP_CONCAT(position.position) AS positions',
+      ])
+      .from(ProjectsPositions, 'position')
+      .leftJoin(ProjectsPositionsTags, 'tag', 'tag.positionId = position.id')
+      .leftJoin(Projects, 'project', 'project.id = tag.projectId')
+      .groupBy('project.id')
+      .getQuery();
+
+    const Comment = this.projectsCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'comment.projectId AS projectId',
+        'SUM(comment.id) AS num_comment',
+      ])
+      .from(ProjectsComments, 'comment')
+      .groupBy('comment.projectId')
+      .getQuery();
+
+    return query
+      .innerJoin('project.User', 'user')
+      .innerJoin(Skill, 'skill', 'skill.projectId = project.id')
+      .leftJoin(Position, 'position', 'position.projectId = project.id')
+      .leftJoin(Comment, 'comment', 'comment.projectId = project.id')
+      .select([
+        'project.id',
+        'project.title',
+        'project.content',
+        'project.ongoing',
+        'project.participant',
+        `DATE_FORMAT(project.createdAt, '%Y-%m-%d at %h:%i') AS project_createdAt`,
+        'user.nickname',
+        'IFNULL(comment.num_comment, 0) num_comment',
+        'skill.skills AS project_skill',
+        'position.positions AS project_position',
+      ])
+      .groupBy('project.id')
+      .orderBy('project_createdAt', 'DESC')
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .getRawMany();
+  }
 
   async createProject(
     {
