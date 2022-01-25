@@ -1,4 +1,4 @@
-import { GetCountTalksFromCategoryDto } from './dto/get-count-talks-from-category.dto';
+import { GetCountTalksDto } from './dto/get-count-talks.dto';
 import { UpdateTalkCommentDto } from './dto/update-talk-comment.dto';
 import { TalksComments } from './../entities/TalksComments';
 import { CreateTalkCommentDto } from './dto/create-talk-comment.dto';
@@ -28,7 +28,7 @@ export class TalksService {
     private readonly talksCommentsRepository: Repository<TalksComments>,
   ) {}
 
-  async getCount({ category }: GetCountTalksFromCategoryDto) {
+  async getCount({ category }: GetCountTalksDto) {
     const query = this.talksRepository.createQueryBuilder('talk');
 
     if (category) {
@@ -168,10 +168,7 @@ export class TalksService {
     return true;
   }
 
-  async getCountBySearch(
-    { category }: GetCountTalksFromCategoryDto,
-    keyword: string,
-  ) {
+  async getCountBySearch({ category }: GetCountTalksDto, keyword: string) {
     const query = this.talksRepository.createQueryBuilder('talk');
 
     if (category) {
