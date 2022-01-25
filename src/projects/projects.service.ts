@@ -109,7 +109,7 @@ export class ProjectsService {
       .subQuery()
       .select([
         'comment.projectId AS projectId',
-        'SUM(comment.id) AS num_comment',
+        'COUNT(comment.id) AS num_comment',
       ])
       .from(ProjectsComments, 'comment')
       .groupBy('comment.projectId')
@@ -137,6 +137,71 @@ export class ProjectsService {
       .take(perPage)
       .skip(perPage * (page - 1))
       .getRawMany();
+  }
+
+  async getProject(id: number) {
+    const project = await this.projectsRepository.findOne({ id });
+    if (!project) {
+      throw new NotFoundException('해당 프로젝트를 찾을 수 없습니다');
+    }
+    const query = this.projectsRepository.createQueryBuilder('project');
+
+    const Skill = this.projectsSkillsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'project.id AS projectId',
+        'GROUP_CONCAT(skill.skill) AS skills',
+      ])
+      .from(ProjectsSkills, 'skill')
+      .innerJoin(ProjectsSkillsTags, 'tag', 'tag.skillId = skill.id')
+      .innerJoin(Projects, 'project', 'project.id = tag.projectId')
+      .groupBy('project.id')
+      .getQuery();
+
+    const Position = this.projectsPositionsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'project.id AS projectId',
+        'GROUP_CONCAT(position.position) AS positions',
+      ])
+      .from(ProjectsPositions, 'position')
+      .leftJoin(ProjectsPositionsTags, 'tag', 'tag.positionId = position.id')
+      .leftJoin(Projects, 'project', 'project.id = tag.projectId')
+      .groupBy('project.id')
+      .getQuery();
+
+    const Comment = this.projectsCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'comment.projectId AS projectId',
+        'COUNT(comment.id) AS num_comment',
+      ])
+      .from(ProjectsComments, 'comment')
+      .groupBy('comment.projectId')
+      .getQuery();
+
+    return query
+      .where('project.id =:id', { id })
+      .innerJoin('project.User', 'user')
+      .innerJoin(Skill, 'skill', 'skill.projectId = project.id')
+      .leftJoin(Position, 'position', 'position.projectId = project.id')
+      .leftJoin(Comment, 'comment', 'comment.projectId = project.id')
+      .select([
+        'project.id',
+        'project.title',
+        'project.content',
+        'project.ongoing',
+        'project.participant',
+        `DATE_FORMAT(project.createdAt, '%Y-%m-%d at %h:%i') AS project_createdAt`,
+        'user.nickname',
+        'IFNULL(comment.num_comment, 0) num_comment',
+        'skill.skills AS project_skill',
+        'position.positions AS project_position',
+      ])
+      .getRawOne();
   }
 
   async createProject(
