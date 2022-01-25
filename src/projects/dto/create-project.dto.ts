@@ -2,14 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
-  IsDate,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Column } from 'typeorm';
 
 export class CreateProjectDto {
   @ApiProperty({
@@ -55,8 +53,9 @@ export class CreateProjectDto {
   participant?: number | null;
 
   @ApiProperty({
-    example: '프론트엔드 개발자',
-    description: '프로젝트 포지션',
+    example: '프론트엔드',
+    description:
+      '프로젝트 포지션 (복수 가능: 복수 데이터 보낼 때 ","로 나눠서 보냄)',
     required: false,
   })
   @Transform(({ value }) => (value ? value.split(',') : value))

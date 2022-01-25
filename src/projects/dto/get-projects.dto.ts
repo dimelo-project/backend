@@ -23,8 +23,9 @@ export class GetProjectsDto {
   ongoing: '모집중' | '모집완료';
 
   @ApiProperty({
-    example: '프론트엔드 개발자',
-    description: '프로젝트 포지션',
+    example: '프론트엔드',
+    description:
+      '프로젝트 포지션 (복수 가능: 복수 데이터 보낼 때 ","로 나눠서 보냄)',
     required: false,
   })
   @Transform(({ value }) => (value ? value.split(',') : value))
