@@ -34,21 +34,12 @@ export class CreateStudyDto {
     description: '모집중/모집완료',
     required: true,
     type: 'string',
-    enum: ['모집중', '모집완료']
+    enum: ['모집중', '모집완료'],
   })
   @IsNotEmpty()
   @IsString()
   @IsEnum(['모집중', '모집완료'])
   ongoing: '모집중' | '모집완료';
-
-  @ApiProperty({
-    example: '2022-01-01',
-    description: '모집을 진행하는 날짜',
-    required: false,
-  })
-  @IsDate()
-  @IsOptional()
-  duedate: Date | null;
 
   @ApiProperty({
     example: 2,

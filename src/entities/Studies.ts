@@ -22,10 +22,6 @@ import { StudiesSkills } from './StudiesSkills';
 @Index('id_UNIQUE', ['id'], { unique: true })
 @Entity('studies', { schema: 'dimelo' })
 export class Studies extends BaseEntity {
-  @ApiProperty({
-    example: 1,
-    description: 'study id',
-  })
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
@@ -37,9 +33,6 @@ export class Studies extends BaseEntity {
 
   @Column('enum', { name: 'ongoing', enum: ['모집중', '모집완료'] })
   ongoing: '모집중' | '모집완료';
-
-  @Column('datetime', { name: 'duedate', nullable: true })
-  duedate: Date | null;
 
   @Column('int', { name: 'participant', nullable: true })
   participant: number | null;
