@@ -1,3 +1,4 @@
+import { PositiveIntPipe } from '../common/pipes/positiveInt.pipe';
 import { CreateReviewWithCourseDto } from './dto/create-review-with-course.dto';
 import { GetReviewsByInstructorSortDto } from './dto/get-reviews-by-instructor-sort.dto';
 import { GetReviewsByCourseSortDto } from './dto/get-reviews-by-course-sort.dto';
@@ -53,7 +54,7 @@ export class ReviewsController {
   })
   @Get('courses/:course_id/count')
   async getCountOfReviewsOfCourse(
-    @Param('course_id', ParseIntPipe) course_id: number,
+    @Param('course_id', ParseIntPipe, PositiveIntPipe) course_id: number,
   ) {
     return this.reviewsService.getCountByCourse(course_id);
   }
@@ -75,7 +76,7 @@ export class ReviewsController {
   })
   @Get('courses/:course_id/sort')
   async getReviewsOfCourseWithSort(
-    @Param('course_id', ParseIntPipe) course_id: number,
+    @Param('course_id', ParseIntPipe, PositiveIntPipe) course_id: number,
     @Query() query: GetReviewsByCourseSortDto,
   ) {
     return this.reviewsService.getByCourseWithSort(course_id, query);
@@ -96,7 +97,7 @@ export class ReviewsController {
   })
   @Get('courses/:course_id/avg')
   async getAverageOfCourse(
-    @Param('course_id', ParseIntPipe) course_id: number,
+    @Param('course_id', ParseIntPipe, PositiveIntPipe) course_id: number,
   ) {
     return this.reviewsService.getAverageOfCourse(course_id);
   }
@@ -126,9 +127,9 @@ export class ReviewsController {
   })
   @Get('courses/:course_id')
   async getAllReviewsOfCourseOrderByDate(
-    @Param('course_id', ParseIntPipe) course_id: number,
-    @Query('perPage', ParseIntPipe) perPage: number,
-    @Query('page', ParseIntPipe) page: number,
+    @Param('course_id', ParseIntPipe, PositiveIntPipe) course_id: number,
+    @Query('perPage', ParseIntPipe, PositiveIntPipe) perPage: number,
+    @Query('page', ParseIntPipe, PositiveIntPipe) page: number,
   ) {
     return this.reviewsService.getByCourse(course_id, perPage, page);
   }
@@ -159,7 +160,7 @@ export class ReviewsController {
   @UseGuards(new LoggedInGuard())
   @Post('courses/:course_id')
   async createReviewOfCourse(
-    @Param('course_id', ParseIntPipe) course_id: number,
+    @Param('course_id', ParseIntPipe, PositiveIntPipe) course_id: number,
     @Body() body: CreateReviewDto,
     @CurrentUser() user: CurrentUserDto,
   ) {
@@ -195,8 +196,8 @@ export class ReviewsController {
   @UseGuards(new LoggedInGuard())
   @Patch('courses/:course_id/:id')
   async updateReviewOfCourse(
-    @Param('course_id', ParseIntPipe) course_id: number,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('course_id', ParseIntPipe, PositiveIntPipe) course_id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @Body() body: UpdateReviewDto,
     @CurrentUser() user: CurrentUserDto,
   ) {
@@ -232,8 +233,8 @@ export class ReviewsController {
   @UseGuards(new LoggedInGuard())
   @Delete('courses/:course_id/:id')
   async deleteReview(
-    @Param('course_id', ParseIntPipe) course_id: number,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('course_id', ParseIntPipe, PositiveIntPipe) course_id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.reviewsService.deleteReview(course_id, id, user.id);
@@ -256,7 +257,8 @@ export class ReviewsController {
   })
   @Get('/instructors/:instructor_id/count')
   async getCountOfReviewsOfInstructor(
-    @Param('instructor_id', ParseIntPipe) instructor_id: number,
+    @Param('instructor_id', ParseIntPipe, PositiveIntPipe)
+    instructor_id: number,
   ) {
     return this.reviewsService.getCountByInstructor(instructor_id);
   }
@@ -278,7 +280,8 @@ export class ReviewsController {
   })
   @Get('/instructors/:instructor_id/sort')
   async getAllReviewsOfInstructorWithSort(
-    @Param('instructor_id', ParseIntPipe) instructor_id: number,
+    @Param('instructor_id', ParseIntPipe, PositiveIntPipe)
+    instructor_id: number,
     @Query() query: GetReviewsByInstructorSortDto,
   ) {
     return this.reviewsService.getByInstructorWithSort(instructor_id, query);
@@ -299,7 +302,8 @@ export class ReviewsController {
   })
   @Get('/instructors/:instructor_id/avg')
   async getAverageOfInstructur(
-    @Param('instructor_id', ParseIntPipe) instructor_id: number,
+    @Param('instructor_id', ParseIntPipe, PositiveIntPipe)
+    instructor_id: number,
   ) {
     return this.reviewsService.getAverageOfInstructor(instructor_id);
   }
@@ -329,9 +333,10 @@ export class ReviewsController {
   })
   @Get('/instructors/:instructor_id')
   async getAllReviewsOfInstructurOrderByDate(
-    @Param('instructor_id', ParseIntPipe) instructor_id: number,
-    @Query('perPage', ParseIntPipe) perPage: number,
-    @Query('page', ParseIntPipe) page: number,
+    @Param('instructor_id', ParseIntPipe, PositiveIntPipe)
+    instructor_id: number,
+    @Query('perPage', ParseIntPipe, PositiveIntPipe) perPage: number,
+    @Query('page', ParseIntPipe, PositiveIntPipe) page: number,
   ) {
     return this.reviewsService.getByInstructor(instructor_id, perPage, page);
   }
@@ -356,7 +361,7 @@ export class ReviewsController {
   @UseGuards(new LoggedInGuard())
   @Get('/help/me/:id')
   async checkIgaveThumbsUp(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.reviewsService.checkIgaveThumbsUp(id, user.id);
@@ -387,7 +392,7 @@ export class ReviewsController {
   @UseGuards(new LoggedInGuard())
   @Post('/help/:id')
   async giveThumbsUpOnReview(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.reviewsService.giveThumbsUp(id, user.id);
@@ -417,7 +422,7 @@ export class ReviewsController {
   @UseGuards(new LoggedInGuard())
   @Delete('/help/:id')
   async revokeThumbsUpOnReview(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.reviewsService.revokeThumbsUp(id, user.id);

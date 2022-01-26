@@ -1,4 +1,10 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 export class GetReviewsByCourseSortDto {
@@ -9,6 +15,7 @@ export class GetReviewsByCourseSortDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @IsPositive()
   @Transform(({ value }) => parseInt(value))
   perPage: number;
 
@@ -19,6 +26,7 @@ export class GetReviewsByCourseSortDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @IsPositive()
   @Transform(({ value }) => parseInt(value))
   page: number;
 

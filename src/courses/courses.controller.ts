@@ -1,3 +1,4 @@
+import { PositiveIntPipe } from '../common/pipes/positiveInt.pipe';
 import { GetCountCoursesDto } from './dto/get-count-courses.dto';
 import { GetSkillsFromCategoryDto } from './dto/get-skills-from-category.dto';
 import { SearchCoursesDto } from './dto/search-course.dto';
@@ -133,7 +134,9 @@ export class CoursesController {
   })
   @ApiOperation({ summary: '해당 기술의 강의 개수 받아 오기' })
   @Get('/skills/:skill_id/count')
-  async getCountOfCourseBySkill(@Param('skill_id') skill_id: number) {
+  async getCountOfCourseBySkill(
+    @Param('skill_id', ParseIntPipe, PositiveIntPipe) skill_id: number,
+  ) {
     return this.coursesService.getCountBySkill(skill_id);
   }
 
@@ -152,7 +155,7 @@ export class CoursesController {
   @ApiOperation({ summary: '해당 기술의 강의들 받아 오기' })
   @Get('/skills/:skill_id')
   async getCoursesBySkill(
-    @Param('skill_id') skill_id: number,
+    @Param('skill_id', ParseIntPipe, PositiveIntPipe) skill_id: number,
     @Query() query: GetCoursesFromAllDto,
   ) {
     return this.coursesService.findBySkill(skill_id, query);
@@ -202,7 +205,7 @@ export class CoursesController {
   })
   @Get('/likes/me/:id')
   async CheckIfIliked(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.coursesService.checkIfIliked(id, user.id);
@@ -237,7 +240,7 @@ export class CoursesController {
   @UseGuards(new LoggedInGuard())
   @Post('/likes/:id')
   async likeCourse(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.coursesService.addLike(id, user.id);
@@ -271,7 +274,7 @@ export class CoursesController {
   @UseGuards(new LoggedInGuard())
   @Delete('/likes/:id')
   async removelikeCourse(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.coursesService.removeLike(id, user.id);
@@ -296,7 +299,8 @@ export class CoursesController {
   })
   @Get('/instructors/:instructor_id/count')
   async getCountOfCoursesByInstructor(
-    @Param('instructor_id', ParseIntPipe) instructor_id: number,
+    @Param('instructor_id', ParseIntPipe, PositiveIntPipe)
+    instructor_id: number,
   ) {
     return this.coursesService.getCountByInstructor(instructor_id);
   }
@@ -320,7 +324,8 @@ export class CoursesController {
   })
   @Get('/instructors/:instructor_id')
   async getCoursesByInstructor(
-    @Param('instructor_id', ParseIntPipe) instructor_id: number,
+    @Param('instructor_id', ParseIntPipe, PositiveIntPipe)
+    instructor_id: number,
     @Query() query: GetCoursesFromAllDto,
   ) {
     return this.coursesService.findByInstructor(instructor_id, query);
@@ -384,7 +389,7 @@ export class CoursesController {
     description: 'course id',
   })
   @Get('/:id')
-  async getCourse(@Param('id', ParseIntPipe) id: number) {
+  async getCourse(@Param('id', ParseIntPipe, PositiveIntPipe) id: number) {
     return this.coursesService.findById(id);
   }
 }
