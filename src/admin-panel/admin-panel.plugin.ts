@@ -18,6 +18,8 @@ import AdminJS from 'adminjs';
 import { Database, Resource } from '@adminjs/typeorm';
 import AdminJSExpress from '@adminjs/express';
 import { validate } from 'class-validator';
+import { config } from 'dotenv';
+config();
 
 export async function setupAdminPanel(app: INestApplication): Promise<void> {
   Resource.validate = validate;
@@ -42,9 +44,41 @@ export async function setupAdminPanel(app: INestApplication): Promise<void> {
       ProjectsCommentsResource,
     ],
     rootPath: '/admin',
+    dashboard: {
+      component: AdminJS.bundle('./components/dashboard.jsx'),
+    },
+    branding: {
+      companyName: 'Demelo',
+      logo: false,
+    },
   });
+  const ADMIN = {
+    email: process.env.ADMIN_EMAIL,
+    password: process.env.ADMIN_PASSWORD,
+  };
 
-  const router = AdminJSExpress.buildRouter(adminJS);
+  const router = AdminJSExpress.buildAuthenticatedRouter(
+    adminJS,
+    {
+      authenticate: async (email, password) => {
+        if (ADMIN.password === password && ADMIN.email === email) {
+          return ADMIN;
+        }
+        return null;
+      },
+      cookieName: process.env.ADMIN_COOKIE,
+      cookiePassword: process.env.ADMIN_COOKIE_PASSWORD,
+    },
+    null,
+    {
+      secret: process.env.ADMIN_COOKIE,
+      resave: true,
+      saveUninitialized: true,
+      cookie: {
+        httpOnly: true,
+      },
+    },
+  );
 
   app.use(adminJS.options.rootPath, router);
 }
