@@ -60,7 +60,7 @@ export class TalksService {
         'talk.category',
         'talk.title',
         'talk.content',
-        `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
+        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d') AS talk_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
@@ -94,7 +94,7 @@ export class TalksService {
         'talk.category',
         'talk.title',
         'talk.content',
-        `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
+        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d %h:%i') AS talk_createdAt`,
         'user.nickname',
         'user.job',
         'user.career',
