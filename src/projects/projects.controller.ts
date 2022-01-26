@@ -1,3 +1,4 @@
+import { PositiveIntPipe } from '../common/pipes/positiveInt.pipe';
 import { GetCountProjectsDto } from './dto/get-count-projects.dto';
 import { GetProjectsDto } from './dto/get-projects.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
@@ -47,7 +48,7 @@ export class ProjectsController {
   })
   @Get('/:project_id/comments')
   getAllCommentsOfProject(
-    @Param('project_id', ParseIntPipe) project_id: number,
+    @Param('project_id', ParseIntPipe, PositiveIntPipe) project_id: number,
   ) {
     return this.projectsService.getAllProjectComments(project_id);
   }
@@ -81,7 +82,7 @@ export class ProjectsController {
   @UseGuards(new LoggedInGuard())
   @Post('/:project_id/comments')
   createCommentOfProject(
-    @Param('project_id', ParseIntPipe) project_id: number,
+    @Param('project_id', ParseIntPipe, PositiveIntPipe) project_id: number,
     @Body() body: CreateProjectCommentDto,
     @CurrentUser() user: CurrentUserDto,
   ) {
@@ -126,8 +127,8 @@ export class ProjectsController {
   @UseGuards(new LoggedInGuard())
   @Patch('/:project_id/comments/:id')
   updateCommentOfProject(
-    @Param('project_id', ParseIntPipe) project_id: number,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('project_id', ParseIntPipe, PositiveIntPipe) project_id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @Body() body: CreateProjectCommentDto,
     @CurrentUser() user: CurrentUserDto,
   ) {
@@ -173,8 +174,8 @@ export class ProjectsController {
   @UseGuards(new LoggedInGuard())
   @Delete('/:project_id/comments/:id')
   deleteCommentOfProject(
-    @Param('project_id', ParseIntPipe) project_id: number,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('project_id', ParseIntPipe, PositiveIntPipe) project_id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.projectsService.deleteProjectComment(project_id, id, user.id);
@@ -224,7 +225,7 @@ export class ProjectsController {
     description: 'project id',
   })
   @Get('/:id')
-  getProject(@Param('id', ParseIntPipe) id: number) {
+  getProject(@Param('id', ParseIntPipe, PositiveIntPipe) id: number) {
     return this.projectsService.getProject(id);
   }
 
@@ -279,7 +280,7 @@ export class ProjectsController {
   @UseGuards(new LoggedInGuard())
   @Patch('/:id')
   updateProject(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @Body() body: UpdateProjectDto,
     @CurrentUser() user: CurrentUserDto,
   ) {
@@ -315,7 +316,7 @@ export class ProjectsController {
   @UseGuards(new LoggedInGuard())
   @Delete('/:id')
   deleteProject(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.projectsService.deleteProject(id, user.id);

@@ -3,4 +3,4 @@ import { PickType } from '@nestjs/swagger';
 export class GetCountStudiesDto extends PickType(GetStudiesDto, [
   'ongoing',
   'skills',
-]) {}
+] as const) {}

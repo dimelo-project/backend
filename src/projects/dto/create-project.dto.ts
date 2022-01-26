@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
 } from 'class-validator';
 
@@ -44,6 +45,7 @@ export class CreateProjectDto {
     required: false,
   })
   @IsNumber()
+  @IsPositive()
   @IsOptional()
   @ApiProperty({
     example: 2,

@@ -73,7 +73,10 @@ export class StudiesService {
     const Skill = this.studiesSkillsRepository
       .createQueryBuilder()
       .subQuery()
-      .select(['study.id AS studyId', 'GROUP_CONCAT(skill.skill) AS skills'])
+      .select([
+        'study.id AS studyId',
+        'LOWER(GROUP_CONCAT(skill.skill)) AS skills',
+      ])
       .from(StudiesSkills, 'skill')
       .innerJoin(StudiesSkillsTags, 'tag', 'tag.skillId = skill.id')
       .innerJoin(Studies, 'study', 'study.id = tag.studyId')
@@ -90,7 +93,7 @@ export class StudiesService {
         'study.content',
         'study.ongoing',
         'study.participant',
-        `DATE_FORMAT(study.createdAt, '%Y-%m-%d at %h:%i') AS study_createdAt`,
+        `DATE_FORMAT(study.createdAt, '%Y.%m.%d') AS study_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS study_skill',
@@ -124,7 +127,10 @@ export class StudiesService {
     const Skill = this.studiesSkillsRepository
       .createQueryBuilder()
       .subQuery()
-      .select(['study.id AS studyId', 'GROUP_CONCAT(skill.skill) AS skills'])
+      .select([
+        'study.id AS studyId',
+        'LOWER(GROUP_CONCAT(skill.skill)) AS skills',
+      ])
       .from(StudiesSkills, 'skill')
       .innerJoin(StudiesSkillsTags, 'tag', 'tag.skillId = skill.id')
       .innerJoin(Studies, 'study', 'study.id = tag.studyId')
@@ -142,7 +148,7 @@ export class StudiesService {
         'study.content',
         'study.ongoing',
         'study.participant',
-        `DATE_FORMAT(study.createdAt, '%Y-%m-%d at %h:%i') AS study_createdAt`,
+        `DATE_FORMAT(study.createdAt, '%Y.%m.%d %h:%i') AS study_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS study_skill',

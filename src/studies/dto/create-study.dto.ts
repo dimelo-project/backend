@@ -7,6 +7,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
 } from 'class-validator';
 
@@ -48,6 +49,7 @@ export class CreateStudyDto {
   })
   @IsNumber()
   @IsOptional()
+  @IsPositive()
   participant: number | null;
 
   @ApiProperty({

@@ -83,7 +83,7 @@ export class ProjectsService {
       .subQuery()
       .select([
         'project.id AS projectId',
-        'GROUP_CONCAT(skill.skill) AS skills',
+        'LOWER(GROUP_CONCAT(skill.skill)) AS skills',
       ])
       .from(ProjectsSkills, 'skill')
       .innerJoin(ProjectsSkillsTags, 'tag', 'tag.skillId = skill.id')
@@ -126,7 +126,7 @@ export class ProjectsService {
         'project.content',
         'project.ongoing',
         'project.participant',
-        `DATE_FORMAT(project.createdAt, '%Y-%m-%d at %h:%i') AS project_createdAt`,
+        `DATE_FORMAT(project.createdAt, '%Y.%m.%d') AS project_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS project_skill',
@@ -151,7 +151,7 @@ export class ProjectsService {
       .subQuery()
       .select([
         'project.id AS projectId',
-        'GROUP_CONCAT(skill.skill) AS skills',
+        'LOWER(GROUP_CONCAT(skill.skill)) AS skills',
       ])
       .from(ProjectsSkills, 'skill')
       .innerJoin(ProjectsSkillsTags, 'tag', 'tag.skillId = skill.id')
@@ -195,7 +195,7 @@ export class ProjectsService {
         'project.content',
         'project.ongoing',
         'project.participant',
-        `DATE_FORMAT(project.createdAt, '%Y-%m-%d at %h:%i') AS project_createdAt`,
+        `DATE_FORMAT(project.createdAt, '%Y.%m.%d %h:%i') AS project_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS project_skill',

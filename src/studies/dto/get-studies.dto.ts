@@ -7,6 +7,7 @@ import {
   IsString,
   IsNotEmpty,
   IsNumber,
+  IsPositive,
 } from 'class-validator';
 
 export class GetStudiesDto {
@@ -44,6 +45,7 @@ export class GetStudiesDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @IsPositive()
   @Transform(({ value }) => parseInt(value))
   perPage: number;
 
@@ -55,6 +57,7 @@ export class GetStudiesDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @IsPositive()
   @Transform(({ value }) => parseInt(value))
   page: number;
 }

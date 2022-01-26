@@ -1,3 +1,4 @@
+import { PositiveIntPipe } from '../common/pipes/positiveInt.pipe';
 import { GetCountStudiesDto } from './dto/get-count-studies.dto';
 import { UpdateStudyCommentDto } from './dto/update-study-comment.dto';
 import { CreateStudyCommentDto } from './dto/create-study-comment.dto';
@@ -47,7 +48,9 @@ export class StudiesController {
     description: 'study id',
   })
   @Get('/:study_id/comments')
-  getAllCommentsOfStudy(@Param('study_id', ParseIntPipe) study_id: number) {
+  getAllCommentsOfStudy(
+    @Param('study_id', ParseIntPipe, PositiveIntPipe) study_id: number,
+  ) {
     return this.studiesService.getAllStudyComments(study_id);
   }
 
@@ -80,7 +83,7 @@ export class StudiesController {
   @UseGuards(new LoggedInGuard())
   @Post('/:study_id/comments')
   createCommentOfStudy(
-    @Param('study_id', ParseIntPipe) study_id: number,
+    @Param('study_id', ParseIntPipe, PositiveIntPipe) study_id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: CreateStudyCommentDto,
   ) {
@@ -125,8 +128,8 @@ export class StudiesController {
   @UseGuards(new LoggedInGuard())
   @Patch('/:study_id/comments/:id')
   updateCommentOfStudy(
-    @Param('study_id', ParseIntPipe) study_id: number,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('study_id', ParseIntPipe, PositiveIntPipe) study_id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: UpdateStudyCommentDto,
   ) {
@@ -172,8 +175,8 @@ export class StudiesController {
   @UseGuards(new LoggedInGuard())
   @Delete('/:study_id/comments/:id')
   deleteCommentOfStudy(
-    @Param('study_id', ParseIntPipe) study_id: number,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('study_id', ParseIntPipe, PositiveIntPipe) study_id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.studiesService.deleteStudyComment(study_id, id, user.id);
@@ -218,7 +221,7 @@ export class StudiesController {
     description: 'study id',
   })
   @Get('/:id')
-  getStudy(@Param('id', ParseIntPipe) id: number) {
+  getStudy(@Param('id', ParseIntPipe, PositiveIntPipe) id: number) {
     return this.studiesService.getStudy(id);
   }
 
@@ -273,7 +276,7 @@ export class StudiesController {
   @UseGuards(new LoggedInGuard())
   @Patch('/:id')
   updateStudy(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: UpdateStudyDto,
   ) {
@@ -309,7 +312,7 @@ export class StudiesController {
   @UseGuards(new LoggedInGuard())
   @Delete('/:id')
   deleteStudy(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.studiesService.deleteStudy(id, user.id);

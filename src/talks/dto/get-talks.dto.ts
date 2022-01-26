@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsNotEmpty,
   IsNumber,
+  IsPositive,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
@@ -29,6 +30,7 @@ export class GetTalksDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @IsPositive()
   @Transform(({ value }) => parseInt(value))
   perPage: number;
 
@@ -40,6 +42,7 @@ export class GetTalksDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @IsPositive()
   @Transform(({ value }) => parseInt(value))
   page: number;
 }

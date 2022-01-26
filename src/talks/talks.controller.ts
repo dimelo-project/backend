@@ -1,3 +1,4 @@
+import { PositiveIntPipe } from '../common/pipes/positiveInt.pipe';
 import { GetCountTalksDto } from './dto/get-count-talks.dto';
 import { UpdateTalkCommentDto } from './dto/update-talk-comment.dto';
 import { CreateTalkCommentDto } from './dto/create-talk-comment.dto';
@@ -46,7 +47,9 @@ export class TalksController {
     description: 'talk id',
   })
   @Get('/:talk_id/comments')
-  async getAllCommentsOfTalk(@Param('talk_id', ParseIntPipe) talk_id: number) {
+  async getAllCommentsOfTalk(
+    @Param('talk_id', ParseIntPipe, PositiveIntPipe) talk_id: number,
+  ) {
     return this.talksService.getAllTalkComments(talk_id);
   }
 
@@ -79,7 +82,7 @@ export class TalksController {
   @UseGuards(new LoggedInGuard())
   @Post('/:talk_id/comments')
   async createCommentOfTalk(
-    @Param('talk_id', ParseIntPipe) talk_id: number,
+    @Param('talk_id', ParseIntPipe, PositiveIntPipe) talk_id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: CreateTalkCommentDto,
   ) {
@@ -120,8 +123,8 @@ export class TalksController {
   @UseGuards(new LoggedInGuard())
   @Patch('/:talk_id/comments/:id')
   async updateCommentOfTalk(
-    @Param('talk_id', ParseIntPipe) talk_id: number,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('talk_id', ParseIntPipe, PositiveIntPipe) talk_id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: UpdateTalkCommentDto,
   ) {
@@ -161,8 +164,8 @@ export class TalksController {
   })
   @Delete('/:talk_id/comments/:id')
   async deleteCommentOfTalk(
-    @Param('talk_id', ParseIntPipe) talk_id: number,
-    @Param('id', ParseIntPipe) id: number,
+    @Param('talk_id', ParseIntPipe, PositiveIntPipe) talk_id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.talksService.deleteTalkComment(talk_id, id, user.id);
@@ -242,7 +245,7 @@ export class TalksController {
     description: 'talk id',
   })
   @Get('/:id')
-  getTalk(@Param('id', ParseIntPipe) id: number) {
+  getTalk(@Param('id', ParseIntPipe, PositiveIntPipe) id: number) {
     return this.talksService.getTalk(id);
   }
 
@@ -297,7 +300,7 @@ export class TalksController {
   @UseGuards(new LoggedInGuard())
   @Patch('/:id')
   async updateTalk(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: UpdateTalkDto,
   ) {
@@ -333,7 +336,7 @@ export class TalksController {
   @UseGuards(new LoggedInGuard())
   @Delete('/:id')
   async deleteTalk(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
     return this.talksService.deleteTalk(id, user.id);

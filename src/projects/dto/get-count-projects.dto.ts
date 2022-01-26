@@ -4,4 +4,4 @@ export class GetCountProjectsDto extends PickType(GetProjectsDto, [
   'ongoing',
   'positions',
   'skills',
-]) {}
+] as const) {}

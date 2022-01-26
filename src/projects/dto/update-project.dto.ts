@@ -7,4 +7,4 @@ export class UpdateProjectDto extends PickType(CreateProjectDto, [
   'participant',
   'positions',
   'skills',
-]) {}
+] as const) {}

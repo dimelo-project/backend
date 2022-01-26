@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
@@ -43,6 +44,7 @@ export class GetCoursesFromCategoryDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @IsPositive()
   @Transform(({ value }) => parseInt(value))
   perPage: number;
 
@@ -53,6 +55,7 @@ export class GetCoursesFromCategoryDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @IsPositive()
   @Transform(({ value }) => parseInt(value))
   page: number;
 
