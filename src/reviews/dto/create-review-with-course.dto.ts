@@ -8,7 +8,7 @@ export class CreateReviewWithCourseDto extends PickType(CreateReviewDto, [
   'q4',
   'pros',
   'cons',
-]) {
+] as const) {
   @ApiProperty({
     example:
       'https://www.inflearn.com/course/%EC%8A%A4%ED%94%84%EB%A7%81-mvc-1',

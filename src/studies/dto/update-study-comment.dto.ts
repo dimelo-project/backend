@@ -3,4 +3,4 @@ import { PickType } from '@nestjs/swagger';
 
 export class UpdateStudyCommentDto extends PickType(CreateTalkCommentDto, [
   'commentText',
-]) {}
+] as const) {}

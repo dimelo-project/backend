@@ -6,4 +6,4 @@ export class UpdateStudyDto extends PickType(CreateStudyDto, [
   'ongoing',
   'participant',
   'skills',
-]) {}
+] as const) {}

@@ -3,4 +3,4 @@ import { PickType } from '@nestjs/swagger';
 export class SetPasswordDto extends PickType(ChangePasswordDto, [
   'newPassword',
   'passwordConfirm',
-]) {}
+] as const) {}

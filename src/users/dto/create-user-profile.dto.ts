@@ -5,7 +5,7 @@ import { Users } from 'src/entities/Users';
 
 export class CreateUserProfileDto extends PickType(CheckNicknameDto, [
   'nickname',
-]) {
+] as const) {
   @IsString()
   @IsNotEmpty()
   @ApiProperty({

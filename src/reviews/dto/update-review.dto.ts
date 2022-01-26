@@ -8,4 +8,4 @@ export class UpdateReviewDto extends PickType(CreateReviewDto, [
   'q4',
   'pros',
   'cons',
-]) {}
+] as const) {}

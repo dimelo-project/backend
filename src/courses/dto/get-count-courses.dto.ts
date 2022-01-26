@@ -5,4 +5,4 @@ export class GetCountCoursesDto extends PickType(GetCoursesFromCategoryDto, [
   'categoryBig',
   'category',
   'skill',
-]) {}
+] as const) {}

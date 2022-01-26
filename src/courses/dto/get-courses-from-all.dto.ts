@@ -5,4 +5,4 @@ export class GetCoursesFromAllDto extends PickType(GetCoursesFromCategoryDto, [
   'perPage',
   'page',
   'sort',
-]) {}
+] as const) {}
