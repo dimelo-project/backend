@@ -13,6 +13,7 @@ import { Repository } from 'typeorm';
 import generator from 'generate-password';
 import bcrypt from 'bcrypt';
 import { config } from 'dotenv';
+import { ConfigService } from '@nestjs/config';
 config();
 
 @Injectable()
@@ -21,6 +22,7 @@ export class MailService {
     private mailerService: MailerService,
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
+    private readonly configService: ConfigService,
   ) {}
 
   async sendReview(
@@ -36,7 +38,7 @@ export class MailService {
     }
     try {
       await this.mailerService.sendMail({
-        to: process.env.NODEMAILER_USER,
+        to: this.configService.get<string>('NODEMAILER_USER'),
         from: 'Dimelo Team',
         subject: '강의 신청 및 리뷰',
         html: `
@@ -63,7 +65,7 @@ export class MailService {
     const password = generator.generate({ length: 10, numbers: true });
     const hashedPassword = await bcrypt.hash(
       password,
-      parseInt(process.env.BCRYPT_SALT_ROUNDS),
+      this.configService.get<number>('BCRYPT_SALT_ROUNDS'),
     );
 
     try {
