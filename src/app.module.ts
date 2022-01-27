@@ -35,6 +35,7 @@ import { ProjectsModule } from './projects/projects.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ImagesModule } from './images/images.module';
 import { MailModule } from './mail/mail.module';
+import { configValidationSchema } from './config.schema';
 
 const SnakeNamingStrategy =
   require('typeorm-naming-strategies').SnakeNamingStrategy;
@@ -43,6 +44,7 @@ const SnakeNamingStrategy =
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema: configValidationSchema,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
