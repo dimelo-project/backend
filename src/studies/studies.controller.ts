@@ -48,7 +48,7 @@ export class StudiesController {
     description: 'study id',
   })
   @Get('/:study_id/comments')
-  getAllCommentsOfStudy(
+  async getAllCommentsOfStudy(
     @Param('study_id', ParseIntPipe, PositiveIntPipe) study_id: number,
   ) {
     return this.studiesService.getAllStudyComments(study_id);
@@ -82,7 +82,7 @@ export class StudiesController {
   })
   @UseGuards(new LoggedInGuard())
   @Post('/:study_id/comments')
-  createCommentOfStudy(
+  async createCommentOfStudy(
     @Param('study_id', ParseIntPipe, PositiveIntPipe) study_id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: CreateStudyCommentDto,
@@ -127,7 +127,7 @@ export class StudiesController {
   })
   @UseGuards(new LoggedInGuard())
   @Patch('/:study_id/comments/:id')
-  updateCommentOfStudy(
+  async updateCommentOfStudy(
     @Param('study_id', ParseIntPipe, PositiveIntPipe) study_id: number,
     @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
@@ -174,7 +174,7 @@ export class StudiesController {
   })
   @UseGuards(new LoggedInGuard())
   @Delete('/:study_id/comments/:id')
-  deleteCommentOfStudy(
+  async deleteCommentOfStudy(
     @Param('study_id', ParseIntPipe, PositiveIntPipe) study_id: number,
     @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
@@ -188,8 +188,13 @@ export class StudiesController {
   })
   @ApiOperation({ summary: '스터디 개수 받아오기' })
   @Get('/count')
-  getCountOfStudies(@Query() query: GetCountStudiesDto) {
+  async getCountOfStudies(@Query() query: GetCountStudiesDto) {
     return this.studiesService.getCount(query);
+  }
+
+  @Get('/me')
+  async getAllMyStudies(@CurrentUser() user: CurrentUserDto) {
+    return this.studiesService.getAllMyStudies(user.id);
   }
 
   @ApiResponse({
@@ -198,7 +203,7 @@ export class StudiesController {
   })
   @ApiOperation({ summary: '모든 스터디 받아오기' })
   @Get()
-  getAllStudies(@Query() query: GetStudiesDto) {
+  async getAllStudies(@Query() query: GetStudiesDto) {
     return this.studiesService.getAllStudies(query);
   }
 
@@ -221,7 +226,7 @@ export class StudiesController {
     description: 'study id',
   })
   @Get('/:id')
-  getStudy(@Param('id', ParseIntPipe, PositiveIntPipe) id: number) {
+  async getStudy(@Param('id', ParseIntPipe, PositiveIntPipe) id: number) {
     return this.studiesService.getStudy(id);
   }
 
@@ -240,7 +245,7 @@ export class StudiesController {
   @ApiOperation({ summary: '스터디 글 작성하기' })
   @UseGuards(new LoggedInGuard())
   @Post()
-  createStudy(
+  async createStudy(
     @Body() body: CreateStudyDto,
     @CurrentUser() user: CurrentUserDto,
   ) {
@@ -275,7 +280,7 @@ export class StudiesController {
   })
   @UseGuards(new LoggedInGuard())
   @Patch('/:id')
-  updateStudy(
+  async updateStudy(
     @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
     @Body() body: UpdateStudyDto,
@@ -311,7 +316,7 @@ export class StudiesController {
   })
   @UseGuards(new LoggedInGuard())
   @Delete('/:id')
-  deleteStudy(
+  async deleteStudy(
     @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
