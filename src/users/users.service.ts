@@ -1,3 +1,6 @@
+import { ProjectsComments } from './../entities/ProjectsComments';
+import { StudiesComments } from './../entities/StudiesComments';
+import { TalksComments } from './../entities/TalksComments';
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
 import {
   BadRequestException,
@@ -17,6 +20,12 @@ export class UsersService {
   constructor(
     @InjectRepository(Users)
     private readonly usersRepository: Repository<Users>,
+    @InjectRepository(TalksComments)
+    private readonly talksCommentsRepository: Repository<TalksComments>,
+    @InjectRepository(StudiesComments)
+    private readonly studiesCommentsRepository: Repository<StudiesComments>,
+    @InjectRepository(ProjectsComments)
+    private readonly projectsCommentsRepository: Repository<ProjectsComments>,
   ) {}
 
   async getMyInfo(id: number) {
@@ -150,6 +159,59 @@ export class UsersService {
     return this.usersRepository.save({
       ...user,
       password: hashedPassword,
+    });
+  }
+
+  async getMyComments(id: number) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+
+    const talk = await this.talksCommentsRepository
+      .createQueryBuilder('comment')
+      .where('comment.userId =:id', { id })
+      .innerJoin('comment.Talk', 'talk', 'talk.id = comment.talkId')
+      .select([
+        'talk.id',
+        'talk.title AS title',
+        'comment.id AS comment_id',
+        'comment.commentText AS comment_commentText',
+        `DATE_FORMAT(comment.updatedAt, '%Y.%m.%d') AS comment_updatedAt`,
+      ])
+      .getRawMany();
+
+    const study = await this.studiesCommentsRepository
+      .createQueryBuilder('comment')
+      .where('comment.userId =:id', { id })
+      .innerJoin('comment.Study', 'study', 'study.id = comment.studyId')
+      .select([
+        'study.id',
+        'study.title AS title',
+        'comment.id AS comment_id',
+        'comment.commentText AS comment_commentText',
+        `DATE_FORMAT(comment.updatedAt, '%Y.%m.%d') AS comment_updatedAt`,
+      ])
+      .getRawMany();
+
+    const project = await this.projectsCommentsRepository
+      .createQueryBuilder('comment')
+      .where('comment.userId =:id', { id })
+      .innerJoin('comment.Project', 'project', 'project.id = comment.projectId')
+      .select([
+        'project.id',
+        'project.title AS title',
+        'comment.id AS comment_id',
+        'comment.commentText AS comment_commentText',
+        `DATE_FORMAT(comment.updatedAt, '%Y.%m.%d') AS comment_updatedAt`,
+      ])
+      .getRawMany();
+
+    return [...talk, ...study, ...project].sort((a: any, b: any) => {
+      return (
+        new Date(b['comment_updatedAt']).getTime() -
+        new Date(a['comment_updatedAt']).getTime()
+      );
     });
   }
 }
