@@ -218,6 +218,21 @@ export class TalksController {
 
   @ApiResponse({
     status: 200,
+    description: '내가 쓴 게시글 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiOperation({ summary: '자유게시판 내가 쓴 글 가져오기' })
+  @UseGuards(new LoggedInGuard())
+  @Get('/me')
+  async getAllMyTalks(@CurrentUser() user: CurrentUserDto) {
+    return this.talksService.getAllMyTalks(user.id);
+  }
+
+  @ApiResponse({
+    status: 200,
     description: '게시글 모두 받아오기 성공',
   })
   @ApiOperation({ summary: '자유게시판 모든 글 가져오기' })
