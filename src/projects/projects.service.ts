@@ -54,7 +54,7 @@ export class ProjectsService {
     return query.select(['COUNT(project.id) AS num_project']).getRawOne();
   }
 
-  async getProjects({
+  async getAllProjects({
     ongoing,
     positions,
     skills,
@@ -537,6 +537,18 @@ export class ProjectsService {
     }
     await this.projectsCommentsRepository.remove(myComment);
     return true;
+  }
+
+  async getCountMyProjects(id: number) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    return this.projectsRepository
+      .createQueryBuilder('project')
+      .where('project.userId =:id', { id })
+      .select(['COUNT(project.id) AS num_project'])
+      .getRawOne();
   }
 
   async getAllMyProjects(id: number) {

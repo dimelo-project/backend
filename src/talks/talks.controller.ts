@@ -218,6 +218,21 @@ export class TalksController {
 
   @ApiResponse({
     status: 200,
+    description: '내가 작성한 게시글 개수 가져오기 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiOperation({ summary: '내가 작성한 자유게시판 게시글 개수 받아오기' })
+  @UseGuards(new LoggedInGuard())
+  @Get('/me/count')
+  async getCountOfMyTalks(@CurrentUser() user: CurrentUserDto) {
+    return this.talksService.getCountMyTalks(user.id);
+  }
+
+  @ApiResponse({
+    status: 200,
     description: '내가 쓴 게시글 받아오기 성공',
   })
   @ApiResponse({

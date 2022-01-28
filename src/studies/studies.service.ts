@@ -427,6 +427,18 @@ export class StudiesService {
     return true;
   }
 
+  async getCountMyStudies(id: number) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    return this.studiesRepository
+      .createQueryBuilder('study')
+      .where('study.userId =:id', { id })
+      .select(['COUNT(study.id) AS num_study'])
+      .getRawOne();
+  }
+
   async getAllMyStudies(id: number) {
     const user = await this.usersRepository.findOne(id);
     if (!user) {

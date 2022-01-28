@@ -325,6 +325,18 @@ export class TalksService {
     return true;
   }
 
+  async getCountMyTalks(id: number) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    return this.talksRepository
+      .createQueryBuilder('talk')
+      .where('talk.userId =:id', { id })
+      .select(['COUNT(talk.id) AS num_talk'])
+      .getRawOne();
+  }
+
   async getAllMyTalks(id: number) {
     const user = await this.usersRepository.findOne(id);
     if (!user) {

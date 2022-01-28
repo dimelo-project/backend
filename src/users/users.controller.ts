@@ -64,7 +64,6 @@ export class UsersController {
 
   @ApiOkResponse({
     description: '내가 쓴 모든 댓글 받아오기 성공',
-    type: ReturnUserDto,
   })
   @ApiResponse({
     status: 401,
