@@ -324,4 +324,46 @@ export class TalksService {
     await this.talksCommentsRepository.remove(myComment);
     return true;
   }
+
+  async getCountMyTalks(id: number) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    return this.talksRepository
+      .createQueryBuilder('talk')
+      .where('talk.userId =:id', { id })
+      .select(['COUNT(talk.id) AS num_talk'])
+      .getRawOne();
+  }
+
+  async getAllMyTalks(id: number) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+
+    const Comment = this.talksCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select(['comment.talkId AS talkId', 'COUNT(comment.id) AS num_comment'])
+      .from(TalksComments, 'comment')
+      .groupBy('comment.talkId')
+      .getQuery();
+
+    return this.talksRepository
+      .createQueryBuilder('talk')
+      .where('talk.userId =:id', { id })
+      .leftJoin(Comment, 'comment', 'comment.talkId = talk.id')
+      .select([
+        'talk.id',
+        'talk.category',
+        'talk.title',
+        'talk.content',
+        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d') AS talk_createdAt`,
+        'IFNULL(comment.num_comment,0) AS num_comment',
+      ])
+      .orderBy('talk_createdAt', 'DESC')
+      .getRawMany();
+  }
 }

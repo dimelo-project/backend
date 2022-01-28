@@ -62,6 +62,19 @@ export class UsersController {
     return this.usersService.getMyInfo(user.id);
   }
 
+  @ApiOkResponse({
+    description: '내가 쓴 모든 댓글 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiOperation({ summary: '내가 쓴 모든 댓글 받아오기' })
+  @Get('/me/comments')
+  async getAllMyComments(@CurrentUser() user: CurrentUserDto) {
+    return this.usersService.getMyComments(user.id);
+  }
+
   @ApiResponse({
     status: 200,
     type: ReturnUserDto,

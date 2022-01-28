@@ -54,7 +54,7 @@ export class ProjectsService {
     return query.select(['COUNT(project.id) AS num_project']).getRawOne();
   }
 
-  async getProjects({
+  async getAllProjects({
     ongoing,
     positions,
     skills,
@@ -537,5 +537,50 @@ export class ProjectsService {
     }
     await this.projectsCommentsRepository.remove(myComment);
     return true;
+  }
+
+  async getCountMyProjects(id: number) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    return this.projectsRepository
+      .createQueryBuilder('project')
+      .where('project.userId =:id', { id })
+      .select(['COUNT(project.id) AS num_project'])
+      .getRawOne();
+  }
+
+  async getAllMyProjects(id: number) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+
+    const Comment = this.projectsCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'comment.projectId AS projectId',
+        'COUNT(comment.id) AS num_comment',
+      ])
+      .from(ProjectsComments, 'comment')
+      .groupBy('comment.projectId')
+      .getQuery();
+
+    return this.projectsRepository
+      .createQueryBuilder('project')
+      .where('project.userId =:id', { id })
+      .leftJoin(Comment, 'comment', 'comment.projectId = project.id')
+      .select([
+        'project.id',
+        'project.ongoing',
+        'project.title',
+        'project.content',
+        `DATE_FORMAT(project.createdAt, '%Y.%m.%d') AS project_createdAt`,
+        'IFNULL(comment.num_comment,0) AS num_comment',
+      ])
+      .orderBy('project_createdAt', 'DESC')
+      .getRawMany();
   }
 }

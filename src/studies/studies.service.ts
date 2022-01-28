@@ -426,4 +426,49 @@ export class StudiesService {
     await this.studiesCommentsRepository.remove(myComment);
     return true;
   }
+
+  async getCountMyStudies(id: number) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    return this.studiesRepository
+      .createQueryBuilder('study')
+      .where('study.userId =:id', { id })
+      .select(['COUNT(study.id) AS num_study'])
+      .getRawOne();
+  }
+
+  async getAllMyStudies(id: number) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+
+    const Comment = this.studiesCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'comment.studyId AS studyId',
+        'COUNT(comment.id) AS num_comment',
+      ])
+      .from(StudiesComments, 'comment')
+      .groupBy('comment.studyId')
+      .getQuery();
+
+    return this.studiesRepository
+      .createQueryBuilder('study')
+      .where('study.userId =:id', { id })
+      .leftJoin(Comment, 'comment', 'comment.studyId = study.id')
+      .select([
+        'study.id',
+        'study.ongoing',
+        'study.title',
+        'study.content',
+        `DATE_FORMAT(study.createdAt, '%Y.%m.%d') AS study_createdAt`,
+        'IFNULL(comment.num_comment,0) AS num_comment',
+      ])
+      .orderBy('study_createdAt', 'DESC')
+      .getRawMany();
+  }
 }

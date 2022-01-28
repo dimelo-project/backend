@@ -47,7 +47,7 @@ export class ProjectsController {
     description: 'project id',
   })
   @Get('/:project_id/comments')
-  getAllCommentsOfProject(
+  async getAllCommentsOfProject(
     @Param('project_id', ParseIntPipe, PositiveIntPipe) project_id: number,
   ) {
     return this.projectsService.getAllProjectComments(project_id);
@@ -81,7 +81,7 @@ export class ProjectsController {
   })
   @UseGuards(new LoggedInGuard())
   @Post('/:project_id/comments')
-  createCommentOfProject(
+  async createCommentOfProject(
     @Param('project_id', ParseIntPipe, PositiveIntPipe) project_id: number,
     @Body() body: CreateProjectCommentDto,
     @CurrentUser() user: CurrentUserDto,
@@ -126,7 +126,7 @@ export class ProjectsController {
   })
   @UseGuards(new LoggedInGuard())
   @Patch('/:project_id/comments/:id')
-  updateCommentOfProject(
+  async updateCommentOfProject(
     @Param('project_id', ParseIntPipe, PositiveIntPipe) project_id: number,
     @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @Body() body: CreateProjectCommentDto,
@@ -173,7 +173,7 @@ export class ProjectsController {
   })
   @UseGuards(new LoggedInGuard())
   @Delete('/:project_id/comments/:id')
-  deleteCommentOfProject(
+  async deleteCommentOfProject(
     @Param('project_id', ParseIntPipe, PositiveIntPipe) project_id: number,
     @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
@@ -192,8 +192,38 @@ export class ProjectsController {
     required: true,
     description: 'project id',
   })
-  getCountOfProjects(@Query() query: GetCountProjectsDto) {
+  async getCountOfProjects(@Query() query: GetCountProjectsDto) {
     return this.projectsService.getCount(query);
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: '내가 작성한 프로젝트 개수 가져오기 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiOperation({ summary: '내가 작성한 프로젝트 개수 받아오기' })
+  @UseGuards(new LoggedInGuard())
+  @Get('/me/count')
+  async getCountOfMyProjects(@CurrentUser() user: CurrentUserDto) {
+    return this.projectsService.getCountMyProjects(user.id);
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: '내가 작성한 프로젝트 모두 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiOperation({ summary: '내가 작성한 프로젝트 받아오기' })
+  @UseGuards(new LoggedInGuard())
+  @Get('/me')
+  async getAllMyProjects(@CurrentUser() user: CurrentUserDto) {
+    return this.projectsService.getAllMyProjects(user.id);
   }
 
   @ApiResponse({
@@ -202,8 +232,8 @@ export class ProjectsController {
   })
   @ApiOperation({ summary: '모든 프로젝트 받아오기' })
   @Get()
-  getAllProjects(@Query() query: GetProjectsDto) {
-    return this.projectsService.getProjects(query);
+  async getAllProjects(@Query() query: GetProjectsDto) {
+    return this.projectsService.getAllProjects(query);
   }
 
   @ApiResponse({
@@ -225,7 +255,7 @@ export class ProjectsController {
     description: 'project id',
   })
   @Get('/:id')
-  getProject(@Param('id', ParseIntPipe, PositiveIntPipe) id: number) {
+  async getProject(@Param('id', ParseIntPipe, PositiveIntPipe) id: number) {
     return this.projectsService.getProject(id);
   }
 
@@ -279,7 +309,7 @@ export class ProjectsController {
   })
   @UseGuards(new LoggedInGuard())
   @Patch('/:id')
-  updateProject(
+  async updateProject(
     @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @Body() body: UpdateProjectDto,
     @CurrentUser() user: CurrentUserDto,
@@ -315,7 +345,7 @@ export class ProjectsController {
   })
   @UseGuards(new LoggedInGuard())
   @Delete('/:id')
-  deleteProject(
+  async deleteProject(
     @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
     @CurrentUser() user: CurrentUserDto,
   ) {
