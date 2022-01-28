@@ -192,6 +192,16 @@ export class StudiesController {
     return this.studiesService.getCount(query);
   }
 
+  @ApiResponse({
+    status: 200,
+    description: '내가 작성한 프로젝트 모두 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiOperation({ summary: '내가 작성한 프로젝트 받아오기' })
+  @UseGuards(new LoggedInGuard())
   @Get('/me')
   async getAllMyStudies(@CurrentUser() user: CurrentUserDto) {
     return this.studiesService.getAllMyStudies(user.id);
