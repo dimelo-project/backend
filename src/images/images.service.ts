@@ -1,16 +1,21 @@
-import { Inject, Injectable } from '@nestjs/common';
+import * as path from 'path';
 import * as AWS from 'aws-sdk';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PromiseResult } from 'aws-sdk/lib/request';
 
 @Injectable()
 export class ImagesService {
-  private readonly s3;
-  constructor(
-    @Inject('ACCESSKEYID') private readonly accessKeyId,
-    @Inject('SECRETACCESSKEY') private readonly secretAccessKey,
-    @Inject('REGION') private readonly region,
-  ) {
-    AWS.config.update({ accessKeyId, secretAccessKey, region });
-    this.s3 = new AWS.S3();
+  private readonly awsS3: AWS.S3;
+  public readonly S3_BUCKET_NAME: string;
+
+  constructor(private readonly configService: ConfigService) {
+    this.awsS3 = new AWS.S3({
+      accessKeyId: this.configService.get('AWS_ACCESS_KEY'),
+      secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
+      region: this.configService.get('AWS_BUCKET_REGION'),
+    });
+    this.S3_BUCKET_NAME = this.configService.get('AWS_BUCKET_NAME');
   }
 
   async upload(file: Express.MulterS3.File) {

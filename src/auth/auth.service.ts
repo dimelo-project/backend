@@ -9,14 +9,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from '../entities/Users';
 import { GoogleLoginUserDto } from './dto/google-login-user.dto';
-import generator from 'generate-password';
-import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(Users) private usersRepository: Repository<Users>,
-    private readonly mailerService: MailerService,
+    private readonly configService: ConfigService,
   ) {}
   async createUser(email: string, password: string, passwordConfirm: string) {
     const foundEmail = await this.usersRepository.findOne({ where: { email } });
@@ -29,7 +28,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(
       password,
-      parseInt(process.env.BCRYPT_SALT_ROUNDS),
+      this.configService.get<number>('BCRYPT_SALT_ROUNDS'),
     );
 
     return this.usersRepository.save({
