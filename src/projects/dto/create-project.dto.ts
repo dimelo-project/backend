@@ -8,13 +8,15 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  MaxLength,
 } from 'class-validator';
 
 export class CreateProjectDto {
   @ApiProperty({
     example: 'dimelo프로젝트 하실 개발자 구합니다',
-    description: '프로젝트 제목',
+    description: '프로젝트 제목 (50자이내)',
   })
+  @MaxLength(50)
   @IsString()
   @IsNotEmpty()
   title: string;
@@ -61,9 +63,7 @@ export class CreateProjectDto {
     required: false,
   })
   @Transform(({ value }) => (value ? value.split(',') : value))
-  @IsString({ each: true })
-  @Type(() => String)
-  @IsArray()
+  @IsString()
   @IsOptional()
   positions?: string[] | null;
 
@@ -74,10 +74,8 @@ export class CreateProjectDto {
       '프로젝트에 필요한 기술 (복수 가능: 복수 데이터 보낼 때 ","로 나눠서 보냄)',
     required: true,
   })
-  @IsArray()
   @Transform(({ value }) => value.split(','))
   @IsNotEmpty()
-  @IsString({ each: true })
-  @Type(() => String)
+  @IsString()
   skills: string[];
 }
