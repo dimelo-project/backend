@@ -7,6 +7,8 @@ import passport from 'passport';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { setupAdminPanel } from './admin-panel/admin-panel.plugin';
+import { config } from 'dotenv';
+config();
 
 declare const module: any;
 
