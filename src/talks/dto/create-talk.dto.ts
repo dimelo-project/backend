@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class CreateTalkDto {
   @ApiProperty({
@@ -16,10 +16,11 @@ export class CreateTalkDto {
 
   @ApiProperty({
     example: '웹개발 로드맵 질문',
-    description: '자유게시판 제목',
+    description: '자유게시판 제목 (50자이내)',
   })
   @IsNotEmpty()
   @IsString()
+  @MaxLength(50)
   title: string;
 
   @ApiProperty({

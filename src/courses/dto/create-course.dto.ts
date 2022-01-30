@@ -39,7 +39,6 @@ export class CreateCourseDto {
     required: true,
     type: 'string',
   })
-  @IsArray()
   @Transform(({ value }) => value.split(','))
   @IsNotEmpty()
   categories: string[];
@@ -70,7 +69,6 @@ export class CreateCourseDto {
     required: true,
     type: 'string',
   })
-  @IsArray()
   @Transform(({ value }) => value.split(','))
   @IsNotEmpty()
   skills: string[];

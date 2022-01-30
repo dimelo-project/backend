@@ -9,16 +9,18 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  MaxLength,
 } from 'class-validator';
 
 export class CreateStudyDto {
   @ApiProperty({
     example: '자바스크립트 같이 공부해요',
-    description: '스터디 제목',
+    description: '스터디 제목 (50자이내)',
     required: true,
   })
   @IsString()
   @IsNotEmpty()
+  @MaxLength(50)
   title: string;
 
   @ApiProperty({
@@ -59,10 +61,8 @@ export class CreateStudyDto {
       '스터디 할 기술 (복수 가능: 복수 데이터 보낼 때 ","로 나눠서 보냄)',
     required: true,
   })
-  @IsArray()
   @Transform(({ value }) => value.split(','))
   @IsNotEmpty()
-  @IsString({ each: true })
-  @Type(() => String)
+  @IsString()
   skills: string[];
 }
