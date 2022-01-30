@@ -44,7 +44,7 @@ export class Courses extends BaseEntity {
   @Column('varchar', { name: 'site_url', length: 45 })
   siteUrl: string;
 
-  @Column('int', { primary: true, name: 'instructor_id' })
+  @Column('int', { name: 'instructor_id' })
   instructorId: number;
 
   @CreateDateColumn()

@@ -44,9 +44,9 @@ export async function setupAdminPanel(app: INestApplication): Promise<void> {
       ProjectsCommentsResource,
     ],
     rootPath: '/admin',
-    // dashboard: {
-    //   component: AdminJS.bundle('./components/dashboard.jsx'),
-    // },
+    dashboard: {
+      component: AdminJS.bundle('../src/admin-panel/components/dashboard'),
+    },
     branding: {
       companyName: 'Demelo',
       logo: false,
