@@ -40,7 +40,7 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.usersRepository.findOne({
       where: { email },
-      select: ['id', 'email', 'password', 'nickname'],
+      select: ['id', 'email', 'password', 'nickname', 'imageUrl'],
     });
     if (!user) {
       return null;
@@ -57,61 +57,67 @@ export class AuthService {
   async googleSignUp(user: GoogleLoginUserDto) {
     const foundGoogle = await this.usersRepository.findOne({
       where: { email: user.email, googleId: user.googleId },
-      select: ['id', 'email', 'nickname'],
+      select: ['id', 'email', 'nickname', 'imageUrl'],
     });
     if (foundGoogle) {
       return foundGoogle;
     }
     const found = await this.usersRepository.findOne({
       where: { email: user.email },
-      select: ['id', 'email', 'nickname'],
+      select: ['id', 'email', 'nickname', 'imageUrl'],
     });
     if (found) {
       const googleConnected = {
         ...found,
         googleId: user.googleId,
       };
-      const { id, email, nickname } = await this.usersRepository.save(
+      const { id, email, nickname, imageUrl } = await this.usersRepository.save(
         googleConnected,
       );
       return {
         id,
         email,
         nickname,
+        imageUrl,
       };
     }
-    const { id, email, nickname } = await this.usersRepository.save(user);
-    return { id, email, nickname };
+    const { id, email, nickname, imageUrl } = await this.usersRepository.save(
+      user,
+    );
+    return { id, email, nickname, imageUrl };
   }
 
   async githubSignUp(user: GithubLoginUserDto) {
     const foundGithub = await this.usersRepository.findOne({
       where: { email: user.email, githubId: user.githubId },
-      select: ['id', 'email', 'nickname'],
+      select: ['id', 'email', 'nickname', 'imageUrl'],
     });
     if (foundGithub) {
       return foundGithub;
     }
     const found = await this.usersRepository.findOne({
       where: { email: user.email },
-      select: ['id', 'email', 'nickname'],
+      select: ['id', 'email', 'nickname', 'imageUrl'],
     });
     if (found) {
       const githubConnected = {
         ...found,
         githubId: user.githubId,
       };
-      const { id, email, nickname } = await this.usersRepository.save(
+      const { id, email, nickname, imageUrl } = await this.usersRepository.save(
         githubConnected,
       );
       return {
         id,
         email,
         nickname,
+        imageUrl,
       };
     }
-    const { id, email, nickname } = await this.usersRepository.save(user);
-    return { id, email, nickname };
+    const { id, email, nickname, imageUrl } = await this.usersRepository.save(
+      user,
+    );
+    return { id, email, nickname, imageUrl };
   }
 
   async checkEmail(email: string) {
