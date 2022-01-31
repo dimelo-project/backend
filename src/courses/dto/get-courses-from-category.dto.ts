@@ -29,7 +29,7 @@ export class GetCoursesFromCategoryDto {
   category: string;
 
   @ApiProperty({
-    example: 'Vue.js',
+    example: 'Vuejs',
     description: '강의에서 가르치는 기술',
     required: false,
   })

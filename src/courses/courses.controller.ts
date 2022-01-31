@@ -58,6 +58,10 @@ export class CoursesController {
     status: 400,
     description: 'parameter와 keyword를 제공하지 않은 경우',
   })
+  @ApiResponse({
+    status: 404,
+    description: '해당 키워드의 강의를 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '전체 메뉴에서 제목, 강사로 강의 검색하기' })
   @Post('/search')
   async searchCoursesFromAll(
@@ -96,6 +100,10 @@ export class CoursesController {
   @ApiResponse({
     status: 400,
     description: 'parameter와 keyword를 제공하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 키워드의 강의를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '카테고리 내에서 제목, 강사로 강의 검색하기' })
   @Post('/category/search')
@@ -163,16 +171,19 @@ export class CoursesController {
 
   @ApiResponse({
     status: 200,
-    description: '강의들 받아오기 성공',
+    description: '기술키워드 받아오기 성공 (7개)',
   })
-  @ApiOperation({ summary: '전체 카테고리에서 인기 기술 키워드 가져오기' })
+  @ApiOperation({
+    summary:
+      '전체 카테고리에서 인기 기술 키워드 가져오기 (전체검색에서 검색 결과가 없을 시)',
+  })
   @Get('/skills')
   async getPopularSkillsFromAll() {
     return this.coursesService.getCourseSkills();
   }
 
   @ApiOkResponse({
-    description: '북마크 한 강의 받아오기 성공',
+    description: '북마크 한 강의 받아오기 성공 (북마크 한 순으로 내림차순)',
   })
   @ApiResponse({
     status: 401,
@@ -224,12 +235,12 @@ export class CoursesController {
     description: '로그인을 하지 않은 경우',
   })
   @ApiResponse({
-    status: 404,
-    description: '해당 강의를 찾을 수 없는 경우',
+    status: 403,
+    description: '해당 강의를 이미 북마크 한 경우',
   })
   @ApiResponse({
-    status: 409,
-    description: '해당 강의를 이미 북마크 한 경우',
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '강의 북마크 하기' })
   @ApiParam({
@@ -258,12 +269,12 @@ export class CoursesController {
     description: '로그인을 하지 않은 경우',
   })
   @ApiResponse({
-    status: 404,
-    description: '해당 강의를 찾을 수 없는 경우',
+    status: 403,
+    description: '해당 강의를 이 전에 북마크 하지 않은 경우',
   })
   @ApiResponse({
-    status: 409,
-    description: '해당 강의를 이 전에 북마크 하지 않은 경우',
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '강의 북마크 취소' })
   @ApiParam({

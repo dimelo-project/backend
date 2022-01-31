@@ -11,6 +11,7 @@ import { CoursesSkills } from './../entities/CoursesSkills';
 import { Likes } from './../entities/Likes';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -48,7 +49,7 @@ export class CoursesService {
     sort,
   }: GetCoursesFromCategoryDto) {
     if (!categoryBig || !category) {
-      throw new NotFoundException('카테고리를 선택해 주세요');
+      throw new BadRequestException('카테고리를 선택해 주세요');
     }
     const query = this.coursesRepository.createQueryBuilder('course');
 
@@ -72,7 +73,19 @@ export class CoursesService {
         'category',
         'category.category =:category',
         { category },
-      )
+      );
+    if (skill) {
+      query.innerJoin(
+        'course.CoursesSkills',
+        'skills',
+        'skills.skill =:skill',
+        {
+          skill,
+        },
+      );
+    }
+
+    query
       .leftJoin(Review, 'review', 'review.courseId = course.id')
       .select([
         'course.id',
@@ -90,12 +103,9 @@ export class CoursesService {
       ]);
 
     if (skill) {
-      query
-        .innerJoin('course.CoursesSkills', 'skills', 'skills.skill =:skill', {
-          skill,
-        })
-        .addSelect('skills.skill AS course_skill');
+      query.addSelect('skills.skill AS course_skill');
     }
+
     return query
       .take(perPage)
       .skip(perPage * (page - 1))
@@ -109,7 +119,7 @@ export class CoursesService {
     skill,
   }: GetCountCoursesDto) {
     if (!categoryBig || !category) {
-      throw new NotFoundException('카테고리를 선택해 주세요');
+      throw new BadRequestException('카테고리를 선택해 주세요');
     }
     const query = this.coursesRepository.createQueryBuilder('course');
     query
@@ -139,7 +149,7 @@ export class CoursesService {
     category,
   }: GetSkillsFromCategoryDto) {
     if (!categoryBig || !category) {
-      throw new NotFoundException('카테고리를 선택해 주세요');
+      throw new BadRequestException('카테고리를 선택해 주세요');
     }
     return this.coursesSkillsRepository
       .createQueryBuilder('skill')
@@ -162,7 +172,7 @@ export class CoursesService {
     keyword: string,
   ) {
     if (!keyword) {
-      throw new NotFoundException('키워드를 입력해주세요');
+      throw new BadRequestException('키워드를 입력해주세요');
     }
 
     const query = this.coursesRepository
@@ -214,7 +224,7 @@ export class CoursesService {
 
   async getCountBySearchFromAll(keyword: string) {
     if (!keyword) {
-      throw new NotFoundException('키워드를 입력해주세요');
+      throw new BadRequestException('키워드를 입력해주세요');
     }
     return this.coursesRepository
       .createQueryBuilder('course')
@@ -241,10 +251,10 @@ export class CoursesService {
     keyword: string,
   ) {
     if (!categoryBig || !category) {
-      throw new NotFoundException('카테고리를 선택해 주세요');
+      throw new BadRequestException('카테고리를 선택해 주세요');
     }
     if (!keyword) {
-      throw new NotFoundException('키워드를 입력해주세요');
+      throw new BadRequestException('키워드를 입력해주세요');
     }
     const query = this.coursesRepository
       .createQueryBuilder('course')
@@ -327,10 +337,10 @@ export class CoursesService {
     keyword: string,
   ) {
     if (!categoryBig || !category) {
-      throw new NotFoundException('카테고리를 선택해 주세요');
+      throw new BadRequestException('카테고리를 선택해 주세요');
     }
     if (!keyword) {
-      throw new NotFoundException('키워드를 입력해주세요');
+      throw new BadRequestException('키워드를 입력해주세요');
     }
     const query = this.coursesRepository
       .createQueryBuilder('course')
@@ -420,7 +430,7 @@ export class CoursesService {
     });
 
     if (liked) {
-      throw new ConflictException('이미 북마크했습니다');
+      throw new UnauthorizedException('이미 북마크했습니다');
     }
     await this.likesRepository.save({
       courseId: course.id,
@@ -442,7 +452,7 @@ export class CoursesService {
       where: { courseId: id, userId },
     });
     if (!liked) {
-      throw new ConflictException('북마크 한적이 없습니다');
+      throw new UnauthorizedException('북마크 한적이 없습니다');
     }
     await this.likesRepository.remove(liked);
     return true;
