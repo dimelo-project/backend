@@ -36,6 +36,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ImagesModule } from './images/images.module';
 import { MailModule } from './mail/mail.module';
 import { configValidationSchema } from './config.schema';
+import { ThrottlerAsyncOptions, ThrottlerModule } from '@nestjs/throttler';
 
 const SnakeNamingStrategy =
   require('typeorm-naming-strategies').SnakeNamingStrategy;
@@ -93,6 +94,14 @@ const typeOrmModuleOptions = {
       validationSchema: configValidationSchema,
     }),
     TypeOrmModule.forRootAsync(typeOrmModuleOptions),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        ttl: config.get<number>('THROTTLE_TTL'),
+        limit: config.get<number>('THROTTLE_LIMIT'),
+      }),
+    }),
     AuthModule,
     UsersModule,
     CoursesModule,

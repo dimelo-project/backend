@@ -16,7 +16,9 @@ export const configValidationSchema = Joi.object({
   NODEMAILER_USER: Joi.string().required(),
   NODEMAILER_PASS: Joi.string().required(),
   AWS_BUCKET_NAME: Joi.string().required(),
-  AWS_BUCKET_REGION:Joi.string().required(),
-  AWS_ACCESS_KEY:Joi.string().required(),
-  AWS_SECRET_ACCESS_KEY:Joi.string().required(),
+  AWS_BUCKET_REGION: Joi.string().required(),
+  AWS_ACCESS_KEY: Joi.string().required(),
+  AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+  THROTTLE_TTL: Joi.number().required(),
+  THROTTLE_LIMIT: Joi.number().required(),
 });
