@@ -7,6 +7,7 @@ import passport from 'passport';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { setupAdminPanel } from './admin-panel/admin-panel.plugin';
+import csurf from 'csurf';
 import { config } from 'dotenv';
 config();
 
@@ -48,6 +49,7 @@ async function bootstrap() {
       },
     }),
   );
+  app.use(csurf());
 
   app.use(passport.initialize());
   app.use(passport.session());
