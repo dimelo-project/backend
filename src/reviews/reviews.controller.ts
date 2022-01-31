@@ -44,6 +44,10 @@ export class ReviewsController {
     status: 400,
     description: 'course id, parameter를 제대로 전달 하지 않은 경우',
   })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
+  })
   @ApiOperation({
     summary: '해당 강의의 리뷰 전체 개수 가져오기',
   })
@@ -65,6 +69,10 @@ export class ReviewsController {
   @ApiResponse({
     status: 400,
     description: 'course id, parameter를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
   })
   @ApiOperation({
     summary: '해당 강의의 리뷰를 추천순, 퍙점순으로 받아오기',
@@ -89,6 +97,10 @@ export class ReviewsController {
     status: 400,
     description: 'course id를 제대로 전달 하지 않은 경우',
   })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 강의의 평점 보기' })
   @ApiParam({
     name: 'course_id',
@@ -108,6 +120,10 @@ export class ReviewsController {
   @ApiResponse({
     status: 400,
     description: 'course id, parameter를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 강의의 모든 리뷰들 최신순으로 받아오기' })
   @ApiParam({
@@ -151,6 +167,10 @@ export class ReviewsController {
     description:
       '프로필을 작성하지 않았을 경우 / 이미 해당 강의에 리뷰를 작성했을 경우',
   })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 강의에 리뷰 작성하기' })
   @ApiParam({
     name: 'course_id',
@@ -181,6 +201,10 @@ export class ReviewsController {
   @ApiResponse({
     status: 403,
     description: '수정 권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 강의의 해당 리뷰 수정' })
   @ApiParam({
@@ -219,6 +243,10 @@ export class ReviewsController {
     status: 403,
     description: '삭제 권한이 없는 경우',
   })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의를 찾을 수 없는 경우',
+  })
   @ApiOperation({ summary: '해당 강의의 해당 리뷰 삭제' })
   @ApiParam({
     name: 'course_id',
@@ -247,6 +275,10 @@ export class ReviewsController {
     status: 400,
     description: 'instructor id, parameter를 제대로 전달 하지 않은 경우',
   })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강사를 찾을 수 없는 경우',
+  })
   @ApiOperation({
     summary: '해당 강사의 모든 리뷰 개수 받아오기',
   })
@@ -270,6 +302,10 @@ export class ReviewsController {
     status: 400,
     description: 'instructor id, parameter를 제대로 전달 하지 않은 경우',
   })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강사를 찾을 수 없는 경우',
+  })
   @ApiOperation({
     summary: '해당 강사의 모든 리뷰 추천순, 평점 순으로 받아오기',
   })
@@ -288,11 +324,15 @@ export class ReviewsController {
   }
 
   @ApiOkResponse({
-    description: '강의 평점받아오기 성공',
+    description: '해당 강사의 평점받아오기 성공',
   })
   @ApiResponse({
     status: 400,
     description: 'instructor id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강사를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 강사의 평점 보기' })
   @ApiParam({
@@ -314,6 +354,10 @@ export class ReviewsController {
   @ApiResponse({
     status: 400,
     description: 'instructor id, parameter를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강사를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 강사의 모든 리뷰 최신순으로 받아오기' })
   @ApiParam({
@@ -380,8 +424,12 @@ export class ReviewsController {
     description: '로그인을 하지 않은 경우',
   })
   @ApiResponse({
-    status: 409,
-    description: '해당 강의를 이미 도움됨 누른 경우',
+    status: 403,
+    description: '해당 리뷰에 이미 도움됨 누른 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 리뷰를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 리뷰 도움됨 누르기' })
   @ApiParam({
@@ -410,8 +458,12 @@ export class ReviewsController {
     description: '로그인을 하지 않은 경우',
   })
   @ApiResponse({
-    status: 409,
-    description: '해당 강의를 이전에 도움됨 누른적이 없는 경우',
+    status: 403,
+    description: '해당 리뷰에 이전에 도움됨 누른적이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 리뷰를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 리뷰 도움됨 취소' })
   @ApiParam({
@@ -453,6 +505,10 @@ export class ReviewsController {
   @ApiResponse({
     status: 401,
     description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '프로필을 설정하지 않은 경우',
   })
   @ApiResponse({
     status: 409,
