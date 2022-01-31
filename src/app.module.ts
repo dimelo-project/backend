@@ -32,13 +32,60 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { TalksModule } from './talks/talks.module';
 import { StudiesModule } from './studies/studies.module';
 import { ProjectsModule } from './projects/projects.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ImagesModule } from './images/images.module';
 import { MailModule } from './mail/mail.module';
 import { configValidationSchema } from './config.schema';
+import { ThrottlerAsyncOptions, ThrottlerModule } from '@nestjs/throttler';
 
 const SnakeNamingStrategy =
   require('typeorm-naming-strategies').SnakeNamingStrategy;
+
+const typeOrmModuleOptions = {
+  useFactory: async (
+    configService: ConfigService,
+  ): Promise<TypeOrmModuleOptions> => ({
+    type: 'mysql',
+    host: configService.get<string>('DB_HOST'),
+    port: configService.get<number>('DB_PORT'),
+    username: configService.get<string>('DB_USERNAME'),
+    password: configService.get<string>('DB_PASSWORD'),
+    database: configService.get<string>('DB_DATABASE'),
+    entities: [
+      Users,
+      Courses,
+      Categories,
+      CoursesCategories,
+      CoursesSkills,
+      CoursesSkillsTags,
+      Instructors,
+      Likes,
+      Reviews,
+      ReviewHelpes,
+      Talks,
+      TalksComments,
+      Studies,
+      StudiesSkills,
+      StudiesSkillsTags,
+      StudiesComments,
+      Projects,
+      ProjectsPositions,
+      ProjectsPositionsTags,
+      ProjectsSkills,
+      ProjectsSkillsTags,
+      ProjectsComments,
+    ],
+    migrations: [__dirname + '/src/migrations/*.ts'],
+    cli: { migrationsDir: 'src/migrations' },
+    autoLoadEntities: false,
+    charset: 'utf8mb4',
+    synchronize: false,
+    logging: true,
+    keepConnectionAlive: true,
+    namingStrategy: new SnakeNamingStrategy(),
+  }),
+  inject: [ConfigService],
+};
 
 @Module({
   imports: [
@@ -46,48 +93,13 @@ const SnakeNamingStrategy =
       isGlobal: true,
       validationSchema: configValidationSchema,
     }),
-    TypeOrmModule.forRootAsync({
+    TypeOrmModule.forRootAsync(typeOrmModuleOptions),
+    ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
-        entities: [
-          Users,
-          Courses,
-          Categories,
-          CoursesCategories,
-          CoursesSkills,
-          CoursesSkillsTags,
-          Instructors,
-          Likes,
-          Reviews,
-          ReviewHelpes,
-          Talks,
-          TalksComments,
-          Studies,
-          StudiesSkills,
-          StudiesSkillsTags,
-          StudiesComments,
-          Projects,
-          ProjectsPositions,
-          ProjectsPositionsTags,
-          ProjectsSkills,
-          ProjectsSkillsTags,
-          ProjectsComments,
-        ],
-        migrations: [__dirname + '/src/migrations/*.ts'],
-        cli: { migrationsDir: 'src/migrations' },
-        autoLoadEntities: false,
-        charset: 'utf8mb4',
-        synchronize: false,
-        logging: true,
-        keepConnectionAlive: true,
-        namingStrategy: new SnakeNamingStrategy(),
+      useFactory: (config: ConfigService) => ({
+        ttl: config.get<number>('THROTTLE_TTL'),
+        limit: config.get<number>('THROTTLE_LIMIT'),
       }),
     }),
     AuthModule,
