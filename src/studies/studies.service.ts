@@ -7,6 +7,7 @@ import { UpdateStudyDto } from './dto/update-study.dto';
 import { CreateStudyDto } from './dto/create-study.dto';
 import { Studies } from './../entities/Studies';
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -178,9 +179,7 @@ export class StudiesService {
             .getRepository(StudiesSkills)
             .findOne({ skill });
           if (!returnedSkill) {
-            returnedSkill = await queryRunner.manager
-              .getRepository(StudiesSkills)
-              .save({ skill });
+            throw new BadRequestException('해당 기술이 존재하지 않습니다');
           }
           return returnedSkill.id;
         }),
@@ -250,9 +249,7 @@ export class StudiesService {
             .getRepository(StudiesSkills)
             .findOne({ skill });
           if (!returnedSkill) {
-            returnedSkill = await queryRunner.manager
-              .getRepository(StudiesSkills)
-              .save({ skill });
+            throw new BadRequestException('해당 기술이 존재하지 않습니다');
           }
           return returnedSkill.id;
         }),

@@ -669,9 +669,7 @@ export class CoursesService {
             .getRepository(Categories)
             .findOne({ category });
           if (!returnedCategory) {
-            returnedCategory = await queryRunner.manager
-              .getRepository(Categories)
-              .save({ category });
+            throw new BadRequestException('해당 카테고리가 존재하지 않습니다')
           }
           return returnedCategory.id;
         }),

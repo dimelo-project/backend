@@ -9,6 +9,7 @@ import { ProjectsSkills } from './../entities/ProjectsSkills';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { Projects } from './../entities/Projects';
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -243,9 +244,7 @@ export class ProjectsService {
             .getRepository(ProjectsSkills)
             .findOne({ skill });
           if (!returnedSkill) {
-            returnedSkill = await queryRunner.manager
-              .getRepository(ProjectsSkills)
-              .save({ skill });
+            throw new BadRequestException('해당 기술이 존재하지 않습니다');
           }
           return returnedSkill.id;
         }),
@@ -269,9 +268,7 @@ export class ProjectsService {
               .getRepository(ProjectsPositions)
               .findOne({ position });
             if (!returnedPosition) {
-              returnedPosition = await queryRunner.manager
-                .getRepository(ProjectsPositions)
-                .save({ position });
+              throw new BadRequestException('해당 포지션이 존재하지 않습니다');
             }
             return returnedPosition.id;
           }),
@@ -352,9 +349,7 @@ export class ProjectsService {
             .getRepository(ProjectsSkills)
             .findOne({ skill });
           if (!returnedSkill) {
-            returnedSkill = await queryRunner.manager
-              .getRepository(ProjectsSkills)
-              .save({ skill });
+            throw new BadRequestException('해당 기술이 존재하지 않습니다');
           }
           return returnedSkill.id;
         }),
@@ -374,9 +369,7 @@ export class ProjectsService {
               .getRepository(ProjectsPositions)
               .findOne({ position });
             if (!returnedPosition) {
-              returnedPosition = await queryRunner.manager
-                .getRepository(ProjectsPositions)
-                .save({ position });
+              throw new BadRequestException('해당 포지션이 존재하지 않습니다')
             }
             return returnedPosition.id;
           }),
