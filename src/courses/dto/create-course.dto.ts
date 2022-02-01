@@ -41,6 +41,7 @@ export class CreateCourseDto {
   })
   @Transform(({ value }) => value.split(','))
   @IsNotEmpty()
+  @IsString({ each: true })
   categories: string[];
 
   @ApiProperty({
@@ -71,6 +72,7 @@ export class CreateCourseDto {
   })
   @Transform(({ value }) => value.split(','))
   @IsNotEmpty()
+  @IsString({ each: true })
   skills: string[];
 
   @ApiProperty({
