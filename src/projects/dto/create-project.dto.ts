@@ -63,7 +63,7 @@ export class CreateProjectDto {
     required: false,
   })
   @Transform(({ value }) => (value ? value.split(',') : value))
-  @IsString()
+  @IsString({ each: true })
   @IsOptional()
   positions?: string[] | null;
 
@@ -76,6 +76,6 @@ export class CreateProjectDto {
   })
   @Transform(({ value }) => value.split(','))
   @IsNotEmpty()
-  @IsString()
+  @IsString({ each: true })
   skills: string[];
 }

@@ -63,6 +63,6 @@ export class CreateStudyDto {
   })
   @Transform(({ value }) => value.split(','))
   @IsNotEmpty()
-  @IsString()
+  @IsString({ each: true })
   skills: string[];
 }

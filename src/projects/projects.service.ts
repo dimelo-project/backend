@@ -289,6 +289,7 @@ export class ProjectsService {
       return returnedProject;
     } catch (err) {
       await queryRunner.rollbackTransaction();
+      throw err;
     } finally {
       await queryRunner.release();
     }
@@ -369,7 +370,7 @@ export class ProjectsService {
               .getRepository(ProjectsPositions)
               .findOne({ position });
             if (!returnedPosition) {
-              throw new BadRequestException('해당 포지션이 존재하지 않습니다')
+              throw new BadRequestException('해당 포지션이 존재하지 않습니다');
             }
             return returnedPosition.id;
           }),
