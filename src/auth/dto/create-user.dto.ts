@@ -2,6 +2,8 @@ import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   Equals,
+  IsAlpha,
+  IsAlphanumeric,
   IsEmail,
   IsNotEmpty,
   IsString,
@@ -18,6 +20,12 @@ export class CreateUserDto {
   @Transform(({ value }) => value.trim())
   @IsNotEmpty()
   @IsEmail()
+  @Matches(
+    /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/,
+    {
+      message: '이메일 형식이 올바르지 않습니다',
+    },
+  )
   email: string;
 
   @ApiProperty({
