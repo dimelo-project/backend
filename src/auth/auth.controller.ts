@@ -1,5 +1,5 @@
 import { CheckEmailDto } from './dto/check-email.dto';
-import { CheckNicknameDto } from './dto/check-nickname.dto';
+import { CheckNicknameDto } from '../users/dto/check-nickname.dto';
 import { ReturnUserDto } from './../common/dto/return-user.dto';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -157,24 +157,6 @@ export class AuthController {
   @Post('/check/email')
   async checkEmail(@Body() body: CheckEmailDto) {
     return await this.authSerivce.checkEmail(body.email);
-  }
-
-  @ApiResponse({
-    status: 201,
-    description: '해당 닉네임을 사용할 수 있음',
-  })
-  @ApiResponse({
-    status: 400,
-    description: '닉네임을 전달하지 않았거나 닉네임이 10자 이상일 때',
-  })
-  @ApiResponse({
-    status: 409,
-    description: '해당 닉네임이 이미 사용중인 경우',
-  })
-  @ApiOperation({ summary: '닉네임 중복 확인' })
-  @Post('/check/nickname')
-  async checkNickname(@Body() body: CheckNicknameDto) {
-    return this.authSerivce.checkNickname(body.nickname);
   }
 
   @ApiResponse({
