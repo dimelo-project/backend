@@ -129,14 +129,4 @@ export class AuthService {
     }
     return true;
   }
-
-  async checkNickname(nickname: string) {
-    const foundNick = await this.usersRepository.findOne({
-      where: { nickname },
-    });
-    if (foundNick) {
-      throw new ConflictException('이미 해당하는 닉네임이 존재합니다');
-    }
-    return true;
-  }
 }

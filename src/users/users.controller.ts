@@ -1,3 +1,4 @@
+import { CheckNicknameDto } from './dto/check-nickname.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { ReturnUserDto } from './../common/dto/return-user.dto';
 import { SetPasswordDto } from './dto/set-password.dto';
@@ -73,6 +74,27 @@ export class UsersController {
   @Get('/me/comments')
   async getAllMyComments(@CurrentUser() user: CurrentUserDto) {
     return this.usersService.getMyComments(user.id);
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: '해당 닉네임을 사용할 수 있음. true 반환',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '닉네임을 전달하지 않았거나 닉네임이 10자 이상일 때',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '해당 닉네임이 이미 사용중인 경우',
+  })
+  @ApiOperation({ summary: '닉네임 중복 확인' })
+  @Post('/check/nickname')
+  async checkNickname(
+    @Body() body: CheckNicknameDto,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.usersService.checkNickname(body.nickname, user.id);
   }
 
   @ApiResponse({

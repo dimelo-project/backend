@@ -36,6 +36,22 @@ export class UsersService {
     return user;
   }
 
+  async checkNickname(nickname: string, id: number) {
+    const user = await this.usersRepository.findOne(id);
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    if (user.nickname !== nickname) {
+      const foundNick = await this.usersRepository.findOne({
+        where: { nickname },
+      });
+      if (foundNick) {
+        throw new ConflictException('해당 닉네임은 이미 사용중 입니다');
+      }
+    }
+    return true;
+  }
+
   async createProfile(
     id: number,
     data: CreateUserProfileDto,
