@@ -101,8 +101,8 @@ export class StudiesService {
       ])
       .groupBy('study.id')
       .orderBy('study_createdAt', 'DESC')
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .getRawMany();
   }
 
