@@ -65,8 +65,8 @@ export class TalksService {
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .orderBy('talk_createdAt', 'DESC')
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .getRawMany();
   }
 

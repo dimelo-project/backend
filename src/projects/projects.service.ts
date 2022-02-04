@@ -135,8 +135,8 @@ export class ProjectsService {
       ])
       .groupBy('project.id')
       .orderBy('project_createdAt', 'DESC')
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .getRawMany();
   }
 
