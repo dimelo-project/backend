@@ -107,9 +107,9 @@ export class CoursesService {
     }
 
     return query
-      .take(perPage)
-      .skip(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .getRawMany();
   }
 
@@ -164,6 +164,7 @@ export class CoursesService {
       .select(['skill.id', 'skill.skill', 'COUNT(course.id) AS num_course'])
       .groupBy('skill.id')
       .orderBy('num_course', 'DESC')
+      .limit(10)
       .getRawMany();
   }
 
@@ -216,8 +217,8 @@ export class CoursesService {
         'IFNULL(review.num_review,0) AS num_review',
         'IFNULL(review.avg,0) AS course_avg',
       ])
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
       .getRawMany();
   }
@@ -326,8 +327,8 @@ export class CoursesService {
     }
 
     return query
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
       .getRawMany();
   }
@@ -567,8 +568,8 @@ export class CoursesService {
         'IFNULL(review.num_review,0) AS num_review',
         'IFNULL(review.avg,0) AS course_avg',
       ])
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
       .getRawMany();
   }
@@ -623,8 +624,8 @@ export class CoursesService {
         'IFNULL(review.num_review,0) AS num_review',
         'IFNULL(review.avg,0) AS course_avg',
       ])
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
       .getRawMany();
   }
@@ -636,7 +637,7 @@ export class CoursesService {
       .select(['skill.id', 'skill.skill', 'COUNT(tag.course_id) AS num_course'])
       .groupBy('tag.skill_id')
       .orderBy('num_course', 'DESC')
-      .take(7)
+      .limit(7)
       .getRawMany();
   }
 
@@ -669,7 +670,7 @@ export class CoursesService {
             .getRepository(Categories)
             .findOne({ category });
           if (!returnedCategory) {
-            throw new BadRequestException('해당 카테고리가 존재하지 않습니다')
+            throw new BadRequestException('해당 카테고리가 존재하지 않습니다');
           }
           return returnedCategory.id;
         }),
