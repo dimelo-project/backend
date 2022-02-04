@@ -180,8 +180,8 @@ export class ReviewsService {
         'IFNULL(help.num_help,0) AS num_help',
       ])
       .orderBy(sort === 'avg' ? 'review.avg' : 'num_help', order)
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .getRawMany();
   }
 
@@ -217,8 +217,8 @@ export class ReviewsService {
         'IFNULL(help.num_help,0) AS num_help',
       ])
       .orderBy('review_createdAt', 'DESC')
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .getRawMany();
   }
 
@@ -288,8 +288,8 @@ export class ReviewsService {
         'IFNULL(help.num_help,0) AS num_help',
       ])
       .orderBy('review_createdAt', 'DESC')
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .getRawMany();
   }
 
@@ -330,8 +330,8 @@ export class ReviewsService {
         'IFNULL(help.num_help,0) AS num_help',
       ])
       .orderBy(sort === 'avg' ? 'review.avg' : 'num_help', order)
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .getRawMany();
   }
 
