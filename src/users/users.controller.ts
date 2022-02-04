@@ -1,3 +1,4 @@
+import { CheckPasswordDto } from './dto/check-password.dto';
 import { CheckNicknameDto } from './dto/check-nickname.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { ReturnUserDto } from './../common/dto/return-user.dto';
@@ -182,12 +183,11 @@ export class UsersController {
     @Body() body: UpdateUserDto,
     @UploadedFile() file?: Express.MulterS3.File,
   ) {
-    console.log(file);
     return this.usersService.updateProfile(user.id, body, file);
   }
 
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: '회원가입 탈퇴 성공',
   })
   @ApiResponse({
@@ -213,7 +213,6 @@ export class UsersController {
 
   @ApiOkResponse({
     description: '비밀번호 설정 성공',
-    type: ReturnUserDto,
   })
   @ApiResponse({
     status: 400,
@@ -231,7 +230,6 @@ export class UsersController {
   @ApiOperation({
     summary: '구글, 깃허브 회원가입한 회원 첫 비밀번호 생성하기',
   })
-  @Serialize(ReturnUserDto)
   @Patch('/set/password')
   async setNewPasswordForOauth(
     @CurrentUser() user: CurrentUserDto,
@@ -246,7 +244,6 @@ export class UsersController {
 
   @ApiOkResponse({
     description: '비밀번호 변경 성공',
-    type: ReturnUserDto,
   })
   @ApiResponse({
     status: 400,
@@ -265,7 +262,6 @@ export class UsersController {
     description: '이전 비밀번호와 같은 비밀번호를 설정하려는 경우',
   })
   @ApiOperation({ summary: '비밀번호 변경하기' })
-  @Serialize(ReturnUserDto)
   @Patch('/change/password')
   async updateMyPassword(
     @CurrentUser() user: CurrentUserDto,
@@ -277,5 +273,30 @@ export class UsersController {
       body.newPassword,
       body.passwordConfirm,
     );
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: '비밀번호 일치함 true',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '비밀번호 형식을 잘못 보냈을 경우 (빈 문자열, number)',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '비밀번호를 틀린 경우',
+  })
+  @ApiOperation({ summary: '비밀번호 일치하는지 체크하기' })
+  @Post('/check/password')
+  async checkMyPassword(
+    @CurrentUser() user: CurrentUserDto,
+    @Body() body: CheckPasswordDto,
+  ) {
+    return this.usersService.checkPassword(user.id, body.password);
   }
 }
