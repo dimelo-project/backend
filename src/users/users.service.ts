@@ -120,7 +120,7 @@ export class UsersService {
     if (!(await bcrypt.compare(password, user.password))) {
       throw new ForbiddenException('비밀번호가 일치하지 않습니다');
     }
-    await this.usersRepository.softDelete(user);
+    await this.usersRepository.softDelete({ id: user.id });
     return true;
   }
 
