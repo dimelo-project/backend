@@ -1,7 +1,6 @@
 import { CheckNicknameDto } from './check-nickname.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsOptional, IsNotEmpty, IsString } from 'class-validator';
-import { Users } from 'src/entities/Users';
 
 export class CreateUserProfileDto extends PickType(CheckNicknameDto, [
   'nickname',

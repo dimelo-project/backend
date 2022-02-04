@@ -1,11 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  Equals,
   IsNotEmpty,
   IsString,
   Matches,
   MinLength,
-  NotEquals,
 } from 'class-validator';
 
 export class ChangePasswordDto {

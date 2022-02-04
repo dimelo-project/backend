@@ -1,6 +1,5 @@
 import { IsString, IsNotEmpty, MaxLength } from 'class-validator';
-import { ApiProperty, PickType } from '@nestjs/swagger';
-import { Users } from '../../entities/Users';
+import { ApiProperty} from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
 export class CheckNicknameDto {

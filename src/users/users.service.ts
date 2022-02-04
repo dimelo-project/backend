@@ -14,6 +14,7 @@ import { Users } from 'src/entities/Users';
 import { Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user-profile.dto';
 import bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -26,6 +27,7 @@ export class UsersService {
     private readonly studiesCommentsRepository: Repository<StudiesComments>,
     @InjectRepository(ProjectsComments)
     private readonly projectsCommentsRepository: Repository<ProjectsComments>,
+    private readonly configService: ConfigService,
   ) {}
 
   async getMyInfo(id: number) {
@@ -138,13 +140,14 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(
       newPassword,
-      parseInt(process.env.BCRYPT_SALT_ROUNDS),
+      this.configService.get<number>('BCRYPT_SALT_ROUNDS'),
     );
 
-    return this.usersRepository.save({
+    await this.usersRepository.save({
       ...user,
       password: hashedPassword,
     });
+    return true;
   }
 
   async changePassword(
@@ -172,10 +175,24 @@ export class UsersService {
       newPassword,
       parseInt(process.env.BCRYPT_SALT_ROUNDS),
     );
-    return this.usersRepository.save({
+    await this.usersRepository.save({
       ...user,
       password: hashedPassword,
     });
+    return true;
+  }
+
+  async checkPassword(id: number, password: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    if (!(await bcrypt.compare(password, user.password))) {
+      throw new ForbiddenException('비밀번호가 일치하지 않습니다');
+    }
+    return true;
   }
 
   async getMyComments(id: number) {
