@@ -1,7 +1,7 @@
 import { PositiveIntPipe } from '../common/pipes/positiveInt.pipe';
 import { CreateReviewWithCourseDto } from './dto/create-review-with-course.dto';
-import { GetReviewsByInstructorSortDto } from './dto/get-reviews-by-instructor-sort.dto';
-import { GetReviewsByCourseSortDto } from './dto/get-reviews-by-course-sort.dto';
+import { GetReviewsByInstructorDto } from './dto/get-reviews-by-instructor.dto';
+import { GetReviewsByCourseDto } from './dto/get-reviews-by-course.dto';
 import { LoggedInGuard } from './../common/guards/logged-in.guard';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -64,33 +64,6 @@ export class ReviewsController {
   }
 
   @ApiOkResponse({
-    description: '리뷰 받아오기 성공',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'course id, parameter를 제대로 전달 하지 않은 경우',
-  })
-  @ApiResponse({
-    status: 404,
-    description: '해당 강의를 찾을 수 없는 경우',
-  })
-  @ApiOperation({
-    summary: '해당 강의의 리뷰를 추천순, 퍙점순으로 받아오기',
-  })
-  @ApiParam({
-    name: 'course_id',
-    required: true,
-    description: 'course id',
-  })
-  @Get('courses/:course_id/sort')
-  async getReviewsOfCourseWithSort(
-    @Param('course_id', ParseIntPipe, PositiveIntPipe) course_id: number,
-    @Query() query: GetReviewsByCourseSortDto,
-  ) {
-    return this.reviewsService.getByCourseWithSort(course_id, query);
-  }
-
-  @ApiOkResponse({
     description: '강의 평점 받아오기 성공',
   })
   @ApiResponse({
@@ -125,29 +98,20 @@ export class ReviewsController {
     status: 404,
     description: '해당 강의를 찾을 수 없는 경우',
   })
-  @ApiOperation({ summary: '해당 강의의 모든 리뷰들 최신순으로 받아오기' })
+  @ApiOperation({
+    summary: '해당 강의의 리뷰를 추천순/최신순/평점순으로 받아오기',
+  })
   @ApiParam({
     name: 'course_id',
     required: true,
     description: 'course id',
   })
-  @ApiQuery({
-    name: 'perPage',
-    required: true,
-    description: '한 번에 가져오는 개수',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: true,
-    description: '불러올 페이지',
-  })
   @Get('courses/:course_id')
-  async getAllReviewsOfCourseOrderByDate(
+  async getReviewsOfCourse(
     @Param('course_id', ParseIntPipe, PositiveIntPipe) course_id: number,
-    @Query('perPage', ParseIntPipe, PositiveIntPipe) perPage: number,
-    @Query('page', ParseIntPipe, PositiveIntPipe) page: number,
+    @Query() query: GetReviewsByCourseDto,
   ) {
-    return this.reviewsService.getByCourse(course_id, perPage, page);
+    return this.reviewsService.getByCourse(course_id, query);
   }
 
   @ApiResponse({
@@ -296,34 +260,6 @@ export class ReviewsController {
   }
 
   @ApiOkResponse({
-    description: '리뷰 받아오기 성공',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'instructor id, parameter를 제대로 전달 하지 않은 경우',
-  })
-  @ApiResponse({
-    status: 404,
-    description: '해당 강사를 찾을 수 없는 경우',
-  })
-  @ApiOperation({
-    summary: '해당 강사의 모든 리뷰 추천순, 평점 순으로 받아오기',
-  })
-  @ApiParam({
-    name: 'instructor_id',
-    required: true,
-    description: 'instructor id',
-  })
-  @Get('/instructors/:instructor_id/sort')
-  async getAllReviewsOfInstructorWithSort(
-    @Param('instructor_id', ParseIntPipe, PositiveIntPipe)
-    instructor_id: number,
-    @Query() query: GetReviewsByInstructorSortDto,
-  ) {
-    return this.reviewsService.getByInstructorWithSort(instructor_id, query);
-  }
-
-  @ApiOkResponse({
     description: '해당 강사의 평점받아오기 성공',
   })
   @ApiResponse({
@@ -359,30 +295,21 @@ export class ReviewsController {
     status: 404,
     description: '해당 강사를 찾을 수 없는 경우',
   })
-  @ApiOperation({ summary: '해당 강사의 모든 리뷰 최신순으로 받아오기' })
+  @ApiOperation({
+    summary: '해당 강사의 모든 리뷰 추천순/최신순/평점순으로 받아오기',
+  })
   @ApiParam({
     name: 'instructor_id',
     required: true,
     description: 'instructor id',
   })
-  @ApiQuery({
-    name: 'perPage',
-    required: true,
-    description: '한 번에 가져오는 개수',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: true,
-    description: '불러올 페이지',
-  })
   @Get('/instructors/:instructor_id')
-  async getAllReviewsOfInstructurOrderByDate(
+  async getAllReviewsOfInstructor(
     @Param('instructor_id', ParseIntPipe, PositiveIntPipe)
     instructor_id: number,
-    @Query('perPage', ParseIntPipe, PositiveIntPipe) perPage: number,
-    @Query('page', ParseIntPipe, PositiveIntPipe) page: number,
+    @Query() query: GetReviewsByInstructorDto,
   ) {
-    return this.reviewsService.getByInstructor(instructor_id, perPage, page);
+    return this.reviewsService.getByInstructor(instructor_id, query);
   }
 
   @ApiOkResponse({
