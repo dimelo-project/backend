@@ -1,11 +1,12 @@
-import { GetReviewsByInstructorSortDto } from './dto/get-reviews-by-instructor-sort.dto';
-import { GetReviewsByCourseSortDto } from './dto/get-reviews-by-course-sort.dto';
+import { GetReviewsByInstructorDto } from './dto/get-reviews-by-instructor.dto';
+import { GetReviewsByCourseDto } from './dto/get-reviews-by-course.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { Courses } from './../entities/Courses';
 import { ReviewHelpes } from './../entities/ReviewHelpes';
 import { Reviews } from './../entities/Reviews';
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -145,50 +146,28 @@ export class ReviewsService {
       .getRawOne();
   }
 
-  async getByCourseWithSort(
+  async getByCourse(
     id: number,
-    { perPage, page, sort, order }: GetReviewsByCourseSortDto,
+    { perPage, page, sort, order }: GetReviewsByCourseDto,
   ) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
 
-    const Help = this.reviewHelpesRepository
-      .createQueryBuilder()
-      .subQuery()
-      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
-      .from(ReviewHelpes, 'help')
-      .groupBy('help.reviewId')
-      .getQuery();
-
-    return this.reviewsRepository
-      .createQueryBuilder('review')
-      .innerJoin('review.Course', 'course', 'course.id =:id', { id })
-      .innerJoin('review.User', 'user')
-      .leftJoin(Help, 'help', 'help.reviewId = review.id')
-      .select([
-        'review.id',
-        'review.pros',
-        'review.cons',
-        'review.avg',
-        `DATE_FORMAT(review.createdAt, '%Y-%m-%d') AS review_createdAt`,
-        'user.nickname',
-        'user.job',
-        'user.career',
-        'user.imageUrl AS user_imageUrl',
-        'IFNULL(help.num_help,0) AS num_help',
-      ])
-      .orderBy(sort === 'avg' ? 'review.avg' : 'num_help', order)
-      .limit(perPage)
-      .offset(perPage * (page - 1))
-      .getRawMany();
-  }
-
-  async getByCourse(id: number, perPage: number, page: number) {
-    const course = await this.coursesRepository.findOne({ id });
-    if (!course) {
-      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    let sorting: string;
+    switch (sort) {
+      case 'avg':
+        sorting = 'review.avg';
+        break;
+      case 'help':
+        sorting = 'num_help';
+        break;
+      case 'date':
+        sorting = 'review_createdAt';
+        break;
+      default:
+        throw new BadRequestException('invalid sort value');
     }
 
     const Help = this.reviewHelpesRepository
@@ -216,7 +195,7 @@ export class ReviewsService {
         'user.imageUrl AS user_imageUrl',
         'IFNULL(help.num_help,0) AS num_help',
       ])
-      .orderBy('review_createdAt', 'DESC')
+      .orderBy(sorting, order)
       .limit(perPage)
       .offset(perPage * (page - 1))
       .getRawMany();
@@ -254,54 +233,30 @@ export class ReviewsService {
       .getRawOne();
   }
 
-  async getByInstructor(id: number, perPage: number, page: number) {
-    const instructor = await this.instructorsRepository.findOne({ id });
-    if (!instructor) {
-      throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
-    }
-
-    const Help = this.reviewHelpesRepository
-      .createQueryBuilder()
-      .subQuery()
-      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
-      .from(ReviewHelpes, 'help')
-      .groupBy('help.reviewId')
-      .getQuery();
-
-    return this.reviewsRepository
-      .createQueryBuilder('review')
-      .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
-        id,
-      })
-      .innerJoin('review.User', 'user')
-      .leftJoin(Help, 'help', 'help.reviewId = review.id')
-      .select([
-        'review.id',
-        'review.pros',
-        'review.cons',
-        'review.avg',
-        `DATE_FORMAT(review.createdAt, '%Y-%m-%d') AS review_createdAt`,
-        'user.nickname',
-        'user.job',
-        'user.career',
-        'user.imageUrl AS user_imageUrl',
-        'IFNULL(help.num_help,0) AS num_help',
-      ])
-      .orderBy('review_createdAt', 'DESC')
-      .limit(perPage)
-      .offset(perPage * (page - 1))
-      .getRawMany();
-  }
-
-  async getByInstructorWithSort(
+  async getByInstructor(
     id: number,
-    { perPage, page, sort, order }: GetReviewsByInstructorSortDto,
+    { perPage, page, sort, order }: GetReviewsByInstructorDto,
   ) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
       throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
     }
 
+    let sorting: string;
+    switch (sort) {
+      case 'avg':
+        sorting = 'review.avg';
+        break;
+      case 'help':
+        sorting = 'num_help';
+        break;
+      case 'date':
+        sorting = 'review_createdAt';
+        break;
+      default:
+        throw new BadRequestException('invalid sort value');
+    }
+
     const Help = this.reviewHelpesRepository
       .createQueryBuilder()
       .subQuery()
@@ -329,7 +284,7 @@ export class ReviewsService {
         'user.imageUrl AS user_imageUrl',
         'IFNULL(help.num_help,0) AS num_help',
       ])
-      .orderBy(sort === 'avg' ? 'review.avg' : 'num_help', order)
+      .orderBy(sorting, order)
       .limit(perPage)
       .offset(perPage * (page - 1))
       .getRawMany();

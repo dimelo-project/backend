@@ -7,7 +7,8 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-export class GetReviewsByCourseSortDto {
+
+export class GetReviewsByCourseDto {
   @ApiProperty({
     example: 10,
     description: '한 번에 가져오는 개수',
@@ -32,14 +33,14 @@ export class GetReviewsByCourseSortDto {
 
   @ApiProperty({
     example: 'avg',
-    description: '필터링하는 조건 (help: 추천순, avg: 평점순)',
+    description: '필터링하는 조건 (help: 추천순, date: 최신순, avg: 평점순)',
     required: true,
     type: 'string',
-    enum: ['help', 'avg'],
+    enum: ['help', 'avg', 'date'],
   })
-  @IsEnum(['help', 'avg'])
+  @IsEnum(['help', 'avg', 'date'])
   @IsString()
-  sort: 'help' | 'avg';
+  sort: 'help' | 'avg' | 'date';
 
   @ApiProperty({
     example: 'DESC',
