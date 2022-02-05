@@ -651,6 +651,13 @@ export class CoursesService {
     skills,
     instructor,
   }: CreateCourseDto) {
+    const course = await this.coursesRepository.findOne({
+      title,
+      categoryBig,
+    });
+    if (course) {
+      throw new ConflictException('해당 강의가 이미 존재합니다');
+    }
     const queryRunner = this.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
