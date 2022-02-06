@@ -125,9 +125,7 @@ export class CoursesService {
           'liked.courseId = course.id AND liked.userId =:userId',
           { userId: user.id },
         )
-        .addSelect(
-          `IF(liked.courseId = course.id,'true','false') AS course_liked`,
-        );
+        .addSelect(`IF(liked.courseId,'true','false') AS course_liked`);
     }
 
     return query
@@ -258,9 +256,7 @@ export class CoursesService {
           'liked.courseId = course.id AND liked.userId =:userId',
           { userId: user.id },
         )
-        .addSelect(
-          `IF(liked.courseId = course.id,'true','false') AS course_liked`,
-        );
+        .addSelect(`IF(liked.courseId,'true','false') AS course_liked`);
     }
     return query
       .limit(perPage)
@@ -388,9 +384,7 @@ export class CoursesService {
           'liked.courseId = course.id AND liked.userId =:userId',
           { userId: user.id },
         )
-        .addSelect(
-          `IF(liked.courseId = course.id,'true','false') AS course_liked`,
-        );
+        .addSelect(`IF(liked.courseId,'true','false') AS course_liked`);
     }
 
     return query
@@ -634,9 +628,7 @@ export class CoursesService {
           'liked.courseId = course.id AND liked.userId =:userId',
           { userId: user.id },
         )
-        .addSelect(
-          `IF(liked.courseId = course.id,'true','false') AS course_liked`,
-        );
+        .addSelect(`IF(liked.courseId,'true','false') AS course_liked`);
     }
 
     return query
@@ -716,9 +708,7 @@ export class CoursesService {
           'liked.courseId = course.id AND liked.userId =:userId',
           { userId: user.id },
         )
-        .addSelect(
-          `IF(liked.courseId = course.id,'true','false') AS course_liked`,
-        );
+        .addSelect(`IF(liked.courseId,'true','false') AS course_liked`);
     }
 
     return query
