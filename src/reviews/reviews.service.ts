@@ -213,6 +213,7 @@ export class ReviewsService {
           HelpMe,
           'helpme',
           'helpme.userId =:userId AND helpme.reviewId = review.id',
+          { userId: user.id },
         )
         .addSelect(
           `IF(helpme.reviewId = review.id,'true','false') AS review_helped`,
@@ -330,11 +331,11 @@ export class ReviewsService {
           HelpMe,
           'helpme',
           'helpme.userId =:userId AND helpme.reviewId = review.id',
+          { userId: user.id },
         )
         .addSelect(
           `IF(helpme.reviewId = review.id,'true','false') AS review_helped`,
-        )
-        .setParameter('userId', user.id);
+        );
     }
     return query
       .orderBy(sorting, order)
