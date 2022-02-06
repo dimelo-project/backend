@@ -116,13 +116,18 @@ export class CoursesService {
         .subQuery()
         .select(['like.courseId AS courseId', 'like.userId AS userId'])
         .from(Likes, 'like')
-        .groupBy('like.courseId')
         .getQuery();
 
       query
-        .leftJoin(Liked, 'liked', 'liked.courseId = course.id')
-        .addSelect(`IF(liked.userId =:userId,'true','false') AS course_liked`)
-        .setParameter('userId', user.id);
+        .leftJoin(
+          Liked,
+          'liked',
+          'liked.courseId = course.id AND liked.userId =:userId',
+          { userId: user.id },
+        )
+        .addSelect(
+          `IF(liked.courseId = course.id,'true','false') AS course_liked`,
+        );
     }
 
     return query
@@ -244,13 +249,18 @@ export class CoursesService {
         .subQuery()
         .select(['like.courseId AS courseId', 'like.userId AS userId'])
         .from(Likes, 'like')
-        .groupBy('like.courseId')
         .getQuery();
 
       query
-        .leftJoin(Liked, 'liked', 'liked.courseId = course.id')
-        .addSelect(`IF(liked.userId =:userId,'true','false') AS course_liked`)
-        .setParameter('userId', user.id);
+        .leftJoin(
+          Liked,
+          'liked',
+          'liked.courseId = course.id AND liked.userId =:userId',
+          { userId: user.id },
+        )
+        .addSelect(
+          `IF(liked.courseId = course.id,'true','false') AS course_liked`,
+        );
     }
     return query
       .limit(perPage)
@@ -369,13 +379,18 @@ export class CoursesService {
         .subQuery()
         .select(['like.courseId AS courseId', 'like.userId AS userId'])
         .from(Likes, 'like')
-        .groupBy('like.courseId')
         .getQuery();
 
       query
-        .leftJoin(Liked, 'liked', 'liked.courseId = course.id')
-        .addSelect(`IF(liked.userId =:userId,'true','false') AS course_liked`)
-        .setParameter('userId', user.id);
+        .leftJoin(
+          Liked,
+          'liked',
+          'liked.courseId = course.id AND liked.userId =:userId',
+          { userId: user.id },
+        )
+        .addSelect(
+          `IF(liked.courseId = course.id,'true','false') AS course_liked`,
+        );
     }
 
     return query
@@ -610,13 +625,18 @@ export class CoursesService {
         .subQuery()
         .select(['like.courseId AS courseId', 'like.userId AS userId'])
         .from(Likes, 'like')
-        .groupBy('like.courseId')
         .getQuery();
 
       query
-        .leftJoin(Liked, 'liked', 'liked.courseId = course.id')
-        .addSelect(`IF(liked.userId =:userId,'true','false') AS course_liked`)
-        .setParameter('userId', user.id);
+        .leftJoin(
+          Liked,
+          'liked',
+          'liked.courseId = course.id AND liked.userId =:userId',
+          { userId: user.id },
+        )
+        .addSelect(
+          `IF(liked.courseId = course.id,'true','false') AS course_liked`,
+        );
     }
 
     return query
@@ -687,13 +707,18 @@ export class CoursesService {
         .subQuery()
         .select(['like.courseId AS courseId', 'like.userId AS userId'])
         .from(Likes, 'like')
-        .groupBy('like.courseId')
         .getQuery();
 
       query
-        .leftJoin(Liked, 'liked', 'liked.courseId = course.id')
-        .addSelect(`IF(liked.userId =:userId,'true','false') AS course_liked`)
-        .setParameter('userId', user.id);
+        .leftJoin(
+          Liked,
+          'liked',
+          'liked.courseId = course.id AND liked.userId =:userId',
+          { userId: user.id },
+        )
+        .addSelect(
+          `IF(liked.courseId = course.id,'true','false') AS course_liked`,
+        );
     }
 
     return query
