@@ -203,21 +203,14 @@ export class ReviewsService {
         'IFNULL(help.num_help,0) AS num_help',
       ]);
     if (user) {
-      const HelpMe = this.reviewHelpesRepository
-        .createQueryBuilder()
-        .subQuery()
-        .select(['helpme.reviewId AS reviewId', 'helpme.userId AS userId'])
-        .from(ReviewHelpes, 'helpme')
-        .getQuery();
       query
         .leftJoin(
-          HelpMe,
+          ReviewHelpes,
           'helpme',
           'helpme.userId =:userId AND helpme.reviewId = review.id',
           { userId: user.id },
         )
-        .addSelect(`IF(helpme.reviewId,'true','false') AS review_helped`)
-        .setParameter('userId', user.id);
+        .addSelect(`IF(helpme.reviewId,'true','false') AS review_helped`);
     }
     return query
       .orderBy(sorting, order)
@@ -320,22 +313,14 @@ export class ReviewsService {
       ]);
 
     if (user) {
-      const HelpMe = this.reviewHelpesRepository
-        .createQueryBuilder()
-        .subQuery()
-        .select(['helpme.reviewId AS reviewId', 'helpme.userId AS userId'])
-        .from(ReviewHelpes, 'helpme')
-        .getQuery();
       query
         .leftJoin(
-          HelpMe,
+          ReviewHelpes,
           'helpme',
           'helpme.userId =:userId AND helpme.reviewId = review.id',
           { userId: user.id },
         )
-        .addSelect(
-          `IF(helpme.reviewId,'true','false') AS review_helped`,
-        );
+        .addSelect(`IF(helpme.reviewId,'true','false') AS review_helped`);
     }
     return query
       .orderBy(sorting, order)

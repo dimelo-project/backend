@@ -242,16 +242,9 @@ export class CoursesService {
       ]);
 
     if (user) {
-      const Liked = this.likesRepository
-        .createQueryBuilder()
-        .subQuery()
-        .select(['like.courseId AS courseId', 'like.userId AS userId'])
-        .from(Likes, 'like')
-        .getQuery();
-
       query
         .leftJoin(
-          Liked,
+          Likes,
           'liked',
           'liked.courseId = course.id AND liked.userId =:userId',
           { userId: user.id },
@@ -370,16 +363,9 @@ export class CoursesService {
     }
 
     if (user) {
-      const Liked = this.likesRepository
-        .createQueryBuilder()
-        .subQuery()
-        .select(['like.courseId AS courseId', 'like.userId AS userId'])
-        .from(Likes, 'like')
-        .getQuery();
-
       query
         .leftJoin(
-          Liked,
+          Likes,
           'liked',
           'liked.courseId = course.id AND liked.userId =:userId',
           { userId: user.id },
@@ -614,16 +600,9 @@ export class CoursesService {
       ]);
 
     if (user) {
-      const Liked = this.likesRepository
-        .createQueryBuilder()
-        .subQuery()
-        .select(['like.courseId AS courseId', 'like.userId AS userId'])
-        .from(Likes, 'like')
-        .getQuery();
-
       query
         .leftJoin(
-          Liked,
+          Likes,
           'liked',
           'liked.courseId = course.id AND liked.userId =:userId',
           { userId: user.id },
@@ -694,16 +673,9 @@ export class CoursesService {
       ]);
 
     if (user) {
-      const Liked = this.likesRepository
-        .createQueryBuilder()
-        .subQuery()
-        .select(['like.courseId AS courseId', 'like.userId AS userId'])
-        .from(Likes, 'like')
-        .getQuery();
-
       query
         .leftJoin(
-          Liked,
+          Likes,
           'liked',
           'liked.courseId = course.id AND liked.userId =:userId',
           { userId: user.id },
