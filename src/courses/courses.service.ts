@@ -50,7 +50,7 @@ export class CoursesService {
       skill,
       sort,
     }: GetCoursesFromCategoryDto,
-    user: CurrentUserDto | null,
+    user?: CurrentUserDto,
   ) {
     if (!categoryBig || !category) {
       throw new BadRequestException('카테고리를 선택해 주세요');
@@ -190,7 +190,7 @@ export class CoursesService {
   async searchFromAll(
     { perPage, page, sort }: GetCoursesFromAllDto,
     keyword: string,
-    user: CurrentUserDto | null,
+    user?: CurrentUserDto,
   ) {
     if (!keyword) {
       throw new BadRequestException('키워드를 입력해주세요');
@@ -286,7 +286,7 @@ export class CoursesService {
       sort,
     }: GetCoursesFromCategoryDto,
     keyword: string,
-    user: CurrentUserDto | null,
+    user?: CurrentUserDto,
   ) {
     if (!categoryBig || !category) {
       throw new BadRequestException('카테고리를 선택해 주세요');
@@ -567,7 +567,7 @@ export class CoursesService {
   async findByInstructor(
     id: number,
     { perPage, page, sort }: GetCoursesFromAllDto,
-    user: CurrentUserDto | null,
+    user?: CurrentUserDto,
   ) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
@@ -643,7 +643,7 @@ export class CoursesService {
   async findBySkill(
     id: number,
     { perPage, page, sort }: GetCoursesFromAllDto,
-    user: CurrentUserDto | null,
+    user?: CurrentUserDto,
   ) {
     const foundSkill = await this.coursesSkillsRepository.findOne({ id });
     if (!foundSkill) {

@@ -150,7 +150,7 @@ export class ReviewsService {
   async getByCourse(
     id: number,
     { perPage, page, sort, order }: GetReviewsByCourseDto,
-    user: CurrentUserDto | null,
+    user?: CurrentUserDto,
   ) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
@@ -248,7 +248,7 @@ export class ReviewsService {
   async getByInstructor(
     id: number,
     { perPage, page, sort, order }: GetReviewsByInstructorDto,
-    user: CurrentUserDto | null,
+    user?: CurrentUserDto,
   ) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
@@ -304,6 +304,7 @@ export class ReviewsService {
         'user.imageUrl AS user_imageUrl',
         'IFNULL(help.num_help,0) AS num_help',
       ]);
+
     if (user) {
       query
         .addSelect(`IF(help.userId =:userId,'true','false') AS review_helped`)
@@ -345,23 +346,27 @@ export class ReviewsService {
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
     }
-    return this.reviewsRepository
+    const query = this.reviewsRepository
       .createQueryBuilder('review')
-      .innerJoin('review.User', 'user', 'user.id =:id', { id: userId })
+      .innerJoin('review.User', 'user', 'user.id =:id', { id: userId });
+
+    const count = await query.getCount();
+
+    const result = await query
       .innerJoin('review.Course', 'course')
-      .innerJoin('review.Instructor', 'instructor')
       .select([
         'review.id',
         'review.pros',
         'review.cons',
         'review.avg',
         `DATE_FORMAT(review.createdAt, '%Y-%m-%d') AS review_createdAt`,
-        'instructor.name',
+        'course.id',
         'course.title',
-        'course.platform',
       ])
       .orderBy('review_createdAt', 'DESC')
       .getRawMany();
+
+    return { num_review: count, review: [...result] };
   }
 
   async giveThumbsUp(id: number, userId: number) {
