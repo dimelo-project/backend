@@ -270,9 +270,12 @@ export class ReviewsService {
       .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
         id,
       })
+      .innerJoin('review.Course', 'course')
       .innerJoin('review.User', 'user')
       .leftJoin(Help, 'help', 'help.reviewId = review.id')
       .select([
+        'course.id',
+        'course.title',
         'review.id',
         'review.pros',
         'review.cons',
@@ -301,6 +304,8 @@ export class ReviewsService {
         id,
       })
       .select([
+        'instructor.id',
+        'instructor.name',
         'ROUND(AVG(review.q1),1) AS q1',
         'ROUND(AVG(review.q2),1) AS q2',
         'ROUND(AVG(review.q3),1) AS q3',
