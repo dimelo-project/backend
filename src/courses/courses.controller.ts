@@ -67,8 +67,9 @@ export class CoursesController {
   async searchCoursesFromAll(
     @Query() query: GetCoursesFromAllDto,
     @Body() body: SearchCoursesDto,
+    @CurrentUser() user?: CurrentUserDto,
   ) {
-    return this.coursesService.searchFromAll(query, body.keyword);
+    return this.coursesService.searchFromAll(query, body.keyword, user);
   }
 
   @ApiResponse({
@@ -110,8 +111,9 @@ export class CoursesController {
   async searchCoursesFromCategory(
     @Query() query: GetCoursesFromCategoryDto,
     @Body() body: SearchCoursesDto,
+    @CurrentUser() user?: CurrentUserDto,
   ) {
-    return this.coursesService.searchFromCategory(query, body.keyword);
+    return this.coursesService.searchFromCategory(query, body.keyword, user);
   }
 
   @ApiResponse({
@@ -165,8 +167,9 @@ export class CoursesController {
   async getCoursesBySkill(
     @Param('skill_id', ParseIntPipe, PositiveIntPipe) skill_id: number,
     @Query() query: GetCoursesFromAllDto,
+    @CurrentUser() user?: CurrentUserDto,
   ) {
-    return this.coursesService.findBySkill(skill_id, query);
+    return this.coursesService.findBySkill(skill_id, query, user);
   }
 
   @ApiResponse({
@@ -194,32 +197,6 @@ export class CoursesController {
   @Get('/likes/me')
   async getCoursesLiked(@CurrentUser() user: CurrentUserDto) {
     return this.coursesService.getLiked(user.id);
-  }
-
-  @ApiOkResponse({
-    description: '북마크 했는지 안했는지 true, false',
-  })
-  @ApiResponse({
-    status: 401,
-    description: '로그인을 하지 않은 경우',
-  })
-  @ApiResponse({
-    status: 404,
-    description: '해당 강의를 찾을 수 없는 경우',
-  })
-  @ApiOperation({ summary: '해당 강의 내가 북마크했는지 안했는지 체크' })
-  @UseGuards(new LoggedInGuard())
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'course id',
-  })
-  @Get('/likes/me/:id')
-  async CheckIfIliked(
-    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
-    @CurrentUser() user: CurrentUserDto,
-  ) {
-    return this.coursesService.checkIfIliked(id, user.id);
   }
 
   @ApiResponse({
@@ -338,8 +315,9 @@ export class CoursesController {
     @Param('instructor_id', ParseIntPipe, PositiveIntPipe)
     instructor_id: number,
     @Query() query: GetCoursesFromAllDto,
+    @CurrentUser() user?: CurrentUserDto,
   ) {
-    return this.coursesService.findByInstructor(instructor_id, query);
+    return this.coursesService.findByInstructor(instructor_id, query, user);
   }
 
   @ApiOkResponse({
@@ -364,8 +342,11 @@ export class CoursesController {
   })
   @ApiOperation({ summary: '해당 카테고리 내의 강의들 모두 받아오기' })
   @Get()
-  async getCoursesFromCategory(@Query() query: GetCoursesFromCategoryDto) {
-    return this.coursesService.getFromCategory(query);
+  async getCoursesFromCategory(
+    @Query() query: GetCoursesFromCategoryDto,
+    @CurrentUser() user?: CurrentUserDto,
+  ) {
+    return this.coursesService.getFromCategory(query, user);
   }
 
   @ApiResponse({
