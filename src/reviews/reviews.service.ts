@@ -1,3 +1,4 @@
+import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { GetReviewsByInstructorDto } from './dto/get-reviews-by-instructor.dto';
 import { GetReviewsByCourseDto } from './dto/get-reviews-by-course.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
@@ -149,6 +150,7 @@ export class ReviewsService {
   async getByCourse(
     id: number,
     { perPage, page, sort, order }: GetReviewsByCourseDto,
+    user: CurrentUserDto | null,
   ) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {
@@ -173,12 +175,16 @@ export class ReviewsService {
     const Help = this.reviewHelpesRepository
       .createQueryBuilder()
       .subQuery()
-      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
+      .select([
+        'help.reviewId AS reviewId',
+        'COUNT(help.reviewId) AS num_help',
+        'help.userId AS userId',
+      ])
       .from(ReviewHelpes, 'help')
       .groupBy('help.reviewId')
       .getQuery();
 
-    return this.reviewsRepository
+    const query = this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Course', 'course', 'course.id =:id', { id })
       .innerJoin('review.User', 'user')
@@ -194,7 +200,13 @@ export class ReviewsService {
         'user.career',
         'user.imageUrl AS user_imageUrl',
         'IFNULL(help.num_help,0) AS num_help',
-      ])
+      ]);
+    if (user) {
+      query
+        .addSelect(`IF(help.userId =:userId,'true','false') AS review_helped`)
+        .setParameter('userId', user.id);
+    }
+    return query
       .orderBy(sorting, order)
       .limit(perPage)
       .offset(perPage * (page - 1))
@@ -236,6 +248,7 @@ export class ReviewsService {
   async getByInstructor(
     id: number,
     { perPage, page, sort, order }: GetReviewsByInstructorDto,
+    user: CurrentUserDto | null,
   ) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
@@ -260,12 +273,16 @@ export class ReviewsService {
     const Help = this.reviewHelpesRepository
       .createQueryBuilder()
       .subQuery()
-      .select(['help.reviewId AS reviewId', 'COUNT(help.reviewId) AS num_help'])
+      .select([
+        'help.reviewId AS reviewId',
+        'COUNT(help.reviewId) AS num_help',
+        'help.userId AS userId',
+      ])
       .from(ReviewHelpes, 'help')
       .groupBy('help.reviewId')
       .getQuery();
 
-    return this.reviewsRepository
+    const query = this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
         id,
@@ -286,7 +303,13 @@ export class ReviewsService {
         'user.career',
         'user.imageUrl AS user_imageUrl',
         'IFNULL(help.num_help,0) AS num_help',
-      ])
+      ]);
+    if (user) {
+      query
+        .addSelect(`IF(help.userId =:userId,'true','false') AS review_helped`)
+        .setParameter('userId', user.id);
+    }
+    return query
       .orderBy(sorting, order)
       .limit(perPage)
       .offset(perPage * (page - 1))
@@ -390,28 +413,6 @@ export class ReviewsService {
       throw new ForbiddenException('도움됨을 누른적이 없습니다');
     }
     await this.reviewHelpesRepository.remove(helped);
-    return true;
-  }
-
-  async checkIgaveThumbsUp(id: number, userId: number) {
-    const user = await this.usersRepository.findOne({
-      id: userId,
-    });
-    if (!user) {
-      throw new UnauthorizedException('로그인을 해주세요');
-    }
-    const review = await this.reviewsRepository.findOne({
-      id,
-    });
-    if (!review) {
-      throw new NotFoundException('해당 리뷰를 찾을 수 없습니다');
-    }
-    const helped = await this.reviewHelpesRepository.findOne({
-      where: { reviewId: id, userId },
-    });
-    if (!helped) {
-      return false;
-    }
     return true;
   }
 }

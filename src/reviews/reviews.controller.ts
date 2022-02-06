@@ -110,8 +110,9 @@ export class ReviewsController {
   async getReviewsOfCourse(
     @Param('course_id', ParseIntPipe, PositiveIntPipe) course_id: number,
     @Query() query: GetReviewsByCourseDto,
+    @CurrentUser() user?: CurrentUserDto,
   ) {
-    return this.reviewsService.getByCourse(course_id, query);
+    return this.reviewsService.getByCourse(course_id, query, user);
   }
 
   @ApiResponse({
@@ -296,7 +297,7 @@ export class ReviewsController {
     description: '해당 강사를 찾을 수 없는 경우',
   })
   @ApiOperation({
-    summary: '해당 강사의 모든 리뷰 추천순/최신순/평점순으로 받아오기',
+    summary: '해당 강사의 리뷰 추천순/최신순/평점순으로 받아오기',
   })
   @ApiParam({
     name: 'instructor_id',
@@ -304,38 +305,13 @@ export class ReviewsController {
     description: 'instructor id',
   })
   @Get('/instructors/:instructor_id')
-  async getAllReviewsOfInstructor(
+  async getReviewsOfInstructor(
     @Param('instructor_id', ParseIntPipe, PositiveIntPipe)
     instructor_id: number,
     @Query() query: GetReviewsByInstructorDto,
+    @CurrentUser() user?: CurrentUserDto,
   ) {
-    return this.reviewsService.getByInstructor(instructor_id, query);
-  }
-
-  @ApiOkResponse({
-    description: 'true, false 리턴',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'review id를 제대로 전달 하지 않은 경우',
-  })
-  @ApiResponse({
-    status: 401,
-    description: '로그인을 하지 않은 경우',
-  })
-  @ApiOperation({ summary: '해당 리뷰 내가 도움됨 눌렀는지 체크' })
-  @ApiParam({
-    name: 'id',
-    required: true,
-    description: 'review id',
-  })
-  @UseGuards(new LoggedInGuard())
-  @Get('/help/me/:id')
-  async checkIgaveThumbsUp(
-    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
-    @CurrentUser() user: CurrentUserDto,
-  ) {
-    return this.reviewsService.checkIgaveThumbsUp(id, user.id);
+    return this.reviewsService.getByInstructor(instructor_id, query, user);
   }
 
   @ApiResponse({
