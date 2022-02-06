@@ -1,3 +1,4 @@
+import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { Reviews } from './../entities/Reviews';
 import { GetCountCoursesDto } from './dto/get-count-courses.dto';
 import { GetSkillsFromCategoryDto } from './dto/get-skills-from-category.dto';
@@ -40,14 +41,17 @@ export class CoursesService {
     private connection: Connection,
   ) {}
 
-  async getFromCategory({
-    categoryBig,
-    category,
-    perPage,
-    page,
-    skill,
-    sort,
-  }: GetCoursesFromCategoryDto) {
+  async getFromCategory(
+    {
+      categoryBig,
+      category,
+      perPage,
+      page,
+      skill,
+      sort,
+    }: GetCoursesFromCategoryDto,
+    user: CurrentUserDto | null,
+  ) {
     if (!categoryBig || !category) {
       throw new BadRequestException('카테고리를 선택해 주세요');
     }
@@ -74,6 +78,7 @@ export class CoursesService {
         'category.category =:category',
         { category },
       );
+
     if (skill) {
       query.innerJoin(
         'course.CoursesSkills',
@@ -101,9 +106,23 @@ export class CoursesService {
         'IFNULL(review.num_review,0) AS num_review',
         'IFNULL(review.avg,0) AS course_avg',
       ]);
-
     if (skill) {
       query.addSelect('skills.skill AS course_skill');
+    }
+
+    if (user) {
+      const Liked = this.likesRepository
+        .createQueryBuilder()
+        .subQuery()
+        .select(['like.courseId AS courseId', 'like.userId AS userId'])
+        .from(Likes, 'like')
+        .groupBy('like.courseId')
+        .getQuery();
+
+      query
+        .leftJoin(Liked, 'liked', 'liked.courseId = course.id')
+        .addSelect(`IF(liked.userId =:userId,'true','false') AS course_liked`)
+        .setParameter('userId', user.id);
     }
 
     return query
@@ -171,6 +190,7 @@ export class CoursesService {
   async searchFromAll(
     { perPage, page, sort }: GetCoursesFromAllDto,
     keyword: string,
+    user: CurrentUserDto | null,
   ) {
     if (!keyword) {
       throw new BadRequestException('키워드를 입력해주세요');
@@ -203,7 +223,7 @@ export class CoursesService {
       .groupBy('review.courseId')
       .getQuery();
 
-    return query
+    query
       .leftJoin(Review, 'review', 'review.courseId = course.id')
       .select([
         'course.id',
@@ -216,7 +236,23 @@ export class CoursesService {
         'instructor.name',
         'IFNULL(review.num_review,0) AS num_review',
         'IFNULL(review.avg,0) AS course_avg',
-      ])
+      ]);
+
+    if (user) {
+      const Liked = this.likesRepository
+        .createQueryBuilder()
+        .subQuery()
+        .select(['like.courseId AS courseId', 'like.userId AS userId'])
+        .from(Likes, 'like')
+        .groupBy('like.courseId')
+        .getQuery();
+
+      query
+        .leftJoin(Liked, 'liked', 'liked.courseId = course.id')
+        .addSelect(`IF(liked.userId =:userId,'true','false') AS course_liked`)
+        .setParameter('userId', user.id);
+    }
+    return query
       .limit(perPage)
       .offset(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
@@ -250,6 +286,7 @@ export class CoursesService {
       sort,
     }: GetCoursesFromCategoryDto,
     keyword: string,
+    user: CurrentUserDto | null,
   ) {
     if (!categoryBig || !category) {
       throw new BadRequestException('카테고리를 선택해 주세요');
@@ -324,6 +361,21 @@ export class CoursesService {
 
     if (skill) {
       query.addSelect('skills.skill AS course_skill');
+    }
+
+    if (user) {
+      const Liked = this.likesRepository
+        .createQueryBuilder()
+        .subQuery()
+        .select(['like.courseId AS courseId', 'like.userId AS userId'])
+        .from(Likes, 'like')
+        .groupBy('like.courseId')
+        .getQuery();
+
+      query
+        .leftJoin(Liked, 'liked', 'liked.courseId = course.id')
+        .addSelect(`IF(liked.userId =:userId,'true','false') AS course_liked`)
+        .setParameter('userId', user.id);
     }
 
     return query
@@ -459,24 +511,6 @@ export class CoursesService {
     return true;
   }
 
-  async checkIfIliked(id: number, myId: number) {
-    const course = await this.coursesRepository.findOne({ id });
-    if (!course) {
-      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
-    }
-    const user = await this.usersRepository.findOne({ id: myId });
-    if (!user) {
-      throw new UnauthorizedException('로그인을 해주세요');
-    }
-    const liked = await this.likesRepository.findOne({
-      where: { courseId: id, userId: user.id },
-    });
-    if (!liked) {
-      return false;
-    }
-    return true;
-  }
-
   async getLiked(myId: number) {
     const user = await this.usersRepository.findOne({ id: myId });
     if (!user) {
@@ -533,6 +567,7 @@ export class CoursesService {
   async findByInstructor(
     id: number,
     { perPage, page, sort }: GetCoursesFromAllDto,
+    user: CurrentUserDto | null,
   ) {
     const instructor = await this.instructorsRepository.findOne({ id });
     if (!instructor) {
@@ -550,7 +585,7 @@ export class CoursesService {
       .groupBy('review.courseId')
       .getQuery();
 
-    return this.coursesRepository
+    const query = this.coursesRepository
       .createQueryBuilder('course')
       .innerJoin('course.Instructor', 'instructor', 'instructor.id =:id', {
         id,
@@ -567,7 +602,24 @@ export class CoursesService {
         'instructor.name',
         'IFNULL(review.num_review,0) AS num_review',
         'IFNULL(review.avg,0) AS course_avg',
-      ])
+      ]);
+
+    if (user) {
+      const Liked = this.likesRepository
+        .createQueryBuilder()
+        .subQuery()
+        .select(['like.courseId AS courseId', 'like.userId AS userId'])
+        .from(Likes, 'like')
+        .groupBy('like.courseId')
+        .getQuery();
+
+      query
+        .leftJoin(Liked, 'liked', 'liked.courseId = course.id')
+        .addSelect(`IF(liked.userId =:userId,'true','false') AS course_liked`)
+        .setParameter('userId', user.id);
+    }
+
+    return query
       .limit(perPage)
       .offset(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
@@ -588,7 +640,11 @@ export class CoursesService {
       .getRawOne();
   }
 
-  async findBySkill(id: number, { perPage, page, sort }: GetCoursesFromAllDto) {
+  async findBySkill(
+    id: number,
+    { perPage, page, sort }: GetCoursesFromAllDto,
+    user: CurrentUserDto | null,
+  ) {
     const foundSkill = await this.coursesSkillsRepository.findOne({ id });
     if (!foundSkill) {
       throw new NotFoundException('해당하는 기술을 찾을 수 없습니다');
@@ -605,7 +661,7 @@ export class CoursesService {
       .groupBy('review.courseId')
       .getQuery();
 
-    return this.coursesRepository
+    const query = this.coursesRepository
       .createQueryBuilder('course')
       .innerJoin('course.CoursesSkills', 'skill', 'skill.id =:id', {
         id,
@@ -623,7 +679,24 @@ export class CoursesService {
         'instructor.name',
         'IFNULL(review.num_review,0) AS num_review',
         'IFNULL(review.avg,0) AS course_avg',
-      ])
+      ]);
+
+    if (user) {
+      const Liked = this.likesRepository
+        .createQueryBuilder()
+        .subQuery()
+        .select(['like.courseId AS courseId', 'like.userId AS userId'])
+        .from(Likes, 'like')
+        .groupBy('like.courseId')
+        .getQuery();
+
+      query
+        .leftJoin(Liked, 'liked', 'liked.courseId = course.id')
+        .addSelect(`IF(liked.userId =:userId,'true','false') AS course_liked`)
+        .setParameter('userId', user.id);
+    }
+
+    return query
       .limit(perPage)
       .offset(perPage * (page - 1))
       .orderBy(`${sort === 'avg' ? 'course_avg' : 'num_review'}`, 'DESC')
