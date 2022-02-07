@@ -135,6 +135,30 @@ export class ReviewsService {
     return true;
   }
 
+  async getReview(courseId: number, id: number, userId: number) {
+    const user = await this.usersRepository.findOne({
+      id: userId,
+    });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 해주세요');
+    }
+    const course = await this.coursesRepository.findOne({ id: courseId });
+    if (!course) {
+      throw new NotFoundException('해당 강의를 찾을 수 없습니다');
+    }
+    const review = await this.reviewsRepository.findOne({ id });
+    if (!review) {
+      throw new NotFoundException('해당 리뷰가 존재하지 않습니다');
+    }
+    const myReview = await this.reviewsRepository.findOne({
+      where: { id, userId: user.id },
+    });
+    if (!myReview) {
+      throw new ForbiddenException('권한이 없습니다');
+    }
+    return myReview;
+  }
+
   async getCountByCourse(id: number) {
     const course = await this.coursesRepository.findOne({ id });
     if (!course) {

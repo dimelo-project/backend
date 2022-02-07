@@ -1,4 +1,4 @@
-import { PositiveIntPipe } from '../common/pipes/positiveInt.pipe';
+import { PositiveIntPipe } from './../common/pipes/positiveInt.pipe';
 import { CreateReviewWithCourseDto } from './dto/create-review-with-course.dto';
 import { GetReviewsByInstructorDto } from './dto/get-reviews-by-instructor.dto';
 import { GetReviewsByCourseDto } from './dto/get-reviews-by-course.dto';
@@ -153,6 +153,36 @@ export class ReviewsController {
   }
 
   @ApiOkResponse({
+    description: '리뷰 받아오기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'course id, review id를 제대로 전달 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않았을 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 강의, 리뷰를 찾을 수 없는 경우',
+  })
+  @ApiOperation({ summary: '해당 강의에 해당 리뷰 받아오기' })
+  @UseGuards(new LoggedInGuard())
+  @Get('courses/:course_id/:id')
+  async getReviewOfCourse(
+    @Param('course_id', ParseIntPipe, PositiveIntPipe) course_id: number,
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
+    @CurrentUser() user: CurrentUserDto,
+  ) {
+    return this.reviewsService.getReview(course_id, id, user.id);
+  }
+
+  @ApiOkResponse({
     description: '리뷰 수정 성공',
   })
   @ApiResponse({
@@ -169,7 +199,7 @@ export class ReviewsController {
   })
   @ApiResponse({
     status: 404,
-    description: '해당 강의를 찾을 수 없는 경우',
+    description: '해당 강의, 리뷰를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 강의의 해당 리뷰 수정' })
   @ApiParam({
@@ -210,7 +240,7 @@ export class ReviewsController {
   })
   @ApiResponse({
     status: 404,
-    description: '해당 강의를 찾을 수 없는 경우',
+    description: '해당 강의, 리뷰를 찾을 수 없는 경우',
   })
   @ApiOperation({ summary: '해당 강의의 해당 리뷰 삭제' })
   @ApiParam({
