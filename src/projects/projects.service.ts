@@ -577,4 +577,71 @@ export class ProjectsService {
       .orderBy('project_createdAt', 'DESC')
       .getRawMany();
   }
+
+  async getProjectsFromMain() {
+    const query = this.projectsRepository
+    .createQueryBuilder('project')
+    .where(`project.ongoing = '모집중'`)
+    .innerJoin('project.ProjectsSkills', 'skill')
+    .leftJoin('project.ProjectsPositions', 'position');
+
+  const Skill = this.projectsSkillsRepository
+    .createQueryBuilder()
+    .subQuery()
+    .select([
+      'project.id AS projectId',
+      'LOWER(GROUP_CONCAT(skill.skill)) AS skills',
+    ])
+    .from(ProjectsSkills, 'skill')
+    .innerJoin(ProjectsSkillsTags, 'tag', 'tag.skillId = skill.id')
+    .innerJoin(Projects, 'project', 'project.id = tag.projectId')
+    .groupBy('project.id')
+    .getQuery();
+
+  const Position = this.projectsPositionsRepository
+    .createQueryBuilder()
+    .subQuery()
+    .select([
+      'project.id AS projectId',
+      'GROUP_CONCAT(position.position) AS positions',
+    ])
+    .from(ProjectsPositions, 'position')
+    .leftJoin(ProjectsPositionsTags, 'tag', 'tag.positionId = position.id')
+    .leftJoin(Projects, 'project', 'project.id = tag.projectId')
+    .groupBy('project.id')
+    .getQuery();
+
+  const Comment = this.projectsCommentsRepository
+    .createQueryBuilder()
+    .subQuery()
+    .select([
+      'comment.projectId AS projectId',
+      'COUNT(comment.id) AS num_comment',
+    ])
+    .from(ProjectsComments, 'comment')
+    .groupBy('comment.projectId')
+    .getQuery();
+
+  return query
+    .innerJoin('project.User', 'user')
+    .innerJoin(Skill, 'skill', 'skill.projectId = project.id')
+    .leftJoin(Position, 'position', 'position.projectId = project.id')
+    .leftJoin(Comment, 'comment', 'comment.projectId = project.id')
+    .select([
+      'project.id',
+      'project.title',
+      'project.content',
+      'project.ongoing',
+      'project.participant',
+      `DATE_FORMAT(project.createdAt, '%Y.%m.%d') AS project_createdAt`,
+      'user.nickname',
+      'IFNULL(comment.num_comment, 0) AS num_comment',
+      'skill.skills AS project_skill',
+      'position.positions AS project_position',
+    ])
+    .groupBy('project.id')
+    .orderBy('project_createdAt', 'DESC')
+    .limit(2)
+    .getRawMany();
+  }
 }
