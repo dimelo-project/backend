@@ -224,6 +224,16 @@ export class StudiesController {
 
   @ApiResponse({
     status: 200,
+    description: '최신 모집중 스터디 2개 받아오기',
+  })
+  @ApiOperation({ summary: '메인페이지 최신 스터디 받아오기' })
+  @Get('/main')
+  async getStudiesFromMain() {
+    return this.studiesService.getStudiesFromMain();
+  }
+
+  @ApiResponse({
+    status: 200,
     description: '스터디 모두 받아오기 성공',
   })
   @ApiOperation({ summary: '모든 스터디 받아오기' })

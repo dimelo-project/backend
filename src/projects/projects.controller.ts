@@ -228,6 +228,16 @@ export class ProjectsController {
 
   @ApiResponse({
     status: 200,
+    description: '최신 모집중 프로젝트 2개 받아오기',
+  })
+  @ApiOperation({ summary: '메인페이지 최신 프로젝트 받아오기' })
+  @Get('/main')
+  async getProjectsFromMain() {
+    return this.projectsService.getProjectsFromMain();
+  }
+
+  @ApiResponse({
+    status: 200,
     description: '프로젝트 모두 받아오기 성공',
   })
   @ApiOperation({ summary: '모든 프로젝트 받아오기' })

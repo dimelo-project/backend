@@ -468,4 +468,55 @@ export class StudiesService {
       .orderBy('study_createdAt', 'DESC')
       .getRawMany();
   }
+
+  async getStudiesFromMain() {
+    const query = this.studiesRepository
+      .createQueryBuilder('study')
+      .innerJoin('study.StudiesSkills', 'skill')
+      .where(`study.ongoing = '모집중'`);
+
+    const Comment = this.studiesCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'comment.studyId AS studyId',
+        'COUNT(comment.id) AS num_comment',
+      ])
+      .from(StudiesComments, 'comment')
+      .groupBy('comment.studyId')
+      .getQuery();
+
+    const Skill = this.studiesSkillsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'study.id AS studyId',
+        'LOWER(GROUP_CONCAT(skill.skill)) AS skills',
+      ])
+      .from(StudiesSkills, 'skill')
+      .innerJoin(StudiesSkillsTags, 'tag', 'tag.skillId = skill.id')
+      .innerJoin(Studies, 'study', 'study.id = tag.studyId')
+      .groupBy('study.id')
+      .getQuery();
+
+    return query
+      .innerJoin('study.User', 'user')
+      .leftJoin(Comment, 'comment', 'comment.studyId = study.id')
+      .innerJoin(Skill, 'skill', 'skill.studyId = study.id')
+      .select([
+        'study.id',
+        'study.title',
+        'study.content',
+        'study.ongoing',
+        'study.participant',
+        `DATE_FORMAT(study.createdAt, '%Y.%m.%d') AS study_createdAt`,
+        'user.nickname',
+        'IFNULL(comment.num_comment, 0) AS num_comment',
+        'skill.skills AS study_skill',
+      ])
+      .groupBy('study.id')
+      .orderBy('study_createdAt', 'DESC')
+      .limit(2)
+      .getRawMany();
+  }
 }
