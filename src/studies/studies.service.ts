@@ -84,7 +84,7 @@ export class StudiesService {
       .groupBy('study.id')
       .getQuery();
 
-    return query
+    const results = await query
       .innerJoin('study.User', 'user')
       .leftJoin(Comment, 'comment', 'comment.studyId = study.id')
       .innerJoin(Skill, 'skill', 'skill.studyId = study.id')
@@ -94,7 +94,7 @@ export class StudiesService {
         'study.content',
         'study.ongoing',
         'study.participant',
-        `DATE_FORMAT(study.createdAt, '%Y.%m.%d') AS study_createdAt`,
+        `DATE_FORMAT(study.createdAt, '%Y.%m.%d %r') AS study_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS study_skill',
@@ -104,6 +104,13 @@ export class StudiesService {
       .limit(perPage)
       .offset(perPage * (page - 1))
       .getRawMany();
+
+    return results.map((result) => {
+      return {
+        ...result,
+        study_createdAt: result.study_createdAt.split(' ')[0].toString(),
+      };
+    });
   }
 
   async getStudy(id: number) {
@@ -149,7 +156,7 @@ export class StudiesService {
         'study.content',
         'study.ongoing',
         'study.participant',
-        `DATE_FORMAT(study.createdAt, '%Y.%m.%d %h:%i') AS study_createdAt`,
+        `DATE_FORMAT(study.createdAt, '%Y.%m.%d %r') AS study_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS study_skill',
@@ -336,8 +343,8 @@ export class StudiesService {
       .select([
         'comment.id',
         'comment.commentText AS comment_commentText',
-        `DATE_FORMAT(comment.createdAt, '%Y-%m-%d at %h:%i') AS comment_createdAt`,
-        `DATE_FORMAT(comment.updatedAt, '%Y-%m-%d at %h:%i') AS comment_updatedAt`,
+        `DATE_FORMAT(comment.createdAt, '%Y-%m-%d %r') AS comment_createdAt`,
+        `DATE_FORMAT(comment.updatedAt, '%Y-%m-%d %r') AS comment_updatedAt`,
         'user.nickname',
         'user.job',
         'user.career',
@@ -462,7 +469,7 @@ export class StudiesService {
         'study.ongoing',
         'study.title',
         'study.content',
-        `DATE_FORMAT(study.createdAt, '%Y.%m.%d') AS study_createdAt`,
+        `DATE_FORMAT(study.createdAt, '%Y.%m.%d %r') AS study_createdAt`,
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .orderBy('study_createdAt', 'DESC')
@@ -499,7 +506,7 @@ export class StudiesService {
       .groupBy('study.id')
       .getQuery();
 
-    return query
+    const results = await query
       .innerJoin('study.User', 'user')
       .leftJoin(Comment, 'comment', 'comment.studyId = study.id')
       .innerJoin(Skill, 'skill', 'skill.studyId = study.id')
@@ -509,7 +516,7 @@ export class StudiesService {
         'study.content',
         'study.ongoing',
         'study.participant',
-        `DATE_FORMAT(study.createdAt, '%Y.%m.%d') AS study_createdAt`,
+        `DATE_FORMAT(study.createdAt, '%Y.%m.%d %r') AS study_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS study_skill',
@@ -518,5 +525,12 @@ export class StudiesService {
       .orderBy('study_createdAt', 'DESC')
       .limit(2)
       .getRawMany();
+
+    return results.map((result) => {
+      return {
+        ...result,
+        study_createdAt: result.study_createdAt.split(' ')[0].toString(),
+      };
+    });
   }
 }

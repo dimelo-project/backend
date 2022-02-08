@@ -116,7 +116,7 @@ export class ProjectsService {
       .groupBy('comment.projectId')
       .getQuery();
 
-    return query
+    const results = await query
       .innerJoin('project.User', 'user')
       .innerJoin(Skill, 'skill', 'skill.projectId = project.id')
       .leftJoin(Position, 'position', 'position.projectId = project.id')
@@ -127,7 +127,7 @@ export class ProjectsService {
         'project.content',
         'project.ongoing',
         'project.participant',
-        `DATE_FORMAT(project.createdAt, '%Y.%m.%d') AS project_createdAt`,
+        `DATE_FORMAT(project.createdAt, '%Y.%m.%d %r') AS project_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS project_skill',
@@ -138,6 +138,13 @@ export class ProjectsService {
       .limit(perPage)
       .offset(perPage * (page - 1))
       .getRawMany();
+
+    return results.map((result) => {
+      return {
+        ...result,
+        project_createdAt: result.project_createdAt.split(' ')[0].toString(),
+      };
+    });
   }
 
   async getProject(id: number) {
@@ -196,7 +203,7 @@ export class ProjectsService {
         'project.content',
         'project.ongoing',
         'project.participant',
-        `DATE_FORMAT(project.createdAt, '%Y.%m.%d %h:%i') AS project_createdAt`,
+        `DATE_FORMAT(project.createdAt, '%Y.%m.%d %r') AS project_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS project_skill',
@@ -445,8 +452,8 @@ export class ProjectsService {
       .select([
         'comment.id',
         'comment.commentText AS comment_commentText',
-        `DATE_FORMAT(comment.createdAt, '%Y-%m-%d at %h:%i') AS comment_createdAt`,
-        `DATE_FORMAT(comment.updatedAt, '%Y-%m-%d at %h:%i') AS comment_updatedAt`,
+        `DATE_FORMAT(comment.createdAt, '%Y-%m-%d at %r') AS comment_createdAt`,
+        `DATE_FORMAT(comment.updatedAt, '%Y-%m-%d at %r') AS comment_updatedAt`,
         'user.nickname',
         'user.job',
         'user.career',
@@ -562,7 +569,7 @@ export class ProjectsService {
       .groupBy('comment.projectId')
       .getQuery();
 
-    return this.projectsRepository
+    const results = await this.projectsRepository
       .createQueryBuilder('project')
       .where('project.userId =:id', { id })
       .leftJoin(Comment, 'comment', 'comment.projectId = project.id')
@@ -571,77 +578,91 @@ export class ProjectsService {
         'project.ongoing',
         'project.title',
         'project.content',
-        `DATE_FORMAT(project.createdAt, '%Y.%m.%d') AS project_createdAt`,
+        `DATE_FORMAT(project.createdAt, '%Y.%m.%d %r') AS project_createdAt`,
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .orderBy('project_createdAt', 'DESC')
       .getRawMany();
+
+    return results.map((result) => {
+      return {
+        ...result,
+        project_createdAt: result.project_createdAt.split(' ')[0].toString(),
+      };
+    });
   }
 
   async getProjectsFromMain() {
     const query = this.projectsRepository
-    .createQueryBuilder('project')
-    .where(`project.ongoing = '모집중'`)
-    .innerJoin('project.ProjectsSkills', 'skill')
-    .leftJoin('project.ProjectsPositions', 'position');
+      .createQueryBuilder('project')
+      .where(`project.ongoing = '모집중'`)
+      .innerJoin('project.ProjectsSkills', 'skill')
+      .leftJoin('project.ProjectsPositions', 'position');
 
-  const Skill = this.projectsSkillsRepository
-    .createQueryBuilder()
-    .subQuery()
-    .select([
-      'project.id AS projectId',
-      'LOWER(GROUP_CONCAT(skill.skill)) AS skills',
-    ])
-    .from(ProjectsSkills, 'skill')
-    .innerJoin(ProjectsSkillsTags, 'tag', 'tag.skillId = skill.id')
-    .innerJoin(Projects, 'project', 'project.id = tag.projectId')
-    .groupBy('project.id')
-    .getQuery();
+    const Skill = this.projectsSkillsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'project.id AS projectId',
+        'LOWER(GROUP_CONCAT(skill.skill)) AS skills',
+      ])
+      .from(ProjectsSkills, 'skill')
+      .innerJoin(ProjectsSkillsTags, 'tag', 'tag.skillId = skill.id')
+      .innerJoin(Projects, 'project', 'project.id = tag.projectId')
+      .groupBy('project.id')
+      .getQuery();
 
-  const Position = this.projectsPositionsRepository
-    .createQueryBuilder()
-    .subQuery()
-    .select([
-      'project.id AS projectId',
-      'GROUP_CONCAT(position.position) AS positions',
-    ])
-    .from(ProjectsPositions, 'position')
-    .leftJoin(ProjectsPositionsTags, 'tag', 'tag.positionId = position.id')
-    .leftJoin(Projects, 'project', 'project.id = tag.projectId')
-    .groupBy('project.id')
-    .getQuery();
+    const Position = this.projectsPositionsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'project.id AS projectId',
+        'GROUP_CONCAT(position.position) AS positions',
+      ])
+      .from(ProjectsPositions, 'position')
+      .leftJoin(ProjectsPositionsTags, 'tag', 'tag.positionId = position.id')
+      .leftJoin(Projects, 'project', 'project.id = tag.projectId')
+      .groupBy('project.id')
+      .getQuery();
 
-  const Comment = this.projectsCommentsRepository
-    .createQueryBuilder()
-    .subQuery()
-    .select([
-      'comment.projectId AS projectId',
-      'COUNT(comment.id) AS num_comment',
-    ])
-    .from(ProjectsComments, 'comment')
-    .groupBy('comment.projectId')
-    .getQuery();
+    const Comment = this.projectsCommentsRepository
+      .createQueryBuilder()
+      .subQuery()
+      .select([
+        'comment.projectId AS projectId',
+        'COUNT(comment.id) AS num_comment',
+      ])
+      .from(ProjectsComments, 'comment')
+      .groupBy('comment.projectId')
+      .getQuery();
 
-  return query
-    .innerJoin('project.User', 'user')
-    .innerJoin(Skill, 'skill', 'skill.projectId = project.id')
-    .leftJoin(Position, 'position', 'position.projectId = project.id')
-    .leftJoin(Comment, 'comment', 'comment.projectId = project.id')
-    .select([
-      'project.id',
-      'project.title',
-      'project.content',
-      'project.ongoing',
-      'project.participant',
-      `DATE_FORMAT(project.createdAt, '%Y.%m.%d') AS project_createdAt`,
-      'user.nickname',
-      'IFNULL(comment.num_comment, 0) AS num_comment',
-      'skill.skills AS project_skill',
-      'position.positions AS project_position',
-    ])
-    .groupBy('project.id')
-    .orderBy('project_createdAt', 'DESC')
-    .limit(2)
-    .getRawMany();
+    const results = await query
+      .innerJoin('project.User', 'user')
+      .innerJoin(Skill, 'skill', 'skill.projectId = project.id')
+      .leftJoin(Position, 'position', 'position.projectId = project.id')
+      .leftJoin(Comment, 'comment', 'comment.projectId = project.id')
+      .select([
+        'project.id',
+        'project.title',
+        'project.content',
+        'project.ongoing',
+        'project.participant',
+        `DATE_FORMAT(project.createdAt, '%Y.%m.%d %r') AS project_createdAt`,
+        'user.nickname',
+        'IFNULL(comment.num_comment, 0) AS num_comment',
+        'skill.skills AS project_skill',
+        'position.positions AS project_position',
+      ])
+      .groupBy('project.id')
+      .orderBy('project_createdAt', 'DESC')
+      .limit(2)
+      .getRawMany();
+
+    return results.map((result) => {
+      return {
+        ...result,
+        project_createdAt: result.project_createdAt.split(' ')[0].toString(),
+      };
+    });
   }
 }

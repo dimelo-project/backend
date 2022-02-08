@@ -218,7 +218,7 @@ export class ReviewsService {
         'review.pros',
         'review.cons',
         'review.avg',
-        `DATE_FORMAT(review.createdAt, '%Y-%m-%d') AS review_createdAt`,
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d %r') AS review_createdAt`,
         'user.id',
         'user.nickname',
         'user.job',
@@ -236,11 +236,18 @@ export class ReviewsService {
         )
         .addSelect(`IF(helpme.reviewId,'true','false') AS review_helped`);
     }
-    return query
+    const results = await query
       .orderBy(sorting, order)
       .limit(perPage)
       .offset(perPage * (page - 1))
       .getRawMany();
+
+    return results.map((result) => {
+      return {
+        ...result,
+        review_createdAt: result.review_createdAt.split(' ')[0].toString(),
+      };
+    });
   }
 
   async getAverageOfCourse(id: number) {
@@ -327,7 +334,7 @@ export class ReviewsService {
         'review.pros',
         'review.cons',
         'review.avg',
-        `DATE_FORMAT(review.createdAt, '%Y-%m-%d') AS review_createdAt`,
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d %r') AS review_createdAt`,
         'user.id',
         'user.nickname',
         'user.job',
@@ -346,11 +353,18 @@ export class ReviewsService {
         )
         .addSelect(`IF(helpme.reviewId,'true','false') AS review_helped`);
     }
-    return query
+    const results = await query
       .orderBy(sorting, order)
       .limit(perPage)
       .offset(perPage * (page - 1))
       .getRawMany();
+
+    return results.map((result) => {
+      return {
+        ...result,
+        review_createdAt: result.review_createdAt.split(' ')[0].toString(),
+      };
+    });
   }
 
   async getAverageOfInstructor(id: number) {
@@ -388,21 +402,29 @@ export class ReviewsService {
 
     const count = await query.getCount();
 
-    const result = await query
+    const results = await query
       .innerJoin('review.Course', 'course')
       .select([
         'review.id',
         'review.pros',
         'review.cons',
         'review.avg',
-        `DATE_FORMAT(review.createdAt, '%Y-%m-%d') AS review_createdAt`,
+        `DATE_FORMAT(review.createdAt, '%Y-%m-%d %r') AS review_createdAt`,
         'course.id',
         'course.title',
       ])
       .orderBy('review_createdAt', 'DESC')
       .getRawMany();
 
-    return { num_review: count, review: [...result] };
+    return {
+      num_review: count,
+      review: results.map((result) => {
+        return {
+          ...result,
+          review_createdAt: result.review_createdAt.split(' ')[0].toString(),
+        };
+      }),
+    };
   }
 
   async giveThumbsUp(id: number, userId: number) {

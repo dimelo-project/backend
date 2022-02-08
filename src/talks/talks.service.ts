@@ -52,7 +52,7 @@ export class TalksService {
       .groupBy('comment.talkId')
       .getQuery();
 
-    return query
+    const results = await query
       .leftJoin(Comment, 'comment', 'comment.talkId = talk.id')
       .innerJoin('talk.User', 'user')
       .select([
@@ -60,7 +60,7 @@ export class TalksService {
         'talk.category',
         'talk.title',
         'talk.content',
-        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d') AS talk_createdAt`,
+        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d %r') AS talk_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
@@ -68,6 +68,13 @@ export class TalksService {
       .limit(perPage)
       .offset(perPage * (page - 1))
       .getRawMany();
+
+    return results.map((result) => {
+      return {
+        ...result,
+        talk_createdAt: result.talk_createdAt.split(' ')[0].toString(),
+      };
+    });
   }
 
   async getTalk(id: number) {
@@ -207,7 +214,7 @@ export class TalksService {
       .groupBy('comment.talkId')
       .getQuery();
 
-    return query
+    const results = await query
       .innerJoin('talk.User', 'user')
       .leftJoin(Comment, 'comment', 'comment.talkId = talk.id')
       .select([
@@ -215,7 +222,7 @@ export class TalksService {
         'talk.category',
         'talk.title',
         'talk.content',
-        `DATE_FORMAT(talk.createdAt, '%Y-%m-%d at %h:%i') AS talk_createdAt`,
+        `DATE_FORMAT(talk.createdAt, '%Y-%m-%d %r') AS talk_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
@@ -223,6 +230,13 @@ export class TalksService {
       .take(perPage)
       .skip(perPage * (page - 1))
       .getRawMany();
+
+    return results.map((result) => {
+      return {
+        ...result,
+        talk_createdAt: result.talk_createdAt.split(' ')[0].toString(),
+      };
+    });
   }
 
   async getAllTalkComments(talkId: number) {
@@ -351,7 +365,7 @@ export class TalksService {
       .groupBy('comment.talkId')
       .getQuery();
 
-    return this.talksRepository
+    const results = await this.talksRepository
       .createQueryBuilder('talk')
       .where('talk.userId =:id', { id })
       .leftJoin(Comment, 'comment', 'comment.talkId = talk.id')
@@ -360,10 +374,17 @@ export class TalksService {
         'talk.category',
         'talk.title',
         'talk.content',
-        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d') AS talk_createdAt`,
+        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d %r') AS talk_createdAt`,
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .orderBy('talk_createdAt', 'DESC')
       .getRawMany();
+
+    return results.map((result) => {
+      return {
+        ...result,
+        talk_createdAt: result.talk_createdAt.split(' ')[0].toString(),
+      };
+    });
   }
 }
