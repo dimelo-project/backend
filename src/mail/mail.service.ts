@@ -38,7 +38,7 @@ export class MailService {
     }
     try {
       await this.mailerService.sendMail({
-        to: this.configService.get<string>('NODEMAILER_USER'),
+        to: this.configService.get<string>('OAUTH_USER'),
         from: 'Dimelo Team',
         subject: '강의 신청 및 리뷰',
         html: `
@@ -71,7 +71,7 @@ export class MailService {
     try {
       await this.mailerService.sendMail({
         to: email,
-        from: 'Dimelo Team',
+        from: this.configService.get<string>('OAUTH_USER'),
         subject: '<Dimelo> 임시 비밀번호 발급',
         html: `
         <p>임시 비밀번호 입니다. 해당 비밀번호로 로그인 후 비밀번호를 변경해주세요 : ${password}</p>`,

@@ -18,7 +18,10 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
   async createUser(email: string, password: string, passwordConfirm: string) {
-    const foundEmail = await this.usersRepository.findOne({ where: { email } });
+    const foundEmail = await this.usersRepository.findOne({
+      where: { email },
+      withDeleted: true,
+    });
     if (foundEmail) {
       throw new ConflictException('이미 해당하는 아이디가 존재합니다');
     }

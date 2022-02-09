@@ -14,13 +14,16 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
       useFactory: (config: ConfigService) => {
         return {
           transport: {
-            service: config.get('NODEMAILER_SERVICE'),
-            host: config.get('NODEMAILER_HOST'),
-            port: 587,
-            secure: false,
+            service: config.get<string>('NODEMAILER_SERVICE'),
+            host: config.get<string>('NODEMAILER_HOST'),
+            port: config.get<number>('NODEMAILER_PORT'),
+            secure: true,
             auth: {
-              user: config.get('NODEMAILER_USER'),
-              pass: config.get('NODEMAILER_PASS'),
+              type: 'OAuth2',
+              user: config.get<number>('OAUTH_USER'),
+              clientId: config.get<number>('OAUTH_CLIENT_ID'),
+              clientSecret: config.get<number>('OAUTH_CLIENT_SECRET'),
+              refreshToken: config.get<number>('OAUTH_REFRESH_TOKEN'),
             },
           },
         };
