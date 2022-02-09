@@ -60,7 +60,7 @@ export class TalksService {
         'talk.category',
         'talk.title',
         'talk.content',
-        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d %r') AS talk_createdAt`,
+        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d %H:%i') AS talk_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
@@ -101,7 +101,7 @@ export class TalksService {
         'talk.category',
         'talk.title',
         'talk.content',
-        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d %h:%i') AS talk_createdAt`,
+        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d %H:%i') AS talk_createdAt`,
         'user.nickname',
         'user.job',
         'user.career',
@@ -227,8 +227,8 @@ export class TalksService {
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .orderBy('talk_createdAt', 'DESC')
-      .take(perPage)
-      .skip(perPage * (page - 1))
+      .limit(perPage)
+      .offset(perPage * (page - 1))
       .getRawMany();
 
     return results.map((result) => {
@@ -251,8 +251,8 @@ export class TalksService {
       .select([
         'comment.id',
         'comment.commentText AS comment_commentText',
-        `DATE_FORMAT(comment.createdAt, '%Y-%m-%d at %h:%i') AS comment_createdAt`,
-        `DATE_FORMAT(comment.updatedAt, '%Y-%m-%d at %h:%i') AS comment_updatedAt`,
+        `DATE_FORMAT(comment.createdAt, '%Y-%m-%d %H:%i') AS comment_createdAt`,
+        `DATE_FORMAT(comment.updatedAt, '%Y-%m-%d %H:%i') AS comment_updatedAt`,
         'user.nickname',
         'user.job',
         'user.career',
@@ -374,7 +374,7 @@ export class TalksService {
         'talk.category',
         'talk.title',
         'talk.content',
-        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d %r') AS talk_createdAt`,
+        `DATE_FORMAT(talk.createdAt, '%Y.%m.%d %H:%i') AS talk_createdAt`,
         'IFNULL(comment.num_comment,0) AS num_comment',
       ])
       .orderBy('talk_createdAt', 'DESC')
