@@ -186,12 +186,14 @@ export class TalksService {
       query.where('talk.category =:category', { category });
     }
 
-    return query
+    const num_talk = await query
       .andWhere('(talk.title LIKE :keyword OR talk.content LIKE :keyword)', {
         keyword: `%${keyword}%`,
       })
-      .select(['COUNT(talk.id) AS num_talk'])
-      .getRawOne();
+      .getCount();
+    return {
+      num_talk: num_talk.toString(),
+    };
   }
 
   async searchTalk({ category, perPage, page }: GetTalksDto, keyword: string) {
