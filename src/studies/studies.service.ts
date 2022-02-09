@@ -44,7 +44,10 @@ export class StudiesService {
       query.andWhere('skill.skill IN (:...skills)', { skills });
     }
 
-    return query.select(['COUNT(study.id) AS num_study']).getRawOne();
+    const num_study = await query.getCount();
+    return {
+      num_study: num_study.toString(),
+    };
   }
 
   async getAllStudies({ ongoing, skills, perPage, page }: GetStudiesDto) {

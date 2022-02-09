@@ -34,7 +34,11 @@ export class TalksService {
     if (category) {
       query.where('talk.category =:category', { category });
     }
-    return query.select('COUNT(talk.id) AS num_talk').getRawOne();
+
+    const num_talk = await query.getCount();
+    return {
+      num_talk: num_talk.toString(),
+    };
   }
 
   async getAllTalks({ category, perPage, page }: GetTalksDto) {

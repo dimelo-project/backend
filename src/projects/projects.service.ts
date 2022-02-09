@@ -52,7 +52,10 @@ export class ProjectsService {
     if (skills) {
       query.andWhere('skill.skill IN (:...skills)', { skills });
     }
-    return query.select(['COUNT(project.id) AS num_project']).getRawOne();
+    const num_project = await query.getCount();
+    return {
+      num_project: num_project.toString(),
+    };
   }
 
   async getAllProjects({
