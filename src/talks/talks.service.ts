@@ -258,7 +258,7 @@ export class TalksService {
         'comment.id',
         'comment.commentText AS comment_commentText',
         `DATE_FORMAT(comment.createdAt, '%Y.%m.%d %H:%i') AS comment_createdAt`,
-        `DATE_FORMAT(comment.updatedAt, '%%Y.%m.%d %H:%i') AS comment_updatedAt`,
+        `DATE_FORMAT(comment.updatedAt, '%Y.%m.%d %H:%i') AS comment_updatedAt`,
         'user.nickname',
         'user.job',
         'user.career',
