@@ -416,7 +416,7 @@ export class CoursesService {
     return query.select('COUNT(course.id) AS num_course').getRawOne();
   }
 
-  async findById(id: number) {
+  async findById(id: number, user?: CurrentUserDto) {
     const course = await this.coursesRepository.findOne({
       where: { id },
     });
@@ -436,7 +436,7 @@ export class CoursesService {
       .groupBy('review.courseId')
       .getQuery();
 
-    return this.coursesRepository
+    const query = this.coursesRepository
       .createQueryBuilder('course')
       .where('course.id =:id', { id })
       .innerJoin('course.Instructor', 'instructor')
@@ -452,8 +452,20 @@ export class CoursesService {
         'instructor.name',
         'IFNULL(review.num_review,0) AS num_review',
         'IFNULL(review.avg,0) AS course_avg',
-      ])
-      .getRawOne();
+      ]);
+
+    if (user) {
+      query
+        .leftJoin(
+          Likes,
+          'liked',
+          'liked.courseId = course.id AND liked.userId =:userId',
+          { userId: user.id },
+        )
+        .addSelect(`IF(liked.courseId,'true','false') AS course_liked`);
+    }
+
+    return query.getRawOne();
   }
 
   async addLike(id: number, userId: number) {

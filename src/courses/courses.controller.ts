@@ -381,7 +381,10 @@ export class CoursesController {
     description: 'course id',
   })
   @Get('/:id')
-  async getCourse(@Param('id', ParseIntPipe, PositiveIntPipe) id: number) {
-    return this.coursesService.findById(id);
+  async getCourse(
+    @Param('id', ParseIntPipe, PositiveIntPipe) id: number,
+    @CurrentUser() user?: CurrentUserDto,
+  ) {
+    return this.coursesService.findById(id, user);
   }
 }
