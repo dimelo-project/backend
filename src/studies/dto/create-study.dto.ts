@@ -33,6 +33,13 @@ export class CreateStudyDto {
   content: string;
 
   @ApiProperty({
+    description: '스터디 글 마크업을 포함한 내용',
+  })
+  @IsString()
+  @IsNotEmpty()
+  markup: string;
+
+  @ApiProperty({
     example: '모집중',
     description: '모집중/모집완료',
     required: true,
