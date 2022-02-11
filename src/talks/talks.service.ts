@@ -116,7 +116,7 @@ export class TalksService {
   }
 
   async createTalk(
-    { category, title, content, markup }: CreateTalkDto,
+    { category, title, content }: CreateTalkDto,
     userId: number,
   ) {
     const user = await this.usersRepository.findOne({ id: userId });
@@ -130,7 +130,6 @@ export class TalksService {
       category,
       title,
       content,
-      markup,
       userId: user.id,
     });
   }
@@ -138,7 +137,7 @@ export class TalksService {
   async updateTalk(
     id: number,
     userId: number,
-    { category, title, content, markup }: UpdateTalkDto,
+    { category, title, content }: UpdateTalkDto,
   ) {
     const user = await this.usersRepository.findOne({ id: userId });
     if (!user) {
@@ -157,7 +156,6 @@ export class TalksService {
     myTalk.category = category;
     myTalk.title = title;
     myTalk.content = content;
-    myTalk.markup = markup;
 
     return this.talksRepository.save(myTalk);
   }
