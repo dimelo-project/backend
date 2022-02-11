@@ -219,7 +219,6 @@ export class ProjectsService {
     {
       title,
       content,
-      markup,
       ongoing,
       participant,
       positions,
@@ -241,7 +240,6 @@ export class ProjectsService {
       const newProject = new Projects();
       newProject.title = title;
       newProject.content = content;
-      newProject.markup = markup;
       newProject.ongoing = ongoing;
       newProject.participant = participant;
       newProject.userId = user.id;
@@ -312,7 +310,6 @@ export class ProjectsService {
     {
       title,
       content,
-      markup,
       ongoing,
       participant,
       positions,
@@ -342,7 +339,6 @@ export class ProjectsService {
     try {
       myProject.title = title;
       myProject.content = content;
-      myProject.markup = markup;
       myProject.ongoing = ongoing;
       myProject.participant = participant;
 

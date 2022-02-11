@@ -5,5 +5,4 @@ export class UpdateTalkDto extends PickType(CreateTalkDto, [
   'category',
   'title',
   'content',
-  'markup',
 ] as const) {}

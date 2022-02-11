@@ -34,9 +34,6 @@ export class Talks extends BaseEntity {
   @Column('text', { name: 'content' })
   content: string;
 
-  @Column('text', { name: 'markup' })
-  markup: string;
-
   @Column('int', { name: 'user_id' })
   userId: number;
 
