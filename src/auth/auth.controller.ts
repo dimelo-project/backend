@@ -1,3 +1,5 @@
+import { GithubAuthGuard } from './guard/github.auth.guard';
+import { GoogleAuthGuard } from './guard/google.auth.guard';
 import { CheckEmailDto } from './dto/check-email.dto';
 import { CheckNicknameDto } from '../users/dto/check-nickname.dto';
 import { ReturnUserDto } from './../common/dto/return-user.dto';
@@ -104,7 +106,7 @@ export class AuthController {
     description: '구글 로그인 화면으로 이동함',
   })
   @ApiOperation({ summary: '구글 로그인 하기' })
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
   @Get('/google')
   async googleAuth() {}
 
@@ -114,7 +116,8 @@ export class AuthController {
     type: ReturnUserDto,
   })
   @ApiOperation({ summary: '구글 로그인 성공시 프로필 설정 페이지로 이동' })
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
+  @Redirect('http://localhost:8000')
   @Get('/google/redirect')
   googleAuthRedirect(@CurrentUser() user: CurrentUserDto) {
     return user;
@@ -125,7 +128,7 @@ export class AuthController {
     description: '구글 로그인 화면으로 이동함',
   })
   @ApiOperation({ summary: '깃헙 로그인 하기' })
-  @UseGuards(AuthGuard('github'))
+  @UseGuards(GithubAuthGuard)
   @Get('/github')
   async githubAuth() {}
 
@@ -135,7 +138,8 @@ export class AuthController {
     type: ReturnUserDto,
   })
   @ApiOperation({ summary: '깃허브 로그인 성공시 프로필 설정 페이지로 이동' })
-  @UseGuards(AuthGuard('github'))
+  @UseGuards(GithubAuthGuard)
+  @Redirect('http://localhost:8000')
   @Get('/github/callback')
   githubAuthCallback(@CurrentUser() user: CurrentUserDto) {
     return user;
