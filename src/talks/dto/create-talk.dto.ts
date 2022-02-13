@@ -1,5 +1,7 @@
+import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import sanitizeHtml from 'sanitize-html';
 
 export class CreateTalkDto {
   @ApiProperty({
@@ -36,5 +38,6 @@ export class CreateTalkDto {
   })
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }) => sanitizeHtml(value))
   markup: string;
 }

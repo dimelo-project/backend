@@ -10,6 +10,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
+import sanitizeHtml from 'sanitize-html';
 
 export class CreateProjectDto {
   @ApiProperty({
@@ -34,6 +35,7 @@ export class CreateProjectDto {
   })
   @IsString()
   @IsNotEmpty()
+  @Transform(({ value }) => sanitizeHtml(value))
   markup: string;
 
   @ApiProperty({
