@@ -10,6 +10,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
+import sanitizeHtml from 'sanitize-html';
 
 export class CreateProjectDto {
   @ApiProperty({
@@ -28,6 +29,14 @@ export class CreateProjectDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @ApiProperty({
+    description: '프로젝트 글 마크업을 포함한 내용',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => sanitizeHtml(value))
+  markup: string;
 
   @ApiProperty({
     example: '모집중',

@@ -1,5 +1,7 @@
+import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import sanitizeHtml from 'sanitize-html';
 
 export class CreateTalkDto {
   @ApiProperty({
@@ -30,4 +32,12 @@ export class CreateTalkDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @ApiProperty({
+    description: '자유게시판 글 마크업을 포함한 내용',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => sanitizeHtml(value))
+  markup: string;
 }

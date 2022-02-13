@@ -1,10 +1,8 @@
 import { GithubAuthGuard } from './guard/github.auth.guard';
 import { GoogleAuthGuard } from './guard/google.auth.guard';
 import { CheckEmailDto } from './dto/check-email.dto';
-import { CheckNicknameDto } from '../users/dto/check-nickname.dto';
 import { ReturnUserDto } from './../common/dto/return-user.dto';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
-import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from './dto/create-user.dto';
 import { NotLoggedInGuard } from '../common/guards/not-logged-in.guard';
 import { LoggedInGuard } from '../common/guards/logged-in.guard';
@@ -25,12 +23,13 @@ import {
 import {
   ApiResponse,
   ApiOperation,
-  ApiBody,
   ApiTags,
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { Serialize } from '../common/interceptors/serialize.interceptor';
 import { MailService } from 'src/mail/mail.service';
+import { config } from 'dotenv';
+config();
 
 @ApiTags('AUTH')
 @Controller('api/auth')
@@ -113,11 +112,10 @@ export class AuthController {
   @ApiResponse({
     status: 301,
     description: '구글 로그인 성공시 프로필 설정 페이지로 이동 시킴',
-    type: ReturnUserDto,
   })
   @ApiOperation({ summary: '구글 로그인 성공시 프로필 설정 페이지로 이동' })
   @UseGuards(GoogleAuthGuard)
-  @Redirect('http://localhost:8000')
+  @Redirect(process.env.CLIENT_URL)
   @Get('/google/redirect')
   googleAuthRedirect(@CurrentUser() user: CurrentUserDto) {
     return user;
@@ -135,11 +133,10 @@ export class AuthController {
   @ApiResponse({
     status: 301,
     description: '깃허브 로그인 성공시 프로필 설정 페이지로 이동 시킴',
-    type: ReturnUserDto,
   })
   @ApiOperation({ summary: '깃허브 로그인 성공시 프로필 설정 페이지로 이동' })
   @UseGuards(GithubAuthGuard)
-  @Redirect('http://localhost:8000')
+  @Redirect(process.env.CLIENT_URL)
   @Get('/github/callback')
   githubAuthCallback(@CurrentUser() user: CurrentUserDto) {
     return user;

@@ -11,6 +11,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
+import sanitizeHtml from 'sanitize-html';
 
 export class CreateStudyDto {
   @ApiProperty({
@@ -31,6 +32,14 @@ export class CreateStudyDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  @ApiProperty({
+    description: '스터디 글 마크업을 포함한 내용',
+  })
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => sanitizeHtml(value))
+  markup: string;
 
   @ApiProperty({
     example: '모집중',

@@ -157,6 +157,7 @@ export class StudiesService {
         'study.id',
         'study.title',
         'study.content',
+        'study.markup',
         'study.ongoing',
         'study.participant',
         `DATE_FORMAT(study.createdAt, '%Y.%m.%d %H:%i) AS study_createdAt`,
@@ -168,7 +169,7 @@ export class StudiesService {
   }
 
   async createStudy(
-    { title, content, ongoing, participant, skills }: CreateStudyDto,
+    { title, content, markup, ongoing, participant, skills }: CreateStudyDto,
     userId: number,
   ) {
     const user = await this.usersRepository.findOne({ id: userId });
@@ -198,6 +199,7 @@ export class StudiesService {
       const newStudy = new Studies();
       newStudy.title = title;
       newStudy.content = content;
+      newStudy.markup = markup;
       newStudy.ongoing = ongoing;
       newStudy.participant = participant;
       newStudy.userId = user.id;
@@ -229,7 +231,7 @@ export class StudiesService {
   async updateStudy(
     id: number,
     userId: number,
-    { title, content, ongoing, participant, skills }: UpdateStudyDto,
+    { title, content, markup, ongoing, participant, skills }: UpdateStudyDto,
   ) {
     const user = await this.usersRepository.findOne({ id: userId });
     if (!user) {
@@ -267,6 +269,7 @@ export class StudiesService {
 
       myStudy.title = title;
       myStudy.content = content;
+      myStudy.markup = markup;
       myStudy.ongoing = ongoing;
       myStudy.participant = participant;
 

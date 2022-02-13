@@ -32,6 +32,9 @@ export class Projects extends BaseEntity {
   @Column('text', { name: 'content' })
   content: string;
 
+  @Column('text', { name: 'markup' })
+  markup: string;
+
   @Column('enum', { name: 'ongoing', enum: ['모집중', '모집완료'] })
   ongoing: '모집중' | '모집완료';
 
