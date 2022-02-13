@@ -26,7 +26,7 @@ export class LocalSerializer extends PassportSerializer {
           id: +userId,
         },
         {
-          select: ['id', 'email', 'nickname'],
+          select: ['id', 'email', 'nickname', 'imageUrl'],
         },
       )
       .then((user) => {
