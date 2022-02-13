@@ -7,6 +7,7 @@ import passport from 'passport';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { setupAdminPanel } from './admin-panel/admin-panel.plugin';
+import helmet from 'helmet';
 import { config } from 'dotenv';
 config();
 
@@ -23,6 +24,7 @@ async function bootstrap() {
     }),
   );
 
+  app.use(helmet());
   app.enableCors({
     origin: true,
     credentials: true,
