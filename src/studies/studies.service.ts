@@ -157,6 +157,7 @@ export class StudiesService {
         'study.id',
         'study.title',
         'study.content',
+        'study.markup',
         'study.ongoing',
         'study.participant',
         `DATE_FORMAT(study.createdAt, '%Y.%m.%d %H:%i) AS study_createdAt`,

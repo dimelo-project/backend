@@ -204,6 +204,7 @@ export class ProjectsService {
         'project.id',
         'project.title',
         'project.content',
+        'project.markup',
         'project.ongoing',
         'project.participant',
         `DATE_FORMAT(project.createdAt, '%Y.%m.%d %H:%i') AS project_createdAt`,

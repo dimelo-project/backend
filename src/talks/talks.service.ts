@@ -105,6 +105,7 @@ export class TalksService {
         'talk.category',
         'talk.title',
         'talk.content',
+        'talk.markup',
         `DATE_FORMAT(talk.createdAt, '%Y.%m.%d %H:%i') AS talk_createdAt`,
         'user.nickname',
         'user.job',
