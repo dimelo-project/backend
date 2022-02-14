@@ -15,7 +15,6 @@ import {
 } from 'typeorm';
 import { Users } from './Users';
 import { StudiesComments } from './StudiesComments';
-import { ApiProperty } from '@nestjs/swagger';
 import { StudiesSkills } from './StudiesSkills';
 
 @Index('FK_study_user_idx', ['userId'], {})

@@ -1,5 +1,4 @@
 import { StudiesSkillsTags } from './StudiesSkillsTags';
-import { ApiProperty } from '@nestjs/swagger';
 import {
   BaseEntity,
   Column,
