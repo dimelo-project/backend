@@ -29,7 +29,7 @@ export class TalksComments extends BaseEntity {
     example: '이거 추천합니다',
     description: '자유게시판 글 댓글',
   })
-  @Column('varchar', { name: 'comment_text', length: 45 })
+  @Column('text', { name: 'comment_text' })
   commentText: string;
 
   @ApiProperty({

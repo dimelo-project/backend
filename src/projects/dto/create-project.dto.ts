@@ -16,6 +16,7 @@ export class CreateProjectDto {
   @ApiProperty({
     example: 'dimelo프로젝트 하실 개발자 구합니다',
     description: '프로젝트 제목 (50자이내)',
+    required: true,
   })
   @MaxLength(50)
   @IsString()
@@ -25,6 +26,7 @@ export class CreateProjectDto {
   @ApiProperty({
     example: '프론트 뷰, 백엔드 노드 개발자 구합니다',
     description: '프로젝트 내용',
+    required: true,
   })
   @IsString()
   @IsNotEmpty()
@@ -32,6 +34,7 @@ export class CreateProjectDto {
 
   @ApiProperty({
     description: '프로젝트 글 마크업을 포함한 내용',
+    required: true,
   })
   @IsString()
   @IsNotEmpty()
