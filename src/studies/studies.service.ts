@@ -160,7 +160,7 @@ export class StudiesService {
         'study.markup',
         'study.ongoing',
         'study.participant',
-        `DATE_FORMAT(study.createdAt, '%Y.%m.%d %H:%i) AS study_createdAt`,
+        `DATE_FORMAT(study.createdAt, '%Y.%m.%d %H:%i') AS study_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS study_skill',
