@@ -1,6 +1,5 @@
-import { GetTalksDto } from './get-talks.dto';
 import { IsString, IsNotEmpty } from 'class-validator';
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty} from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
 export class SearchTalkDto {

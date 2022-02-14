@@ -36,7 +36,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ImagesModule } from './images/images.module';
 import { MailModule } from './mail/mail.module';
 import { configValidationSchema } from './config.schema';
-import { ThrottlerAsyncOptions, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 const SnakeNamingStrategy =
   require('typeorm-naming-strategies').SnakeNamingStrategy;

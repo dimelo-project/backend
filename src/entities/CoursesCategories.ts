@@ -1,5 +1,4 @@
 import { Categories } from './Categories';
-import { CoursesSkills } from './CoursesSkills';
 import {
   BaseEntity,
   Column,
