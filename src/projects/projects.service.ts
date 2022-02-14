@@ -129,7 +129,6 @@ export class ProjectsService {
         'project.title',
         'project.content',
         'project.ongoing',
-        'project.participant',
         `DATE_FORMAT(project.createdAt, '%Y.%m.%d %H:%i') AS project_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
@@ -206,7 +205,6 @@ export class ProjectsService {
         'project.content',
         'project.markup',
         'project.ongoing',
-        'project.participant',
         `DATE_FORMAT(project.createdAt, '%Y.%m.%d %H:%i') AS project_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',
@@ -217,15 +215,7 @@ export class ProjectsService {
   }
 
   async createProject(
-    {
-      title,
-      content,
-      markup,
-      ongoing,
-      participant,
-      positions,
-      skills,
-    }: CreateProjectDto,
+    { title, content, markup, ongoing, positions, skills }: CreateProjectDto,
     userId: number,
   ) {
     const user = await this.usersRepository.findOne({ id: userId });
@@ -244,7 +234,6 @@ export class ProjectsService {
       newProject.content = content;
       newProject.markup = markup;
       newProject.ongoing = ongoing;
-      newProject.participant = participant;
       newProject.userId = user.id;
 
       const returnedProject = await queryRunner.manager
@@ -310,15 +299,7 @@ export class ProjectsService {
 
   async updateProject(
     id: number,
-    {
-      title,
-      content,
-      markup,
-      ongoing,
-      participant,
-      positions,
-      skills,
-    }: UpdateProjectDto,
+    { title, content, markup, ongoing, positions, skills }: UpdateProjectDto,
     userId: number,
   ) {
     const user = await this.usersRepository.findOne({ id: userId });
@@ -345,7 +326,6 @@ export class ProjectsService {
       myProject.content = content;
       myProject.markup = markup;
       myProject.ongoing = ongoing;
-      myProject.participant = participant;
 
       const returnedProject = await queryRunner.manager
         .getRepository(Projects)
@@ -654,7 +634,6 @@ export class ProjectsService {
         'project.title',
         'project.content',
         'project.ongoing',
-        'project.participant',
         `DATE_FORMAT(project.createdAt, '%Y.%m.%d %H:%i') AS project_createdAt`,
         'user.nickname',
         'IFNULL(comment.num_comment, 0) AS num_comment',

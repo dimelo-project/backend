@@ -38,9 +38,6 @@ export class Projects extends BaseEntity {
   @Column('enum', { name: 'ongoing', enum: ['모집중', '모집완료'] })
   ongoing: '모집중' | '모집완료';
 
-  @Column('int', { name: 'participant', nullable: true })
-  participant: number | null;
-
   @Column('int', { name: 'user_id' })
   userId: number;
 
