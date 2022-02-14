@@ -162,6 +162,9 @@ export class StudiesService {
         'study.participant',
         `DATE_FORMAT(study.createdAt, '%Y.%m.%d %H:%i') AS study_createdAt`,
         'user.nickname',
+        'user.job',
+        'user.career',
+        'user.imageUrl AS user_imageUrl',
         'IFNULL(comment.num_comment, 0) AS num_comment',
         'skill.skills AS study_skill',
       ])
