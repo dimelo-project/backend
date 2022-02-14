@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
-  IsArray,
-  IsDate,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -35,6 +33,7 @@ export class CreateStudyDto {
 
   @ApiProperty({
     description: '스터디 글 마크업을 포함한 내용',
+    required: true,
   })
   @IsString()
   @IsNotEmpty()

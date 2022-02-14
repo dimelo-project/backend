@@ -19,6 +19,7 @@ export class CreateTalkDto {
   @ApiProperty({
     example: '웹개발 로드맵 질문',
     description: '자유게시판 제목 (50자이내)',
+    required: true,
   })
   @IsNotEmpty()
   @IsString()
@@ -28,6 +29,7 @@ export class CreateTalkDto {
   @ApiProperty({
     example: '프론트엔드 개발 로드맵 짜주세요',
     description: '자유게시판 글 내용',
+    required: true,
   })
   @IsString()
   @IsNotEmpty()
@@ -35,6 +37,7 @@ export class CreateTalkDto {
 
   @ApiProperty({
     description: '자유게시판 글 마크업을 포함한 내용',
+    required: true,
   })
   @IsString()
   @IsNotEmpty()
