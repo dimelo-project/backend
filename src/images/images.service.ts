@@ -1,8 +1,6 @@
-import * as path from 'path';
 import * as AWS from 'aws-sdk';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PromiseResult } from 'aws-sdk/lib/request';
 
 @Injectable()
 export class ImagesService {
@@ -16,9 +14,5 @@ export class ImagesService {
       region: this.configService.get('AWS_BUCKET_REGION'),
     });
     this.S3_BUCKET_NAME = this.configService.get('AWS_BUCKET_NAME');
-  }
-
-  async upload(file: Express.MulterS3.File) {
-    return file.location;
   }
 }
