@@ -173,7 +173,7 @@ export class UsersService {
     }
     const hashedPassword = await bcrypt.hash(
       newPassword,
-      parseInt(process.env.BCRYPT_SALT_ROUNDS),
+      this.configService.get<number>('BCRYPT_SALT_ROUNDS'),
     );
     await this.usersRepository.save({
       ...user,
