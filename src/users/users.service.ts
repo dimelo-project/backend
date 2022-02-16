@@ -182,7 +182,20 @@ export class UsersService {
     return true;
   }
 
-  async checkPassword(id: number, password: string) {
+  async checkPassword(id: number) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    });
+    if (!user) {
+      throw new UnauthorizedException('로그인을 먼저 해주세요');
+    }
+    if (!user.password) {
+      return false;
+    }
+    return true;
+  }
+
+  async checkMyPassword(id: number, password: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
     });
