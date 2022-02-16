@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -61,15 +62,20 @@ export class AuthService {
     const foundGoogle = await this.usersRepository.findOne({
       where: { email: user.email, googleId: user.googleId },
       select: ['id', 'email', 'nickname', 'imageUrl'],
+      withDeleted: true,
     });
     if (foundGoogle) {
+      if (foundGoogle.deletedAt)
+        throw new ForbiddenException('탈퇴한 회원입니다');
       return foundGoogle;
     }
     const found = await this.usersRepository.findOne({
       where: { email: user.email },
       select: ['id', 'email', 'nickname', 'imageUrl'],
+      withDeleted: true,
     });
     if (found) {
+      if (found.deletedAt) throw new ForbiddenException('탈퇴한 회원입니다');
       const googleConnected = {
         ...found,
         googleId: user.googleId,
@@ -94,15 +100,20 @@ export class AuthService {
     const foundGithub = await this.usersRepository.findOne({
       where: { email: user.email, githubId: user.githubId },
       select: ['id', 'email', 'nickname', 'imageUrl'],
+      withDeleted: true,
     });
     if (foundGithub) {
+      if (foundGithub.deletedAt)
+        throw new ForbiddenException('탈퇴한 회원입니다');
       return foundGithub;
     }
     const found = await this.usersRepository.findOne({
       where: { email: user.email },
       select: ['id', 'email', 'nickname', 'imageUrl'],
+      withDeleted: true,
     });
     if (found) {
+      if (found.deletedAt) throw new ForbiddenException('탈퇴한 회원입니다');
       const githubConnected = {
         ...found,
         githubId: user.githubId,
@@ -126,6 +137,7 @@ export class AuthService {
   async checkEmail(email: string) {
     const foundEmail = await this.usersRepository.findOne({
       where: { email },
+      withDeleted: true,
     });
     if (foundEmail) {
       throw new ConflictException('이미 해당하는 아이디가 존재합니다');
