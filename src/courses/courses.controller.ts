@@ -26,7 +26,7 @@ import {
   ApiOkResponse,
   ApiResponse,
 } from '@nestjs/swagger';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { GetCoursesFromAllDto } from './dto/get-courses-from-all.dto';
 
 @ApiTags('COURSE')

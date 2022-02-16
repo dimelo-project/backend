@@ -27,7 +27,7 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger';
 import { Serialize } from '../common/interceptors/serialize.interceptor';
-import { MailService } from 'src/mail/mail.service';
+import { MailService } from '../mail/mail.service';
 import { config } from 'dotenv';
 config();
 

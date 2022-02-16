@@ -8,7 +8,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Users } from 'src/entities/Users';
+import { Users } from '../entities/Users';
 import { Repository } from 'typeorm';
 import generator from 'generate-password';
 import bcrypt from 'bcrypt';

@@ -27,7 +27,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Serialize } from 'src/common/interceptors/serialize.interceptor';
+import { Serialize } from '../common/interceptors/serialize.interceptor';
 import { UpdateUserDto } from './dto/update-user-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multerS3 from 'multer-s3';
