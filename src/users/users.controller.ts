@@ -212,6 +212,18 @@ export class UsersController {
   }
 
   @ApiOkResponse({
+    description: '비밀번호 존재 여부: true/false',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @Get('/password')
+  async checkIfIhavePassword(@CurrentUser() user: CurrentUserDto) {
+    return this.usersService.checkPassword(user.id);
+  }
+
+  @ApiOkResponse({
     description: '비밀번호 설정 성공',
   })
   @ApiResponse({
@@ -297,6 +309,6 @@ export class UsersController {
     @CurrentUser() user: CurrentUserDto,
     @Body() body: CheckPasswordDto,
   ) {
-    return this.usersService.checkPassword(user.id, body.password);
+    return this.usersService.checkMyPassword(user.id, body.password);
   }
 }
