@@ -24,6 +24,7 @@ export class LocalSerializer extends PassportSerializer {
       .findOneOrFail(
         {
           id: +userId,
+          deletedAt: null,
         },
         {
           select: ['id', 'email', 'nickname', 'imageUrl'],

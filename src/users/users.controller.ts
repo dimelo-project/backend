@@ -2,7 +2,6 @@ import { CheckPasswordDto } from './dto/check-password.dto';
 import { CheckNicknameDto } from './dto/check-nickname.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { ReturnUserDto } from './../common/dto/return-user.dto';
-import { SetPasswordDto } from './dto/set-password.dto';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { CurrentUser } from './../common/decorators/current-user.decorator';
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
@@ -16,6 +15,7 @@ import {
   Get,
   Patch,
   Post,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -207,8 +207,12 @@ export class UsersController {
   async deleteMyAccount(
     @CurrentUser() user: CurrentUserDto,
     @Body() body: DeleteUserDto,
+    @Res() res,
   ) {
-    return this.usersService.delete(user.id, body.password);
+    if (this.usersService.delete(user.id, body.password)) {
+      res.clearCookie('connect.sid', { httpOnly: true });
+      res.send('탈퇴성공');
+    }
   }
 
   @ApiResponse({
@@ -225,8 +229,11 @@ export class UsersController {
   })
   @ApiOperation({ summary: 'Oauth 회원 탈퇴' })
   @Post('/deactivate/me')
-  async deactivateMyAccount(@CurrentUser() user: CurrentUserDto) {
-    return this.usersService.deactivate(user.id);
+  async deactivateMyAccount(@CurrentUser() user: CurrentUserDto, @Res() res) {
+    if (this.usersService.deactivate(user.id)) {
+      res.clearCookie('connect.sid', { httpOnly: true });
+      res.send('탈퇴성공');
+    }
   }
 
   @ApiOkResponse({
