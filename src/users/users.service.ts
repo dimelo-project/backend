@@ -122,7 +122,12 @@ export class UsersService {
     if (!(await bcrypt.compare(password, user.password))) {
       throw new ForbiddenException('비밀번호가 일치하지 않습니다');
     }
-    await this.usersRepository.softDelete({ id: user.id, deletedAt: null });
+    const found = await this.usersRepository.findOne({
+      id: user.id,
+      deletedAt: null,
+    });
+    found.deletedAt = new Date();
+    await this.usersRepository.save(found);
     return true;
   }
 
@@ -136,7 +141,12 @@ export class UsersService {
     if (user.password) {
       throw new ForbiddenException('잘못된 경로입니다');
     }
-    await this.usersRepository.softDelete({ id: user.id, deletedAt: null });
+    const found = await this.usersRepository.findOne({
+      id: user.id,
+      deletedAt: null,
+    });
+    found.deletedAt = new Date();
+    await this.usersRepository.save(found);
     return true;
   }
 
