@@ -188,7 +188,7 @@ export class UsersController {
 
   @ApiResponse({
     status: 201,
-    description: '회원가입 탈퇴 성공',
+    description: '회원 탈퇴 성공',
   })
   @ApiResponse({
     status: 400,
@@ -211,6 +211,24 @@ export class UsersController {
     return this.usersService.delete(user.id, body.password);
   }
 
+  @ApiResponse({
+    status: 201,
+    description: '회원 탈퇴 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '비밀번호가 존재할 경우: 잘못된 경로',
+  })
+  @ApiOperation({ summary: 'Oauth 회원 탈퇴' })
+  @Post('/deactivate/me')
+  async deactivateMyAccount(@CurrentUser() user: CurrentUserDto) {
+    return this.usersService.deactivate(user.id);
+  }
+
   @ApiOkResponse({
     description: '비밀번호 존재 여부: true/false',
   })
@@ -221,37 +239,6 @@ export class UsersController {
   @Get('/password')
   async checkIfIhavePassword(@CurrentUser() user: CurrentUserDto) {
     return this.usersService.checkPassword(user.id);
-  }
-
-  @ApiOkResponse({
-    description: '비밀번호 설정 성공',
-  })
-  @ApiResponse({
-    status: 400,
-    description: '비밀번호 형식이 잘못되었거나 일치하지 않을 경우',
-  })
-  @ApiResponse({
-    status: 401,
-    description: '로그인을 하지 않은 경우',
-  })
-  @ApiResponse({
-    status: 403,
-    description:
-      '비밀번호가 이미 있는데 설정하려는 경우 (잘못된 경로: 비밀번호 수정하기로 가야함)',
-  })
-  @ApiOperation({
-    summary: '구글, 깃허브 회원가입한 회원 첫 비밀번호 생성하기',
-  })
-  @Patch('/set/password')
-  async setNewPasswordForOauth(
-    @CurrentUser() user: CurrentUserDto,
-    @Body() body: SetPasswordDto,
-  ) {
-    return this.usersService.setPassword(
-      user.id,
-      body.newPassword,
-      body.passwordConfirm,
-    );
   }
 
   @ApiOkResponse({
