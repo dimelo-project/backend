@@ -28,10 +28,15 @@ export class Users extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
-  @Column('varchar', { name: 'email', unique: true, length: 30 })
+  @Column('varchar', { name: 'email', length: 30 })
   email: string;
 
-  @Column('varchar', { name: 'nickname', length: 30, nullable: true })
+  @Column('varchar', {
+    name: 'nickname',
+    unique: true,
+    length: 30,
+    nullable: true,
+  })
   nickname: string | null;
 
   @Column('varchar', { name: 'password', length: 100 })

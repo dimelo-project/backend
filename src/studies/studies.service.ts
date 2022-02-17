@@ -175,7 +175,10 @@ export class StudiesService {
     { title, content, markup, ongoing, participant, skills }: CreateStudyDto,
     userId: number,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -236,7 +239,10 @@ export class StudiesService {
     userId: number,
     { title, content, markup, ongoing, participant, skills }: UpdateStudyDto,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -302,7 +308,10 @@ export class StudiesService {
   }
 
   async deleteStudy(id: number, userId: number) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -368,7 +377,10 @@ export class StudiesService {
     userId: number,
     commentText: string,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -392,7 +404,10 @@ export class StudiesService {
     userId: number,
     commentText: string,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -417,7 +432,10 @@ export class StudiesService {
   }
 
   async deleteStudyComment(studyId: number, id: number, userId: number) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -441,7 +459,9 @@ export class StudiesService {
   }
 
   async getCountMyStudies(id: number) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({
+      where: { id, deletedAt: null },
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -453,7 +473,9 @@ export class StudiesService {
   }
 
   async getAllMyStudies(id: number) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({
+      where: { id, deletedAt: null },
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }

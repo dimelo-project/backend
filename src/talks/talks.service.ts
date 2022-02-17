@@ -120,7 +120,10 @@ export class TalksService {
     { category, title, content, markup }: CreateTalkDto,
     userId: number,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -141,7 +144,10 @@ export class TalksService {
     userId: number,
     { category, title, content, markup }: UpdateTalkDto,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -164,7 +170,10 @@ export class TalksService {
   }
 
   async deleteTalk(id: number, userId: number) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -276,7 +285,10 @@ export class TalksService {
     userId: number,
     { commentText }: CreateTalkCommentDto,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -300,7 +312,10 @@ export class TalksService {
     userId: number,
     { commentText }: UpdateTalkCommentDto,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -325,7 +340,10 @@ export class TalksService {
   }
 
   async deleteTalkComment(talkId: number, id: number, userId: number) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -349,7 +367,7 @@ export class TalksService {
   }
 
   async getCountMyTalks(id: number) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({ id, deletedAt: null });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -361,7 +379,7 @@ export class TalksService {
   }
 
   async getAllMyTalks(id: number) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({id, deletedAt: null});
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }

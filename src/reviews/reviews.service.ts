@@ -39,6 +39,7 @@ export class ReviewsService {
   ) {
     const user = await this.usersRepository.findOne({
       id: userId,
+      deletedAt: null,
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
@@ -81,6 +82,7 @@ export class ReviewsService {
   ) {
     const user = await this.usersRepository.findOne({
       id: userId,
+      deletedAt: null,
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
@@ -113,6 +115,7 @@ export class ReviewsService {
   async deleteReview(courseId: number, id: number, userId: number) {
     const user = await this.usersRepository.findOne({
       id: userId,
+      deletedAt: null,
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
@@ -138,6 +141,7 @@ export class ReviewsService {
   async getReview(courseId: number, id: number, userId: number) {
     const user = await this.usersRepository.findOne({
       id: userId,
+      deletedAt: null,
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
@@ -392,6 +396,7 @@ export class ReviewsService {
   async getMyReviews(userId: number) {
     const user = await this.usersRepository.findOne({
       id: userId,
+      deletedAt: null,
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
@@ -430,6 +435,7 @@ export class ReviewsService {
   async giveThumbsUp(id: number, userId: number) {
     const user = await this.usersRepository.findOne({
       id: userId,
+      deletedAt: null,
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
@@ -459,6 +465,7 @@ export class ReviewsService {
   async revokeThumbsUp(id: number, userId: number) {
     const user = await this.usersRepository.findOne({
       id: userId,
+      deletedAt: null,
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
