@@ -31,7 +31,7 @@ export class UsersService {
   ) {}
 
   async getMyInfo(id: number) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({ id, deletedAt: null });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -39,7 +39,7 @@ export class UsersService {
   }
 
   async checkNickname(nickname: string, id: number) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({ id, deletedAt: null });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -60,7 +60,7 @@ export class UsersService {
     data: CreateUserProfileDto,
     file?: Express.MulterS3.File,
   ) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({ id, deletedAt: null });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -88,7 +88,7 @@ export class UsersService {
     data: UpdateUserDto,
     file?: Express.MulterS3.File,
   ) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({ id, deletedAt: null });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -114,7 +114,7 @@ export class UsersService {
 
   async delete(id: number, password: string) {
     const user = await this.usersRepository.findOne({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
@@ -122,13 +122,13 @@ export class UsersService {
     if (!(await bcrypt.compare(password, user.password))) {
       throw new ForbiddenException('비밀번호가 일치하지 않습니다');
     }
-    await this.usersRepository.softDelete({ id: user.id });
+    await this.usersRepository.softDelete({ id: user.id, deletedAt: null });
     return true;
   }
 
   async deactivate(id: number) {
     const user = await this.usersRepository.findOne({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
@@ -136,7 +136,7 @@ export class UsersService {
     if (user.password) {
       throw new ForbiddenException('잘못된 경로입니다');
     }
-    await this.usersRepository.softDelete({ id: user.id });
+    await this.usersRepository.softDelete({ id: user.id, deletedAt: null });
     return true;
   }
 
@@ -147,7 +147,7 @@ export class UsersService {
     passwordConfirm: string,
   ) {
     const user = await this.usersRepository.findOne({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
@@ -174,7 +174,7 @@ export class UsersService {
 
   async checkPassword(id: number) {
     const user = await this.usersRepository.findOne({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
@@ -187,7 +187,7 @@ export class UsersService {
 
   async checkMyPassword(id: number, password: string) {
     const user = await this.usersRepository.findOne({
-      where: { id },
+      where: { id, deletedAt: null },
     });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
@@ -199,7 +199,7 @@ export class UsersService {
   }
 
   async getMyComments(id: number) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({ id, deletedAt: null });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
