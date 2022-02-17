@@ -25,7 +25,7 @@ import {
   ApiResponse,
   ApiOkResponse,
 } from '@nestjs/swagger';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { CreateProjectCommentDto } from './dto/create-project-comment.dto';
 
 @ApiTags('PROJECT')

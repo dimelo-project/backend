@@ -2,7 +2,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
-import { Users } from 'src/entities/Users';
+import { Users } from '../entities/Users';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 
 @Module({

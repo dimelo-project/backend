@@ -10,7 +10,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Users } from 'src/entities/Users';
+import { Users } from '../entities/Users';
 import { Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user-profile.dto';
 import bcrypt from 'bcrypt';

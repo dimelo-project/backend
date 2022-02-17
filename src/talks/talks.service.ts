@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Users } from 'src/entities/Users';
+import { Users } from '../entities/Users';
 
 @Injectable()
 export class TalksService {
