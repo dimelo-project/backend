@@ -7,7 +7,7 @@ services:
 
 branches:
   only:
-    - develop
+    - main
 
 before_install:
   - docker build -t vltndus95/dimelo-backend -f Dockerfile.dev .
@@ -30,7 +30,7 @@ deploy:
   bucket_name: $ELASTICBEANSTALK_BUCKET
   bucket_path: 'dimelo'
   on:
-    branch: develop
+    branch: main
 
   access_key_id: $AWS_ACCESS_KEY
   secret_access_key: $AWS_SECRET_ACCESS_KEY
