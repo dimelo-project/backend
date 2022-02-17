@@ -124,7 +124,7 @@ export class UsersService {
     return true;
   }
 
-  async setPassword(id: number, newPassword: string, passwordConfirm: string) {
+  async deactivate(id: number) {
     const user = await this.usersRepository.findOne({
       where: { id },
     });
@@ -132,21 +132,9 @@ export class UsersService {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
     if (user.password) {
-      throw new ForbiddenException('비밀번호가 이미 설정되어 있습니다');
+      throw new ForbiddenException('잘못된 경로입니다');
     }
-    if (newPassword !== passwordConfirm) {
-      throw new BadRequestException('비밀번호가 일치하지 않습니다');
-    }
-
-    const hashedPassword = await bcrypt.hash(
-      newPassword,
-      this.configService.get<number>('BCRYPT_SALT_ROUNDS'),
-    );
-
-    await this.usersRepository.save({
-      ...user,
-      password: hashedPassword,
-    });
+    await this.usersRepository.softDelete({ id: user.id });
     return true;
   }
 

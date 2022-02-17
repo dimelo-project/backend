@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -61,27 +60,44 @@ export class AuthService {
   async googleSignUp(user: GoogleLoginUserDto) {
     const foundGoogle = await this.usersRepository.findOne({
       where: { email: user.email, googleId: user.googleId },
-      select: ['id', 'email', 'nickname', 'imageUrl'],
       withDeleted: true,
     });
-    if (foundGoogle) {
-      if (foundGoogle.deletedAt)
-        throw new ForbiddenException('탈퇴한 회원입니다');
-      return foundGoogle;
+
+    if (foundGoogle && foundGoogle.deletedAt) {
+      foundGoogle.deletedAt = null;
+      const { id, email, nickname, imageUrl } = await this.usersRepository.save(
+        foundGoogle,
+      );
+      return { id, email, nickname, imageUrl };
     }
+
+    if (foundGoogle) {
+      return {
+        id: foundGoogle.id,
+        email: foundGoogle.email,
+        nickname: foundGoogle.nickname,
+        imageUrl: foundGoogle.imageUrl,
+      };
+    }
+
     const found = await this.usersRepository.findOne({
       where: { email: user.email },
-      select: ['id', 'email', 'nickname', 'imageUrl'],
       withDeleted: true,
     });
-    if (found) {
-      if (found.deletedAt) throw new ForbiddenException('탈퇴한 회원입니다');
-      const googleConnected = {
-        ...found,
-        googleId: user.googleId,
-      };
+
+    if (found && found.deletedAt) {
+      found.deletedAt = null;
+      found.googleId = user.googleId;
       const { id, email, nickname, imageUrl } = await this.usersRepository.save(
-        googleConnected,
+        found,
+      );
+      return { id, email, nickname, imageUrl };
+    }
+
+    if (found) {
+      found.googleId = user.googleId;
+      const { id, email, nickname, imageUrl } = await this.usersRepository.save(
+        found,
       );
       return {
         id,
@@ -90,6 +106,7 @@ export class AuthService {
         imageUrl,
       };
     }
+
     const { id, email, nickname, imageUrl } = await this.usersRepository.save(
       user,
     );
@@ -99,27 +116,49 @@ export class AuthService {
   async githubSignUp(user: GithubLoginUserDto) {
     const foundGithub = await this.usersRepository.findOne({
       where: { email: user.email, githubId: user.githubId },
-      select: ['id', 'email', 'nickname', 'imageUrl'],
       withDeleted: true,
     });
-    if (foundGithub) {
-      if (foundGithub.deletedAt)
-        throw new ForbiddenException('탈퇴한 회원입니다');
-      return foundGithub;
+
+    if (foundGithub && foundGithub.deletedAt) {
+      foundGithub.deletedAt = null;
+      const { id, email, nickname, imageUrl } = await this.usersRepository.save(
+        foundGithub,
+      );
+      return { id, email, nickname, imageUrl };
     }
+
+    if (foundGithub) {
+      return {
+        id: foundGithub.id,
+        email: foundGithub.email,
+        nickname: foundGithub.nickname,
+        imageUrl: foundGithub.imageUrl,
+      };
+    }
+
     const found = await this.usersRepository.findOne({
       where: { email: user.email },
-      select: ['id', 'email', 'nickname', 'imageUrl'],
       withDeleted: true,
     });
-    if (found) {
-      if (found.deletedAt) throw new ForbiddenException('탈퇴한 회원입니다');
-      const githubConnected = {
-        ...found,
-        githubId: user.githubId,
-      };
+
+    if (found && found.deletedAt) {
+      found.deletedAt = null;
+      found.githubId = user.githubId;
       const { id, email, nickname, imageUrl } = await this.usersRepository.save(
-        githubConnected,
+        found,
+      );
+      return {
+        id,
+        email,
+        nickname,
+        imageUrl,
+      };
+    }
+
+    if (found) {
+      found.githubId = user.githubId;
+      const { id, email, nickname, imageUrl } = await this.usersRepository.save(
+        found,
       );
       return {
         id,
