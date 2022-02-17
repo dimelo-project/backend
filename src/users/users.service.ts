@@ -46,6 +46,7 @@ export class UsersService {
     if (user.nickname !== nickname) {
       const foundNick = await this.usersRepository.findOne({
         where: { nickname },
+        withDeleted: true,
       });
       if (foundNick) {
         throw new ConflictException('해당 닉네임은 이미 사용중 입니다');
@@ -95,6 +96,7 @@ export class UsersService {
     if (user.nickname !== data.nickname) {
       const foundNick = await this.usersRepository.findOne({
         where: { nickname: data.nickname },
+        withDeleted: true,
       });
       if (foundNick) {
         throw new ConflictException('해당 닉네임은 이미 사용중 입니다');
