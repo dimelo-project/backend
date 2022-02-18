@@ -363,6 +363,7 @@ export class StudiesService {
         'comment.commentText AS comment_commentText',
         `DATE_FORMAT(comment.createdAt, '%Y.%m.%d %H:%i') AS comment_createdAt`,
         `DATE_FORMAT(comment.updatedAt, '%Y.%m.%d %H:%i') AS comment_updatedAt`,
+        'user.id',
         'user.nickname',
         'user.job',
         'user.career',

@@ -221,7 +221,10 @@ export class ProjectsService {
     { title, content, markup, ongoing, positions, skills }: CreateProjectDto,
     userId: number,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId, deletedAt: null });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -305,7 +308,10 @@ export class ProjectsService {
     { title, content, markup, ongoing, positions, skills }: UpdateProjectDto,
     userId: number,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId, deletedAt: null });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -392,7 +398,10 @@ export class ProjectsService {
   }
 
   async deleteProject(id: number, userId: number) {
-    const user = await this.usersRepository.findOne({ id: userId, deletedAt: null });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -445,6 +454,7 @@ export class ProjectsService {
         'comment.commentText AS comment_commentText',
         `DATE_FORMAT(comment.createdAt, '%Y.%m.%d %H:%i') AS comment_createdAt`,
         `DATE_FORMAT(comment.updatedAt, '%Y.%m.%d %H:%i') AS comment_updatedAt`,
+        'user.id',
         'user.nickname',
         'user.job',
         'user.career',
@@ -459,7 +469,10 @@ export class ProjectsService {
     commentText: string,
     userId: number,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId, deletedAt: null });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -483,7 +496,10 @@ export class ProjectsService {
     commentText: string,
     userId: number,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId, deletedAt: null });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -508,7 +524,10 @@ export class ProjectsService {
   }
 
   async deleteProjectComment(projectId: number, id: number, userId: number) {
-    const user = await this.usersRepository.findOne({ id: userId, deletedAt: null });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -532,7 +551,7 @@ export class ProjectsService {
   }
 
   async getCountMyProjects(id: number) {
-    const user = await this.usersRepository.findOne({id, deletedAt: null});
+    const user = await this.usersRepository.findOne({ id, deletedAt: null });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -544,7 +563,7 @@ export class ProjectsService {
   }
 
   async getAllMyProjects(id: number) {
-    const user = await this.usersRepository.findOne({id, deletedAt: null});
+    const user = await this.usersRepository.findOne({ id, deletedAt: null });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
