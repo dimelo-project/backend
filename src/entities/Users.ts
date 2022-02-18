@@ -3,7 +3,6 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   Index,
   ManyToMany,
@@ -28,8 +27,8 @@ export class Users extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
-  @Column('varchar', { name: 'email', length: 30 })
-  email: string;
+  @Column('varchar', { name: 'email', nullable: true, length: 30 })
+  email: string | null;
 
   @Column('varchar', {
     name: 'nickname',

@@ -1,9 +1,9 @@
 import { IsEmail, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class GithubLoginUserDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
-  email: string;
+  email: string | null;
 
   @IsOptional()
   imageUrl: string;

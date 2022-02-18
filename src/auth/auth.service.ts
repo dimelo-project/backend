@@ -91,30 +91,32 @@ export class AuthService {
 
   async githubSignUp(user: GithubLoginUserDto) {
     const foundGithub = await this.usersRepository.findOne({
-      where: { email: user.email, githubId: user.githubId, deletedAt: null},
+      where: { email: user.email, githubId: user.githubId, deletedAt: null },
       select: ['id', 'email', 'nickname', 'imageUrl'],
     });
 
     if (foundGithub) {
-      return foundGithub
+      return foundGithub;
     }
 
-    const found = await this.usersRepository.findOne({
-      where: { email: user.email, deletedAt: null},
-    });
-    
-    if (found) {
-      found.githubId = user.githubId;
-      const { id, email, nickname, imageUrl } = await this.usersRepository.save(
-        found,
-      );
-      return {
-        id,
-        email,
-        nickname,
-        imageUrl,
-      };
+    if (user.email) {
+      const found = await this.usersRepository.findOne({
+        where: { email: user.email, deletedAt: null },
+      });
+
+      if (found) {
+        found.githubId = user.githubId;
+        const { id, email, nickname, imageUrl } =
+          await this.usersRepository.save(found);
+        return {
+          id,
+          email,
+          nickname,
+          imageUrl,
+        };
+      }
     }
+
     const { id, email, nickname, imageUrl } = await this.usersRepository.save(
       user,
     );
