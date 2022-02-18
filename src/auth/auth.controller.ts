@@ -111,14 +111,16 @@ export class AuthController {
 
   @ApiResponse({
     status: 301,
-    description: '구글 로그인 성공시 프로필 설정 페이지로 이동 시킴',
+    description: '구글 로그인 성공시 메인/프로필 설정 페이지로 이동 시킴',
   })
   @ApiOperation({ summary: '구글 로그인 성공시 프로필 설정 페이지로 이동' })
   @UseGuards(GoogleAuthGuard)
-  @Redirect(process.env.CLIENT_URL)
+  @Redirect(process.env.CLIENT_URL, 302)
   @Get('/google/redirect')
   googleAuthRedirect(@CurrentUser() user: CurrentUserDto) {
-    return user;
+    if (user && !user.nickname) {
+      return { url: `${process.env.CLIENT_URL}/profileset` };
+    }
   }
 
   @ApiResponse({
@@ -132,14 +134,16 @@ export class AuthController {
 
   @ApiResponse({
     status: 301,
-    description: '깃허브 로그인 성공시 프로필 설정 페이지로 이동 시킴',
+    description: '깃허브 로그인 성공시 메인/프로필 설정 페이지로 이동 시킴',
   })
   @ApiOperation({ summary: '깃허브 로그인 성공시 프로필 설정 페이지로 이동' })
   @UseGuards(GithubAuthGuard)
-  @Redirect(process.env.CLIENT_URL)
+  @Redirect(process.env.CLIENT_URL, 302)
   @Get('/github/callback')
   githubAuthCallback(@CurrentUser() user: CurrentUserDto) {
-    return user;
+    if (user && !user.nickname) {
+      return { url: `${process.env.CLIENT_URL}/profileset` };
+    }
   }
 
   @ApiResponse({
