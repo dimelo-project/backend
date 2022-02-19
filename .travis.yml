@@ -16,11 +16,13 @@ script:
   - docker run -e CI=true vltndus95/dimelo-backend npm run test
 
 after_success:
-  - docker build -t vltndus95/docker-backend .
+  - docker build -t vltndus95/dimelo-backend .
+  - docker build -t vltndus95/dimelo-nginx ./nginx
 
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
 
   - docker push vltndus95/dimelo-backend
+  - docker push vltndus95/dimelo-nginx
 
 deploy:
   provider: elasticbeanstalk
