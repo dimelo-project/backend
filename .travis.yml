@@ -25,10 +25,10 @@ after_success:
 deploy:
   provider: elasticbeanstalk
   region: 'ap-northeast-2'
-  app: 'dimelo'
-  env: 'Dimelo-env'
+  app: 'dimelo-project'
+  env: 'Dimeloproject-env'
   bucket_name: $ELASTICBEANSTALK_BUCKET
-  bucket_path: 'dimelo'
+  bucket_path: 'dimelo-project'
   on:
     branch: main
   access_key_id: $AWS_ACCESS_KEY

@@ -30,6 +30,8 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+    ports:
+      - ${PORT}:${PORT}
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}

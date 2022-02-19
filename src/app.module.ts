@@ -80,7 +80,7 @@ const typeOrmModuleOptions = {
     autoLoadEntities: false,
     charset: 'utf8mb4',
     synchronize: false,
-    logging: true,
+    logging: false,
     keepConnectionAlive: true,
     namingStrategy: new SnakeNamingStrategy(),
   }),
