@@ -10,15 +10,6 @@ export class UpdateUserDto extends PickType(CreateUserProfileDto, [
   @IsString()
   @IsOptional()
   @ApiProperty({
-    example: '안녕하세요!',
-    description: '자기소개',
-    required: false,
-  })
-  introduction: string;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty({
     example:
       'https://dimelo-project.s3.ap-northeast-2.amazonaws.com/1642083598538-psy%20%281%29.png',
     description: '사용자 프로필 사진 / 사진을 지울 떄는 값이 null로 들어감',

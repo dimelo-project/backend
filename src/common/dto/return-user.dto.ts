@@ -43,11 +43,4 @@ export class ReturnUserDto {
   })
   @Expose()
   career: string | null;
-
-  @ApiProperty({
-    example: '안녕하세요!',
-    description: '자기소개',
-  })
-  @Expose()
-  introduction: string | null;
 }
