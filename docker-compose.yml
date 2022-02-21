@@ -1,35 +1,25 @@
-version: '3'
+# version: '3'
 
-services:
-  backend:
-    container_name: dimelo_backend
-    build:
-      context: .
-      target: development
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-    ports:
-      - ${PORT}:${PORT}
-    command: npm run start:dev
-    env_file:
-      - .env
-    environment:
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${DB_PORT}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_DATABASE: ${DB_DATABASE}
-
-  nginx:
-    container_name: dimelo_nginx
-    restart: always
-    build:
-      dockerfile: Dockerfile
-      context: ./nginx
-    ports:
-      - '3000:80'
-
+# services:
+#   backend:
+#     container_name: dimelo_backend
+#     build:
+#       context: .
+#       target: development
+#     volumes:
+#       - .:/usr/src/app
+#       - /usr/src/app/node_modules
+#     ports:
+#       - ${PORT}:${PORT}
+#     command: npm run start:dev
+#     env_file:
+#       - .env
+#     environment:
+#       DB_HOST: ${DB_HOST}
+#       DB_PORT: ${DB_PORT}
+#       DB_USERNAME: ${DB_USERNAME}
+#       DB_PASSWORD: ${DB_PASSWORD}
+#       DB_DATABASE: ${DB_DATABASE}
 
 version: '2.4'
 
@@ -40,8 +30,10 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+    env_file:
+      - .env
     ports:
-      - ${PORT}:${PORT}
+      - '80:3000'
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
@@ -49,12 +41,3 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_DATABASE: ${DB_DATABASE}
     mem_limit: 128m
-
-  nginx:
-    restart: always
-    image: vltndus95/docker-nginx
-    ports:
-      - '80:80'
-    mem_limit: 128m
-    links:
-      - backend

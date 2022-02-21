@@ -243,6 +243,7 @@ export class UsersController {
     status: 401,
     description: '로그인을 하지 않은 경우',
   })
+  @ApiOperation({ summary: '비밀번호 존재 유무 확인' })
   @Get('/password')
   async checkIfIhavePassword(@CurrentUser() user: CurrentUserDto) {
     return this.usersService.checkPassword(user.id);
