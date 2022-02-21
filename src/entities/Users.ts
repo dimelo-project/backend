@@ -50,9 +50,6 @@ export class Users extends BaseEntity {
   @Column('varchar', { name: 'career', nullable: true, length: 45 })
   career: string | null;
 
-  @Column('text', { name: 'introduction', nullable: true })
-  introduction: string | null;
-
   @Column('int', { name: 'google_id', nullable: true })
   googleId: number | null;
 
