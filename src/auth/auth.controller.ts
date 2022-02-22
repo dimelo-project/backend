@@ -173,6 +173,10 @@ export class AuthController {
     description: '이메일이 잘못된 형식일 경우',
   })
   @ApiResponse({
+    status: 403,
+    description: 'Oauth회원 비밀번호를 찾으려고 했을 경우',
+  })
+  @ApiResponse({
     status: 404,
     description: '해당 유저를 찾을 수 없는 경우',
   })

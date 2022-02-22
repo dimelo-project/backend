@@ -20,10 +20,10 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
             secure: true,
             auth: {
               type: 'OAuth2',
-              user: config.get<number>('OAUTH_USER'),
-              clientId: config.get<number>('OAUTH_CLIENT_ID'),
-              clientSecret: config.get<number>('OAUTH_CLIENT_SECRET'),
-              refreshToken: config.get<number>('OAUTH_REFRESH_TOKEN'),
+              user: config.get<string>('OAUTH_USER'),
+              clientId: config.get<string>('OAUTH_CLIENT_ID'),
+              clientSecret: config.get<string>('OAUTH_CLIENT_SECRET'),
+              refreshToken: config.get<string>('OAUTH_REFRESH_TOKEN'),
             },
           },
         };
