@@ -97,6 +97,7 @@ IT강의 수강평공유 & 팀빌딩 커뮤니티
 <img width="823" alt="dimelo_erd" src="https://user-images.githubusercontent.com/77389332/154974009-2c57af96-6297-47d2-8489-8897661813d5.png">
 
 <br />
+
 ## 8. API
 https://dimeloserverapi.site/api
 
