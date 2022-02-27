@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
+RUN npm install --global pm2
 RUN apk add --no-cache --virtual .gyp python make g++ pkgconfig pixman-dev cairo-dev pango-dev
 RUN npm install
 
@@ -20,6 +21,7 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
+RUN npm install --global pm2
 RUN apk add --no-cache --virtual .gyp python make g++ pkgconfig pixman-dev cairo-dev pango-dev
 RUN npm install --only=production
 
@@ -29,4 +31,4 @@ COPY --from=development /usr/src/app/dist ./dist
 
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+CMD ["pm2-runtime", "start", "ecosystem.config.js", "--env", "production"]
