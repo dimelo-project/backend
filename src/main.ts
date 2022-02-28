@@ -26,7 +26,7 @@ async function bootstrap() {
 
   app.use(helmet());
   app.enableCors({
-    origin: true,
+    origin: `${process.env.CLIENT_URL}`,
     credentials: true,
   });
 
