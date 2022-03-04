@@ -19,8 +19,7 @@ export class AuthService {
   ) {}
   async createUser(email: string, password: string, passwordConfirm: string) {
     const foundEmail = await this.usersRepository.findOne({
-      where: { email },
-      withDeleted: true,
+      where: { email, deletedAt: null },
     });
     if (foundEmail) {
       throw new ConflictException('이미 해당하는 아이디가 존재합니다');
@@ -42,7 +41,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const user = await this.usersRepository.findOne({
-      where: { email },
+      where: { email, deletedAt: null },
       select: ['id', 'email', 'password', 'nickname', 'imageUrl'],
     });
     if (!user) {
@@ -59,23 +58,22 @@ export class AuthService {
 
   async googleSignUp(user: GoogleLoginUserDto) {
     const foundGoogle = await this.usersRepository.findOne({
-      where: { email: user.email, googleId: user.googleId },
+      where: { email: user.email, googleId: user.googleId, deletedAt: null },
       select: ['id', 'email', 'nickname', 'imageUrl'],
     });
+
     if (foundGoogle) {
       return foundGoogle;
     }
+
     const found = await this.usersRepository.findOne({
-      where: { email: user.email },
-      select: ['id', 'email', 'nickname', 'imageUrl'],
+      where: { email: user.email, deletedAt: null },
     });
+
     if (found) {
-      const googleConnected = {
-        ...found,
-        googleId: user.googleId,
-      };
+      found.googleId = user.googleId;
       const { id, email, nickname, imageUrl } = await this.usersRepository.save(
-        googleConnected,
+        found,
       );
       return {
         id,
@@ -84,6 +82,7 @@ export class AuthService {
         imageUrl,
       };
     }
+
     const { id, email, nickname, imageUrl } = await this.usersRepository.save(
       user,
     );
@@ -92,31 +91,32 @@ export class AuthService {
 
   async githubSignUp(user: GithubLoginUserDto) {
     const foundGithub = await this.usersRepository.findOne({
-      where: { email: user.email, githubId: user.githubId },
+      where: { email: user.email, githubId: user.githubId, deletedAt: null },
       select: ['id', 'email', 'nickname', 'imageUrl'],
     });
+
     if (foundGithub) {
       return foundGithub;
     }
-    const found = await this.usersRepository.findOne({
-      where: { email: user.email },
-      select: ['id', 'email', 'nickname', 'imageUrl'],
-    });
-    if (found) {
-      const githubConnected = {
-        ...found,
-        githubId: user.githubId,
-      };
-      const { id, email, nickname, imageUrl } = await this.usersRepository.save(
-        githubConnected,
-      );
-      return {
-        id,
-        email,
-        nickname,
-        imageUrl,
-      };
+
+    if (user.email) {
+      const found = await this.usersRepository.findOne({
+        where: { email: user.email, deletedAt: null },
+      });
+
+      if (found) {
+        found.githubId = user.githubId;
+        const { id, email, nickname, imageUrl } =
+          await this.usersRepository.save(found);
+        return {
+          id,
+          email,
+          nickname,
+          imageUrl,
+        };
+      }
     }
+
     const { id, email, nickname, imageUrl } = await this.usersRepository.save(
       user,
     );
@@ -125,7 +125,7 @@ export class AuthService {
 
   async checkEmail(email: string) {
     const foundEmail = await this.usersRepository.findOne({
-      where: { email },
+      where: { email, deletedAt: null },
     });
     if (foundEmail) {
       throw new ConflictException('이미 해당하는 아이디가 존재합니다');

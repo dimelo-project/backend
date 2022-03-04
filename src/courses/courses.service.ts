@@ -473,7 +473,10 @@ export class CoursesService {
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
     }
@@ -497,7 +500,10 @@ export class CoursesService {
     if (!course) {
       throw new NotFoundException('해당 강의를 찾을 수 없습니다');
     }
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
     }
@@ -512,7 +518,10 @@ export class CoursesService {
   }
 
   async getLiked(myId: number) {
-    const user = await this.usersRepository.findOne({ id: myId });
+    const user = await this.usersRepository.findOne({
+      id: myId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 해주세요');
     }

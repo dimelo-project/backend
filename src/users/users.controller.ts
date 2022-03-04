@@ -2,7 +2,6 @@ import { CheckPasswordDto } from './dto/check-password.dto';
 import { CheckNicknameDto } from './dto/check-nickname.dto';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { ReturnUserDto } from './../common/dto/return-user.dto';
-import { SetPasswordDto } from './dto/set-password.dto';
 import { CurrentUserDto } from './../common/dto/current-user.dto';
 import { CurrentUser } from './../common/decorators/current-user.decorator';
 import { CreateUserProfileDto } from './dto/create-user-profile.dto';
@@ -16,6 +15,7 @@ import {
   Get,
   Patch,
   Post,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -27,7 +27,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { Serialize } from 'src/common/interceptors/serialize.interceptor';
+import { Serialize } from '../common/interceptors/serialize.interceptor';
 import { UpdateUserDto } from './dto/update-user-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multerS3 from 'multer-s3';
@@ -188,7 +188,7 @@ export class UsersController {
 
   @ApiResponse({
     status: 201,
-    description: '회원가입 탈퇴 성공',
+    description: '회원 탈퇴 성공',
   })
   @ApiResponse({
     status: 400,
@@ -207,8 +207,33 @@ export class UsersController {
   async deleteMyAccount(
     @CurrentUser() user: CurrentUserDto,
     @Body() body: DeleteUserDto,
+    @Res() res,
   ) {
-    return this.usersService.delete(user.id, body.password);
+    if (this.usersService.delete(user.id, body.password)) {
+      res.clearCookie('connect.sid', { httpOnly: true });
+      res.send('탈퇴성공');
+    }
+  }
+
+  @ApiResponse({
+    status: 201,
+    description: '회원 탈퇴 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '로그인을 하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '비밀번호가 존재할 경우: 잘못된 경로',
+  })
+  @ApiOperation({ summary: 'Oauth 회원 탈퇴' })
+  @Post('/deactivate/me')
+  async deactivateMyAccount(@CurrentUser() user: CurrentUserDto, @Res() res) {
+    if (this.usersService.deactivate(user.id)) {
+      res.clearCookie('connect.sid', { httpOnly: true });
+      res.send('탈퇴성공');
+    }
   }
 
   @ApiOkResponse({
@@ -218,40 +243,10 @@ export class UsersController {
     status: 401,
     description: '로그인을 하지 않은 경우',
   })
+  @ApiOperation({ summary: '비밀번호 존재 유무 확인' })
   @Get('/password')
   async checkIfIhavePassword(@CurrentUser() user: CurrentUserDto) {
     return this.usersService.checkPassword(user.id);
-  }
-
-  @ApiOkResponse({
-    description: '비밀번호 설정 성공',
-  })
-  @ApiResponse({
-    status: 400,
-    description: '비밀번호 형식이 잘못되었거나 일치하지 않을 경우',
-  })
-  @ApiResponse({
-    status: 401,
-    description: '로그인을 하지 않은 경우',
-  })
-  @ApiResponse({
-    status: 403,
-    description:
-      '비밀번호가 이미 있는데 설정하려는 경우 (잘못된 경로: 비밀번호 수정하기로 가야함)',
-  })
-  @ApiOperation({
-    summary: '구글, 깃허브 회원가입한 회원 첫 비밀번호 생성하기',
-  })
-  @Patch('/set/password')
-  async setNewPasswordForOauth(
-    @CurrentUser() user: CurrentUserDto,
-    @Body() body: SetPasswordDto,
-  ) {
-    return this.usersService.setPassword(
-      user.id,
-      body.newPassword,
-      body.passwordConfirm,
-    );
   }
 
   @ApiOkResponse({

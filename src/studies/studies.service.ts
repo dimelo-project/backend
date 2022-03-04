@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Connection } from 'typeorm';
-import { Users } from 'src/entities/Users';
+import { Users } from '../entities/Users';
 
 @Injectable()
 export class StudiesService {
@@ -175,7 +175,10 @@ export class StudiesService {
     { title, content, markup, ongoing, participant, skills }: CreateStudyDto,
     userId: number,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -236,7 +239,10 @@ export class StudiesService {
     userId: number,
     { title, content, markup, ongoing, participant, skills }: UpdateStudyDto,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -302,7 +308,10 @@ export class StudiesService {
   }
 
   async deleteStudy(id: number, userId: number) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -354,6 +363,7 @@ export class StudiesService {
         'comment.commentText AS comment_commentText',
         `DATE_FORMAT(comment.createdAt, '%Y.%m.%d %H:%i') AS comment_createdAt`,
         `DATE_FORMAT(comment.updatedAt, '%Y.%m.%d %H:%i') AS comment_updatedAt`,
+        'user.id',
         'user.nickname',
         'user.job',
         'user.career',
@@ -368,7 +378,10 @@ export class StudiesService {
     userId: number,
     commentText: string,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -392,7 +405,10 @@ export class StudiesService {
     userId: number,
     commentText: string,
   ) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -417,7 +433,10 @@ export class StudiesService {
   }
 
   async deleteStudyComment(studyId: number, id: number, userId: number) {
-    const user = await this.usersRepository.findOne({ id: userId });
+    const user = await this.usersRepository.findOne({
+      id: userId,
+      deletedAt: null,
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -441,7 +460,9 @@ export class StudiesService {
   }
 
   async getCountMyStudies(id: number) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({
+      where: { id, deletedAt: null },
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }
@@ -453,7 +474,9 @@ export class StudiesService {
   }
 
   async getAllMyStudies(id: number) {
-    const user = await this.usersRepository.findOne(id);
+    const user = await this.usersRepository.findOne({
+      where: { id, deletedAt: null },
+    });
     if (!user) {
       throw new UnauthorizedException('로그인을 먼저 해주세요');
     }

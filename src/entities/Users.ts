@@ -3,7 +3,6 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   Index,
   ManyToMany,
@@ -28,10 +27,15 @@ export class Users extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'int', name: 'id' })
   id: number;
 
-  @Column('varchar', { name: 'email', unique: true, length: 30 })
-  email: string;
+  @Column('varchar', { name: 'email', nullable: true, length: 30 })
+  email: string | null;
 
-  @Column('varchar', { name: 'nickname', length: 30, nullable: true })
+  @Column('varchar', {
+    name: 'nickname',
+    unique: true,
+    length: 30,
+    nullable: true,
+  })
   nickname: string | null;
 
   @Column('varchar', { name: 'password', length: 100 })
@@ -46,9 +50,6 @@ export class Users extends BaseEntity {
   @Column('varchar', { name: 'career', nullable: true, length: 45 })
   career: string | null;
 
-  @Column('text', { name: 'introduction', nullable: true })
-  introduction: string | null;
-
   @Column('int', { name: 'google_id', nullable: true })
   googleId: number | null;
 
@@ -61,7 +62,7 @@ export class Users extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @DeleteDateColumn()
+  @Column('date', { name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 
   @OneToMany(() => Likes, (likes) => likes.User)

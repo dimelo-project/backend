@@ -8,7 +8,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Users } from 'src/entities/Users';
+import { Users } from '../entities/Users';
 import { Repository } from 'typeorm';
 import generator from 'generate-password';
 import bcrypt from 'bcrypt';
@@ -57,10 +57,13 @@ export class MailService {
 
   async sendPassword(email: string) {
     const user = await this.usersRepository.findOne({
-      where: { email },
+      where: { email, deletedAt: null },
     });
     if (!user) {
       throw new NotFoundException('해당 유저를 찾을 수 없습니다');
+    }
+    if (!user.password) {
+      throw new ForbiddenException('해당 유저의 비밀번호는 찾을 수 없습니다')
     }
     const password = generator.generate({ length: 10, numbers: true });
     const hashedPassword = await bcrypt.hash(

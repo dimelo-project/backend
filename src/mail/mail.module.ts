@@ -2,7 +2,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
-import { Users } from 'src/entities/Users';
+import { Users } from '../entities/Users';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 
 @Module({
@@ -20,10 +20,10 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
             secure: true,
             auth: {
               type: 'OAuth2',
-              user: config.get<number>('OAUTH_USER'),
-              clientId: config.get<number>('OAUTH_CLIENT_ID'),
-              clientSecret: config.get<number>('OAUTH_CLIENT_SECRET'),
-              refreshToken: config.get<number>('OAUTH_REFRESH_TOKEN'),
+              user: config.get<string>('OAUTH_USER'),
+              clientId: config.get<string>('OAUTH_CLIENT_ID'),
+              clientSecret: config.get<string>('OAUTH_CLIENT_SECRET'),
+              refreshToken: config.get<string>('OAUTH_REFRESH_TOKEN'),
             },
           },
         };

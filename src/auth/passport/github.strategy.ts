@@ -24,10 +24,10 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
-    const { id, avatar_url, name, email } = profile._json;
+    const { id, avatar_url, email } = profile._json;
     const githubUser: GithubLoginUserDto = {
       githubId: +id,
-      email,
+      email: email ? email : null,
       imageUrl: avatar_url,
     };
     const user = await this.authService.githubSignUp(githubUser);
