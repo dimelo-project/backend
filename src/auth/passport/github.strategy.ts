@@ -13,7 +13,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     super({
       clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_SECRET,
-      callbackURL: 'http://localhost:3000/api/auth/github/callback',
+      callbackURL: 'https://api.dimelo.io/api/auth/github/callback',
       scope: ['user:email'],
     });
   }
