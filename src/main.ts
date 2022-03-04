@@ -9,12 +9,13 @@ import cookieParser from 'cookie-parser';
 import { setupAdminPanel } from './admin-panel/admin-panel.plugin';
 import helmet from 'helmet';
 import { config } from 'dotenv';
+import { NestExpressApplication } from '@nestjs/platform-express';
 config();
 
 declare const module: any;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = process.env.PORT;
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(
@@ -26,7 +27,7 @@ async function bootstrap() {
 
   app.use(helmet());
   app.enableCors({
-    origin: `${process.env.CLIENT_URL}`,
+    origin: process.env.CLIENT_URL,
     credentials: true,
   });
 
@@ -39,14 +40,20 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  app.set('trust proxy', 1);
   app.use(cookieParser());
   app.use(
     session({
       resave: false,
       saveUninitialized: false,
       secret: process.env.COOKIE_SECRET,
+      proxy: true,
       cookie: {
         httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 5,
+        sameSite: 'strict',
+        domain: '.dimelo.io',
+        secure: true,
       },
     }),
   );
