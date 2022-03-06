@@ -50,7 +50,7 @@ async function bootstrap() {
       proxy: true,
       cookie: {
         httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 5,
+        maxAge: 1000 * 60 * 60 * 24,
         sameSite: 'strict',
         domain: '.dimelo.io',
         secure: true,
