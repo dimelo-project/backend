@@ -15,6 +15,7 @@ import {
   Get,
   Patch,
   Post,
+  Req,
   Res,
   UploadedFile,
   UseGuards,
@@ -205,9 +206,11 @@ export class UsersController {
   async deleteMyAccount(
     @CurrentUser() user: CurrentUserDto,
     @Body() body: DeleteUserDto,
+    @Req() req,
     @Res() res,
   ) {
     if (this.usersService.delete(user.id, body.password)) {
+      req.logOut();
       res.clearCookie('connect.sid', { httpOnly: true });
       res.send('탈퇴성공');
     }
@@ -227,8 +230,13 @@ export class UsersController {
   })
   @ApiOperation({ summary: 'Oauth 회원 탈퇴' })
   @Post('/deactivate/me')
-  async deactivateMyAccount(@CurrentUser() user: CurrentUserDto, @Res() res) {
+  async deactivateMyAccount(
+    @CurrentUser() user: CurrentUserDto,
+    @Req() req,
+    @Res() res,
+  ) {
     if (this.usersService.deactivate(user.id)) {
+      req.logOut();
       res.clearCookie('connect.sid', { httpOnly: true });
       res.send('탈퇴성공');
     }
