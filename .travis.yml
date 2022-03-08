@@ -26,7 +26,7 @@ deploy:
     access_key_id: $AWS_ACCESS_KEY
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     region: ap-northeast-2
-    bucket: dimelo-ci-cd
+    bucket: 'dimelo-ci-cd'
     skip_cleanup: true
     local_dir: deploy
     wait-until-deployed: true
@@ -35,7 +35,7 @@ deploy:
       repo: dimelo-project/backend
   - provider: codedeploy
     access_key_id: $AWS_ACCESS_KEY
-    secret_access_key: $AWS_SECRET_KEY
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
     bucket: dimelo-ci-cd
     key: dimelo.zip
     bundle_type: zip
