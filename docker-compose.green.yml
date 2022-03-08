@@ -1,0 +1,8 @@
+#green
+version: '3'
+services:
+  nest-app:
+    image: vltndus95/dimelo:latest
+    restart: unless-stopped
+    ports:
+      - 3002:3000

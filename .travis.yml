@@ -1,0 +1,52 @@
+language: generic
+
+sudo: required
+
+services:
+  - docker
+
+branches:
+  - main
+
+before_install:
+  - docker build -t vltndus95/dimelo -f Dockerfile.dev .
+script:
+  - docker run -e CI=true vltndus95/dimelo npm run test
+after_success:
+  - docker build --platform linux/amd64 -t vltndus95/dimelo .
+  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
+  - docker push vltndus95/dimelo
+before_deply:
+  - rm -rf node_modules
+  - zip -r dimelo
+  - mkdir -p deploy
+  - mv dimelo.zip deploy/dimelo.zip
+deploy:
+  provider: s3
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
+  region: ap-northeast-2
+  bucket: dimelo-ci-cd
+  skip_cleanup: true
+  local_dir: deploy
+  wait-until-deployed: true
+  on:
+    branch: main
+    repo: dimelo-project/backend
+  - provider: codedeploy
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: dimelo-ci-cd
+    key: dimelo-backend.zip
+    bundle_type: zip
+    application: dimelo-deploy
+    deployment_group: dimelo
+    region: ap-northeast-2
+    wait-until-deployed: true
+    on:
+      repo: dimelo-project/backend
+      branch: main
+notifications:
+  email:
+    recipients:
+      - pisuyeun@gmail.com

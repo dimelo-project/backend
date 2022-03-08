@@ -1,0 +1,9 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ubuntu/dimelo
+hooks:
+  AfterInstall:
+    - location: execute-deploy.sh
+      timeout: 240
