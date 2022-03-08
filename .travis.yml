@@ -37,7 +37,7 @@ deploy:
     access_key_id: $AWS_ACCESS_KEY
     secret_access_key: $AWS_SECRET_KEY
     bucket: dimelo-ci-cd
-    key: dimelo-backend.zip
+    key: dimelo.zip
     bundle_type: zip
     application: dimelo-deploy
     deployment_group: dimelo
