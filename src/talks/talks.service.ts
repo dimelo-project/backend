@@ -142,7 +142,7 @@ export class TalksService {
   async updateTalk(
     id: number,
     userId: number,
-    { category, title, content, markup }: UpdateTalkDto,
+    { title, content, markup }: UpdateTalkDto,
   ) {
     const user = await this.usersRepository.findOne({
       id: userId,
@@ -161,7 +161,6 @@ export class TalksService {
     if (!myTalk) {
       throw new ForbiddenError('수정 권한이 없습니다');
     }
-    myTalk.category = category;
     myTalk.title = title;
     myTalk.content = content;
     myTalk.markup = markup;
