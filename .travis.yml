@@ -16,11 +16,13 @@ after_success:
   - docker build --platform linux/amd64 -t vltndus95/dimelo .
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
   - docker push vltndus95/dimelo
+
 before_deploy:
   - rm -rf node_modules
   - zip -r dimelo *
   - mkdir -p deploy
   - mv dimelo.zip deploy/dimelo.zip
+
 deploy:
   - provider: s3
     access_key_id: $AWS_ACCESS_KEY
