@@ -22,15 +22,15 @@ before_deply:
   - mkdir -p deploy
   - mv dimelo.zip deploy/dimelo.zip
 deploy:
-  provider: s3
-  access_key_id: $AWS_ACCESS_KEY
-  secret_access_key: $AWS_SECRET_ACCESS_KEY
-  region: ap-northeast-2
-  bucket: dimelo-ci-cd
-  skip_cleanup: true
-  local_dir: deploy
-  wait-until-deployed: true
-  on:
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
+    region: ap-northeast-2
+    bucket: dimelo-ci-cd
+    skip_cleanup: true
+    local_dir: deploy
+    wait-until-deployed: true
+    on:
     branch: main
     repo: dimelo-project/backend
   - provider: codedeploy
