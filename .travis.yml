@@ -14,7 +14,9 @@ script:
   - docker run -e CI=true vltndus95/dimelo npm run test
 after_success:
   - docker build --platform linux/amd64 -t vltndus95/dimelo .
+
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
+
   - docker push vltndus95/dimelo
 
 before_deploy:
@@ -50,5 +52,4 @@ deploy:
       branch: main
 notifications:
   email:
-    recipients:
-      - pisuyeun@gmail.com
+    on_success: always
