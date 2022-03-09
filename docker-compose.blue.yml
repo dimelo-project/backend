@@ -2,10 +2,7 @@
 version: '3'
 services:
   nest-app:
-    image: vltndus95/dimelo
-    volumes:
-      - /usr/src/app/node_modules
-      - .:/usr/src/app
+    image: vltndus95/dimelo:latest
     restart: unless-stopped
     ports:
       - 3001:3000
