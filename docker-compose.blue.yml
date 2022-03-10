@@ -6,3 +6,5 @@ services:
     restart: unless-stopped
     ports:
       - 3001:3000
+    env_file:
+      - /home/ubuntu/env/.env
