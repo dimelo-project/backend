@@ -94,7 +94,8 @@ IT강의 수강평공유 & 팀빌딩 커뮤니티
 <br />
 
 ## 7. Architecture
-<img width="1065" alt="Architecture" src="https://user-images.githubusercontent.com/77389332/156015965-4ef35725-5594-448e-ac68-98e3f347036b.png">
+
+<img width="1106" alt="architecture" src="https://user-images.githubusercontent.com/77389332/157710407-6ac1e5e7-a788-4151-8b4f-ceb32ff894c9.png">
 
 <br />
 
@@ -104,6 +105,6 @@ IT강의 수강평공유 & 팀빌딩 커뮤니티
 <br />
 
 ## 9. API
-https://dimeloserverapi.site/api
+https://api.dimelo.io/api
 
 <br />
