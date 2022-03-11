@@ -1,12 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, ValidateIf } from 'class-validator';
 import sanitizeHtml from 'sanitize-html';
 
 export class CreateProjectDto {
@@ -41,13 +35,13 @@ export class CreateProjectDto {
   @ApiProperty({
     example: '프론트엔드',
     description:
-      '프로젝트 포지션 (복수 가능: 복수 데이터 보낼 때 ","로 나눠서 보냄)',
-    required: false,
+      '프로젝트 포지션: 프론트엔드,백엔드,기획자,디자이너(복수 가능: 복수 데이터 보낼 때 ","로 나눠서 보냄)(협의 후 결정: null)',
+    required: true,
   })
   @Transform(({ value }) => (value ? value.split(',') : value))
   @IsString({ each: true })
-  @IsOptional()
-  positions?: string[] | null;
+  @ValidateIf((object, value) => value !== null)
+  positions: string[] | null;
 
   @ApiProperty({
     example: 'JavaScript,CSS',
