@@ -15,6 +15,7 @@ config();
 declare const module: any;
 
 async function bootstrap() {
+  console.log(process.env.NODE_ENV);
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = process.env.PORT;
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -27,7 +28,10 @@ async function bootstrap() {
 
   app.use(helmet());
   app.enableCors({
-    origin: process.env.CLIENT_URL,
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? process.env.CLIENT_URL
+        : 'http://localhost:8000',
     credentials: true,
   });
 
@@ -40,7 +44,18 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.set('trust proxy', 1);
+  let cookieConfig = {
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24,
+  };
+  if (process.env.NODE_ENV === 'production') {
+    app.set('trust proxy', 1);
+
+    cookieConfig['sameSite'] = 'strict';
+    cookieConfig['domain'] = '.dimelo.io';
+    cookieConfig['secure'] = true;
+  }
+
   app.use(cookieParser());
   app.use(
     session({
@@ -48,13 +63,7 @@ async function bootstrap() {
       saveUninitialized: false,
       secret: process.env.COOKIE_SECRET,
       proxy: true,
-      cookie: {
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24,
-        sameSite: 'strict',
-        domain: '.dimelo.io',
-        secure: true,
-      },
+      cookie: cookieConfig,
     }),
   );
 
