@@ -218,7 +218,7 @@ export class ProjectsService {
   }
 
   async createProject(
-    { title, content, markup, ongoing, positions, skills }: CreateProjectDto,
+    { title, content, markup, positions, skills }: CreateProjectDto,
     userId: number,
   ) {
     const user = await this.usersRepository.findOne({
@@ -239,7 +239,7 @@ export class ProjectsService {
       newProject.title = title;
       newProject.content = content;
       newProject.markup = markup;
-      newProject.ongoing = ongoing;
+      newProject.ongoing = '모집중';
       newProject.userId = user.id;
 
       const returnedProject = await queryRunner.manager

@@ -12,6 +12,7 @@ if [ -z "$EXIST_BLUE" ]; then
 	sleep 10
 
 	docker-compose -p ${DOCKER_APP_NAME}-green -f docker-compose.green.yml down
+	docker image prune -af
 else
 	echo "green up"
 	docker pull vltndus95/dimelo
@@ -20,4 +21,5 @@ else
 	sleep 10
 
 	docker-compose -p ${DOCKER_APP_NAME}-blue -f docker-compose.blue.yml down
+	docker image prune -af
 fi
