@@ -172,7 +172,7 @@ export class StudiesService {
   }
 
   async createStudy(
-    { title, content, markup, ongoing, participant, skills }: CreateStudyDto,
+    { title, content, markup, participant, skills }: CreateStudyDto,
     userId: number,
   ) {
     const user = await this.usersRepository.findOne({
@@ -206,7 +206,7 @@ export class StudiesService {
       newStudy.title = title;
       newStudy.content = content;
       newStudy.markup = markup;
-      newStudy.ongoing = ongoing;
+      newStudy.ongoing = '모집중';
       newStudy.participant = participant;
       newStudy.userId = user.id;
 

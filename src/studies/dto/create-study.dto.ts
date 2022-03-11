@@ -41,18 +41,6 @@ export class CreateStudyDto {
   markup: string;
 
   @ApiProperty({
-    example: '모집중',
-    description: '모집중/모집완료',
-    required: true,
-    type: 'string',
-    enum: ['모집중', '모집완료'],
-  })
-  @IsNotEmpty()
-  @IsString()
-  @IsEnum(['모집중', '모집완료'])
-  ongoing: '모집중' | '모집완료';
-
-  @ApiProperty({
     example: 2,
     description: '모집하는 참여자 수',
     required: false,
