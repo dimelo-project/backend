@@ -15,7 +15,6 @@ config();
 declare const module: any;
 
 async function bootstrap() {
-  console.log(process.env.NODE_ENV);
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = process.env.PORT;
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -44,7 +43,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  let cookieConfig = {
+  const cookieConfig = {
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24,
   };
