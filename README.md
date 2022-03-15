@@ -3,7 +3,8 @@ IT강의 수강평공유 & 팀빌딩 커뮤니티
 
 https://dimelo.io
 
-<img width="1426" alt="dimelo_main" src="https://user-images.githubusercontent.com/77389332/154913094-9108bd5d-6f93-4eaf-aef0-495b564a5273.png">
+<img width="1160" alt="스크린샷 2022-03-14 오후 5 09 49" src="https://user-images.githubusercontent.com/77389332/158339992-f390c222-0c29-41db-8e32-e92487efec0c.png">
+
 
 ## :pushpin:  프로젝트 소개
 
