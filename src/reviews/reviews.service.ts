@@ -376,14 +376,12 @@ export class ReviewsService {
     if (!instructor) {
       throw new NotFoundException('해당 하는 강사를 찾을 수 없습니다');
     }
-    return await this.reviewsRepository
+    const avg = await this.reviewsRepository
       .createQueryBuilder('review')
       .innerJoin('review.Instructor', 'instructor', 'instructor.id =:id', {
         id,
       })
       .select([
-        'instructor.id',
-        'instructor.name',
         'ROUND(AVG(review.q1),1) AS q1',
         'ROUND(AVG(review.q2),1) AS q2',
         'ROUND(AVG(review.q3),1) AS q3',
@@ -391,6 +389,12 @@ export class ReviewsService {
         'ROUND(AVG(review.avg),1) AS avg',
       ])
       .getRawOne();
+
+    return {
+      instructor_id: instructor.id,
+      instructor_name: instructor.name,
+      ...avg,
+    };
   }
 
   async getMyReviews(userId: number) {
