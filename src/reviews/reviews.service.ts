@@ -67,7 +67,7 @@ export class ReviewsService {
     review.q2 = q2;
     review.q3 = q3;
     review.q4 = q4;
-    review.avg = (q1 + q2 + q3 + q4) / 4;
+    review.avg = +((q1 + q2 + q3 + q4) / 4).toFixed(1);
     review.pros = pros;
     review.cons = cons;
 
@@ -105,7 +105,7 @@ export class ReviewsService {
     myReview.q2 = q2;
     myReview.q3 = q3;
     myReview.q4 = q4;
-    myReview.avg = (q1 + q2 + q3 + q4) / 4;
+    myReview.avg = +((q1 + q2 + q3 + q4) / 4).toFixed(1);
     myReview.pros = pros;
     myReview.cons = cons;
 
